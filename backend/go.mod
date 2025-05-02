@@ -1,6 +1,6 @@
-module github.com/proyecto2025/backend
+module proyecto2025/backend
 
-go 1.24.2
+go 1.24
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect

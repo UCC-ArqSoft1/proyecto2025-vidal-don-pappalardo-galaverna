@@ -47,7 +47,7 @@ func (h *UsuarioHandler) CrearUsuario(c *gin.Context) {
 
 	nuevoUsuario, err := h.usuarioService.CrearUsuario(usuario)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()}) // Devuelve el error del servicio
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()}) 
 		return
 	}
 

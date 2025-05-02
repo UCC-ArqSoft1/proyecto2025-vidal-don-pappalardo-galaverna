@@ -17,7 +17,13 @@ func main() {
 
 	db.InitDB()
 
+	
 	r := gin.Default()
+	
+	api := r.Group("/users")
+	{
+		api.POST("/crearUsuario")
+	}
 
 	r.Run(":8080")
 }
