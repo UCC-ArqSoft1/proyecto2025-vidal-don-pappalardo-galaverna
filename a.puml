@@ -32,7 +32,7 @@ entity "actividades" {
   * cupo : INT
   * categoria : VARCHAR(50)
   * imagen_url : VARCHAR(255)
-    * active : BOOLEAN()
+  * active : BOOLEAN()
   created_at : TIMESTAMP
   updated_at : TIMESTAMP
 }
@@ -43,8 +43,6 @@ entity "inscripciones" {
   * usuario_id : INT <<FK>>
   * actividad_id : INT <<FK>>
   * fecha_inscripcion : TIMESTAMP
-  --
-  <<UQ>> (usuario_id, actividad_id)
 }
 
 usuarios ||--o{ inscripciones : "realiza"
