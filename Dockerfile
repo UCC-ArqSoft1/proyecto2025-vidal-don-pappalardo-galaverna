@@ -2,14 +2,15 @@ FROM golang:1.24
 
 WORKDIR /app
 
-COPY go.mod ./
+COPY backend/go.mod ./go.mod
+COPY backend/go.sum ./go.sum
 RUN go mod download
 
-COPY . .
+COPY backend/ ./backend/
 
-WORKDIR /app/cmd/api
+WORKDIR /app/backend/cmd/api
 
-RUN GOOS=linux GOARCH=amd64 go build -o /proyecto2025
+RUN go build -o /proyecto2025
 
 EXPOSE 8080
 
