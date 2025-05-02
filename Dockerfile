@@ -13,4 +13,5 @@ WORKDIR /app/backend/cmd/api
 RUN go build -o /proyecto2025
 
 EXPOSE 8080
-CMD ["/app/proyecto2025"]
+
+CMD ["/proyecto2025"]
