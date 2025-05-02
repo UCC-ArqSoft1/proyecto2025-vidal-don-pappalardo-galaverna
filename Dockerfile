@@ -2,19 +2,15 @@ FROM golang:1.24
 
 WORKDIR /app
 
-# Copiar los archivos de go.mod y go.sum
-COPY backend/go.mod ./
-COPY backend/go.sum ./    
+COPY backend/go.mod ./go.mod
+COPY backend/go.sum ./go.sum
 RUN go mod download
 
-# Copiar el código fuente
-COPY backend/ ./backend
-COPY cmd/api/ ./cmd/api
+COPY backend/ ./backend/
 
-# Construir el binario
-WORKDIR /app/cmd/api
-RUN GOOS=linux GOARCH=amd64 go build -o /app/proyecto2025
+WORKDIR /app/backend/cmd/api
 
-# Exponer puerto y definir el binario de arranque
+RUN go build -o /proyecto2025
+
 EXPOSE 8080
 CMD ["/app/proyecto2025"]

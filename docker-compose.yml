@@ -14,7 +14,9 @@ services:
       - mysql_data:/var/lib/mysql
 
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     depends_on:
       - mysql
     ports:
@@ -22,7 +24,7 @@ services:
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_USER: proyectouser
+      DB_USER: proyecto2025
       DB_PASSWORD: secret
       DB_NAME: proyecto2025db
 
