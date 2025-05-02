@@ -1,0 +1,54 @@
+@startuml
+
+entity "usuarios" {
+  * id : INT <<PK>>
+  --
+  * nombre : VARCHAR(100)
+  * apellido : VARCHAR(100)
+  * email : VARCHAR(100)
+  * password_hash : VARCHAR(255)
+  * active : BOOLEAN()
+  * role_id : INT <<FK>>
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "roles" {
+  * id : INT <<PK>>
+  --
+  * nombre : VARCHAR(100)
+  descripcion : TEXT
+  created_at : TIMESTAMP
+}
+
+entity "actividades" {
+  * id : INT <<PK>>
+  --
+  * titulo : VARCHAR(100)
+  * descripcion : VARCHAR(200)
+  * dia : VARCHAR(20)
+  * horario : TIMESTAMP
+  * duracion : INT  
+  * cupo : INT
+  * categoria : VARCHAR(50)
+  * imagen_url : VARCHAR(255)
+    * active : BOOLEAN()
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "inscripciones" {
+  * id : INT <<PK>>
+  --
+  * usuario_id : INT <<FK>>
+  * actividad_id : INT <<FK>>
+  * fecha_inscripcion : TIMESTAMP
+  --
+  <<UQ>> (usuario_id, actividad_id)
+}
+
+usuarios ||--o{ inscripciones : "realiza"
+usuarios }|--|| roles : "tiene asignado"
+actividades ||--o{ inscripciones : "tiene"
+
+@enduml
