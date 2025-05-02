@@ -1,15 +1,23 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"log"
+
+	"github.com/gin-gonic/gin"
+	"github.com/proyecto2025/backend/internal/db"
 )
 
+// @title TaaS API
+// @version 1.0
+// @description API de Terapia-as-a-Service para manejo de usuarios, conductores, pasajeros y vehículos.
+// @host localhost:8080
+// @BasePath /api
 func main() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "proyecto2025")
-	})
+	log.Println("Iniciando servidor Terapia-as-a-Service...")
 
-	fmt.Println("Servidor iniciado en el puerto 8080")
-	http.ListenAndServe(":8080", nil)
+	db.InitDB()
+
+	r := gin.Default()
+
+	r.Run(":8080")
 }
