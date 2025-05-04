@@ -47,7 +47,7 @@ func (h *UsuarioHandler) CrearUsuario(c *gin.Context) {
 
 	nuevoUsuario, err := h.usuarioService.CrearUsuario(usuario)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()}) 
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -65,7 +65,7 @@ func (h *UsuarioHandler) CrearUsuario(c *gin.Context) {
 
 func ConfigurarRutasUsuario(router *gin.Engine, usuarioHandler *UsuarioHandler) {
 
-	usuariosGroup := router.Group("/usuarios")
+	usuariosGroup := router.Group("/users")
 	{
 		usuariosGroup.POST("/", usuarioHandler.CrearUsuario)
 	}
