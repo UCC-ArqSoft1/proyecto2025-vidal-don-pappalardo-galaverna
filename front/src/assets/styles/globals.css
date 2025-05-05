@@ -11,8 +11,6 @@
   --surface-hover: rgba(255, 255, 255, 0.1);
   --text: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.7);
-  width: 100% !important;
-
 }
 
 * {
