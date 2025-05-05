@@ -46,6 +46,7 @@ func InitDB() {
 		&models.Role{},
 		&models.Actividad{},
 		&models.Inscripcion{},
+		&models.RefreshToken{},
 	)
 	if err != nil {
 		log.Fatalf("Auto migration failed: %v", err)
