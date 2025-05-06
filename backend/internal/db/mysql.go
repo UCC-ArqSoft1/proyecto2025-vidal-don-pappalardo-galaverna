@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -15,11 +16,32 @@ import (
 
 var DB *gorm.DB
 
-func InitDB() {
+// intenta conectarse varias veces a la base de datos
+func tryConnect(dsn string, maxRetries int) (*gorm.DB, error) {
+	var db *gorm.DB
+	var err error
 
+	for i := 1; i <= maxRetries; i++ {
+		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+			DisableForeignKeyConstraintWhenMigrating: true,
+			PrepareStmt:                              true,
+		})
+		if err == nil {
+			log.Println("✅ Conexión a base de datos exitosa")
+			return db, nil
+		}
+
+		log.Printf("⚠️  Intento %d/%d fallido: %v. Reintentando en 3 segundos...", i, maxRetries, err)
+		time.Sleep(3 * time.Second)
+	}
+
+	return nil, fmt.Errorf("❌ Falló la conexión a la base de datos después de %d intentos: %w", maxRetries, err)
+}
+
+func InitDB() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("No .env file found, using system env")
+		log.Println("🔍 No se encontró archivo .env, se usarán variables de entorno del sistema")
 	}
 
 	user := os.Getenv("DB_USER")
@@ -31,12 +53,9 @@ func InitDB() {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
 		user, pass, host, port, name)
 
-	database, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		DisableForeignKeyConstraintWhenMigrating: true,
-		PrepareStmt:                              true,
-	})
+	database, err := tryConnect(dsn, 10) // hasta 10 intentos
 	if err != nil {
-		log.Fatalf("Error connecting to database: %v", err)
+		log.Fatalf("❌ Error al conectar con la base de datos: %v", err)
 	}
 
 	DB = database
@@ -49,8 +68,8 @@ func InitDB() {
 		&models.RefreshToken{},
 	)
 	if err != nil {
-		log.Fatalf("Auto migration failed: %v", err)
+		log.Fatalf("❌ AutoMigrate falló: %v", err)
 	}
 
-	log.Println("Database connected and migrated")
+	log.Println("✅ Base de datos conectada y migrada")
 }

@@ -8,7 +8,7 @@ type UsuarioDTO struct {
 	Email        string `json:"email" binding:"required,email,max=100"`
 	PasswordHash string `json:"password" binding:"required,min=8"`
 	Active       bool   `json:"active"`
-	RoleID       uint   `json:"role_id" binding:"required"`
+	RoleID       uint   `json:"role_id"`
 }
 
 type UsuarioResponseDTO struct {

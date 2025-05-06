@@ -70,7 +70,10 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	c.SetCookie("refresh_token", refreshToken, 3600*24*7, "/", "localhost", false, true)
 
-	c.JSON(http.StatusOK, gin.H{"token": tokenString})
+	c.JSON(http.StatusOK, gin.H{
+		"access_token":  tokenString,
+		"refresh_token": refreshToken,
+	})
 }
 
 func (h *AuthHandler) RefreshToken(c *gin.Context) {
@@ -99,4 +102,5 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"token": tokenStr})
+
 }

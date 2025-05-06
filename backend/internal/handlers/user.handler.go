@@ -65,8 +65,8 @@ func (h *UsuarioHandler) CrearUsuario(c *gin.Context) {
 
 func ConfigurarRutasUsuario(router *gin.Engine, usuarioHandler *UsuarioHandler) {
 
-	usuariosGroup := router.Group("/users")
+	usuariosGroup := router.Group("/auth")
 	{
-		usuariosGroup.POST("/", usuarioHandler.CrearUsuario)
+		usuariosGroup.POST("/register", usuarioHandler.CrearUsuario)
 	}
 }
