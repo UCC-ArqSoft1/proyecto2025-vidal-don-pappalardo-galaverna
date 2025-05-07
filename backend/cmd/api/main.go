@@ -5,13 +5,15 @@ import (
     "github.com/proyecto2025/backend/internal/db"
     "github.com/proyecto2025/backend/internal/handlers"
     "github.com/proyecto2025/backend/internal/routes"
+	"github.com/go-playground/validator/v10"
 )
 
 func main() {
     db.InitDB()
 
+
     // Inicializamos los handlers
-    authHandler := handlers.NewAuthHandler(db.DB, nil, "mi_clave_secreta_super_segura")
+    authHandler := handlers.NewAuthHandler(db.DB, validator.New(), "mi_clave_secreta_super_segura")
     actividadHandler := handlers.NewActividadHandler(db.DB)
 
     // Creamos el router Gin

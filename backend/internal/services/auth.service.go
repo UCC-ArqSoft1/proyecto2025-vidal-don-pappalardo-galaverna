@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"time"
+	"fmt"
 
 	"github.com/proyecto2025/backend/internal/models"
 	"gorm.io/gorm"
@@ -53,5 +54,14 @@ func (s *AuthService) ValidarYRenovarRefreshToken(token string) (models.Usuario,
 		return models.Usuario{}, errors.New("usuario no encontrado")
 	}
 
+	return usuario, nil
+}
+
+
+func (s *AuthService) Register(usuario models.Usuario) (models.Usuario, error) {
+	
+	if err := s.db.Create(&usuario).Error; err != nil {
+		return models.Usuario{}, fmt.Errorf("error al registrar el usuario: %v", err)
+	}
 	return usuario, nil
 }

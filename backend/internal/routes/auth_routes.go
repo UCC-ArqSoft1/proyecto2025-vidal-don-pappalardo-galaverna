@@ -7,7 +7,11 @@ import (
 
 // Configura las rutas relacionadas con la autenticación
 func ConfigurarRutasAuth(r *gin.Engine, authHandler *handlers.AuthHandler) {
-    // Rutas relacionadas con la autenticación
-    r.POST("/login", authHandler.Login)
-    r.POST("/refresh-token", authHandler.RefreshToken)
+	authGroup := r.Group("/auth")
+	{
+		authGroup.POST("/login", authHandler.Login)
+		authGroup.POST("/refresh-token", authHandler.RefreshToken)
+		authGroup.POST("/register", authHandler.Register)
+	}
 }
+//hola 

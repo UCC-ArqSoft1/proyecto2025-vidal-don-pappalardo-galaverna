@@ -13,6 +13,7 @@ import (
 	"github.com/proyecto2025/backend/internal/services"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+
 )
 
 // A revisar: Problema de separacion de logica, se deberia crear un repository o servicio para
@@ -23,6 +24,8 @@ type AuthHandler struct {
 	secretKey   string
 	authService *services.AuthService
 }
+
+
 
 func NewAuthHandler(db *gorm.DB, v *validator.Validate, secretKey string) *AuthHandler {
 	return &AuthHandler{
@@ -103,4 +106,63 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"token": tokenStr})
 
+}
+
+
+func (h *AuthHandler) Register(c *gin.Context) {
+	var usuarioDTO dtos.UsuarioDTO
+
+	// Bind the incoming JSON body to the UsuarioDTO struct
+	if err := c.ShouldBindJSON(&usuarioDTO); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Validate the struct with the validator
+	if err := h.validator.Struct(usuarioDTO); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Check if the email already exists
+	var existingUser models.Usuario
+	if err := h.db.Where("email = ?", usuarioDTO.Email).First(&existingUser).Error; err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "el correo electrónico ya está registrado"})
+		return
+	}
+
+	// Hash the password before saving it
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(usuarioDTO.PasswordHash), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "no se pudo hashear la contraseña"})
+		return
+	}
+
+	// Create the user model from the DTO
+	usuario := models.Usuario{
+		Nombre:       usuarioDTO.Nombre,
+		Apellido:     usuarioDTO.Apellido,
+		Email:        usuarioDTO.Email,
+		PasswordHash: string(hashedPassword),
+		Active:       usuarioDTO.Active,
+		RoleID:       usuarioDTO.RoleID,
+	}
+
+	// Call the AuthService to register the user
+	nuevoUsuario, err := h.authService.Register(usuario)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Respond with the newly created user
+	c.JSON(http.StatusCreated, gin.H{
+		"id":         nuevoUsuario.ID,
+		"nombre":     nuevoUsuario.Nombre,
+		"apellido":   nuevoUsuario.Apellido,
+		"email":      nuevoUsuario.Email,
+		"active":     nuevoUsuario.Active,
+		"role_id":    nuevoUsuario.RoleID,
+		"created_at": nuevoUsuario.CreatedAt,
+	})
 }
