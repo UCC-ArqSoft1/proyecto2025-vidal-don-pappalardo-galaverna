@@ -166,3 +166,31 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		"created_at": nuevoUsuario.CreatedAt,
 	})
 }
+
+func (h *AuthHandler) Logout(c *gin.Context) {
+	// Obtener el refresh token desde la cookie
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "refresh token no encontrado"})
+		return
+	}
+
+	// Eliminar el refresh token de la base de datos
+	var token models.RefreshToken
+	if err := h.db.Where("token = ?", refreshToken).First(&token).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "refresh token no válido"})
+		return
+	}
+
+	// Eliminar el refresh token de la base de datos
+	if err := h.db.Delete(&token).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "no se pudo eliminar el refresh token"})
+		return
+	}
+
+	// Eliminar el refresh token de la cookie
+	c.SetCookie("refresh_token", "", -1, "/", "localhost", false, true) // Duración de -1 elimina la cookie
+
+	// Responder que la sesión fue cerrada correctamente
+	c.JSON(http.StatusOK, gin.H{"message": "sesión cerrada correctamente"})
+}

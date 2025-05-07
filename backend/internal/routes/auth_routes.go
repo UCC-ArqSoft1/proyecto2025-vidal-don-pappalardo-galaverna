@@ -12,6 +12,7 @@ func ConfigurarRutasAuth(r *gin.Engine, authHandler *handlers.AuthHandler) {
 		authGroup.POST("/login", authHandler.Login)
 		authGroup.POST("/refresh-token", authHandler.RefreshToken)
 		authGroup.POST("/register", authHandler.Register)
+        r.POST("/auth/logout", authHandler.Logout)
 	}
 }
 //hola 
