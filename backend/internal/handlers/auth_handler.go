@@ -56,8 +56,8 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": usuario.ID,
-		"email":   usuario.Email,
-		"exp":     time.Now().Add(time.Hour * 24).Unix(), // Token válido por 24h
+		"role_id": usuario.RoleID, // ahora incluimos el role_id
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte(h.secretKey))
@@ -65,6 +65,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "no se pudo generar el token"})
 		return
 	}
+
 	refreshToken, err := h.authService.CrearRefreshToken(usuario.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "no se pudo generar el refresh token"})
@@ -94,7 +95,7 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 
 	newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": usuario.ID,
-		"email":   usuario.Email,
+		"role_id": usuario.RoleID, // también acá
 		"exp":     time.Now().Add(time.Hour * 24).Unix(),
 	})
 
@@ -105,7 +106,6 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"token": tokenStr})
-
 }
 
 
