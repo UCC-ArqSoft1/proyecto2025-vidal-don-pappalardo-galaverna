@@ -6,7 +6,7 @@ root = "."
 # Configuración de la compilación
 [build]
   # El comando que Air usará para compilar el código
-  cmd = "go build -o ./tmp/main ./cmd/api"
+  cmd = "go build -o ./tmp/main ./cmd/api && chmod +x ./tmp/main"
 
   # El archivo binario generado que Air ejecutará
   bin = "./tmp/main"
