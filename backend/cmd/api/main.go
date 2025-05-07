@@ -29,4 +29,5 @@ func main() {
 	r.POST("/refresh-token", authHandler.RefreshToken)
 
 	r.Run(":8080")
+	// r.Run(":8080") // Inicia el servidor en el puerto 8080
 }

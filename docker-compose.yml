@@ -27,6 +27,11 @@ services:
       DB_USER: proyecto2025
       DB_PASSWORD: secret
       DB_NAME: proyecto2025db
+    volumes:
+      - ./backend:/app/backend
+    working_dir: /app/backend 
+    command: air -c .air.toml
+
 
 volumes:
   mysql_data:
