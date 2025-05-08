@@ -7,6 +7,7 @@ import (
 	"github.com/proyecto2025/backend/internal/routes"
 	"github.com/proyecto2025/backend/internal/services"
 	"github.com/go-playground/validator/v10"
+
 )
 
 func main() {
@@ -33,6 +34,22 @@ func main() {
 	// Configurar rutas de actividades
 	routes.ConfigurarRutasActividad(r, actividadHandler)
 
-	// Iniciar el servidor en el puerto 8080
+
+	// ----------------------
+	// SWAGGER CONFIGURACIÓN
+	// ----------------------
+
+	// Servir los archivos de Swagger UI desde /docs/
+	r.Static("/docs", "./static/swagger-ui/dist")
+
+	// Servir el archivo swagger.json
+	r.GET("/swagger.json", func(c *gin.Context) {
+		c.File("./swagger/swagger.json")
+	})
+
+	// ----------------------
+
+
+
 	r.Run(":8080")
 }
