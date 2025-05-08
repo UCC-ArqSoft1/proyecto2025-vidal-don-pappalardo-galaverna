@@ -16,9 +16,13 @@ func main() {
 	// Crear el servicio de actividad
 	actividadService := &services.ActividadService{DB: db.DB}
 
+
+	// Crear el validador
+	validate := validator.New()
+
 	// Inicializar los handlers
-	authHandler := handlers.NewAuthHandler(db.DB, validator.New(), "mi_clave_secreta_super_segura")
-	actividadHandler := handlers.NewActividadHandler(db.DB, actividadService)
+	authHandler := handlers.NewAuthHandler(db.DB, validate, "mi_clave_secreta_super_segura")
+	actividadHandler := handlers.NewActividadHandler(db.DB, validate, actividadService)
 
 	// Crear el router Gin
 	r := gin.Default()

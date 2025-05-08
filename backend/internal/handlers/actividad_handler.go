@@ -8,15 +8,22 @@ import (
 	"github.com/proyecto2025/backend/internal/services" // Asegúrate de importar el servicio
 	"gorm.io/gorm"
 	"fmt"
+	"strconv"
+	"github.com/go-playground/validator/v10"
 )
 
 type ActividadHandler struct {
 	db      *gorm.DB
 	service *services.ActividadService
+	validate *validator.Validate
 }
 
-func NewActividadHandler(db *gorm.DB, service *services.ActividadService) *ActividadHandler {
-	return &ActividadHandler{db: db, service: service}
+func NewActividadHandler(db *gorm.DB, validate *validator.Validate, service *services.ActividadService) *ActividadHandler {
+	return &ActividadHandler{
+		db:      db,
+		service: service,
+		validate: validate,
+	}
 }
 
 
@@ -94,4 +101,52 @@ func (h *ActividadHandler) DeleteActividad(c *gin.Context) {
 
     // Si no hubo error, respondemos con un mensaje de éxito
     c.JSON(http.StatusOK, gin.H{"mensaje": "Actividad eliminada correctamente"})
+}
+
+
+func (h *ActividadHandler) UpdateActividad(c *gin.Context) {
+    var actividadDTO dtos.ActividadDTO
+    id := c.Param("id")
+
+    // Convertir el id de string a uint
+    parsedID, err := strconv.ParseUint(id, 10, 32)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+        return
+    }
+
+    // Verificamos si los datos son válidos
+    if err := c.ShouldBindJSON(&actividadDTO); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{
+            "error": "Datos de entrada no válidos",
+            "details": err.Error(),
+        })
+        return
+    }
+
+    // Validar los datos con el validador de Gin
+    if validationErr := h.validate.Struct(actividadDTO); validationErr != nil {
+        // Recoger todos los errores de validación para devolverlos en una respuesta clara
+        var errorMsgs []string
+        for _, err := range validationErr.(validator.ValidationErrors) {
+            errorMsgs = append(errorMsgs, fmt.Sprintf("Campo '%s' es inválido: %s", err.Field(), err.Tag()))
+        }
+        c.JSON(http.StatusBadRequest, gin.H{
+            "error": "Errores de validación en los campos",
+            "details": errorMsgs,
+        })
+        return
+    }
+
+    // Llamamos al servicio para realizar la actualización
+    actividad, err := h.service.UpdateActividad(uint(parsedID), actividadDTO)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error":   "Error al actualizar la actividad",
+            "details": err.Error(),
+        })
+        return
+    }
+
+    c.JSON(http.StatusOK, actividad)
 }

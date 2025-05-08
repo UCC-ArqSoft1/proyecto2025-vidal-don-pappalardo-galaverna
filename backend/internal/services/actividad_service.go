@@ -5,6 +5,7 @@ import (
 	"github.com/proyecto2025/backend/internal/models"
 	"gorm.io/gorm"
 	"time"
+	"errors"
 	
 )
 
@@ -68,3 +69,53 @@ func (s *ActividadService) DeleteActividad(id uint) error {
 
     return nil // Todo salió bien
 }
+
+func (s *ActividadService) UpdateActividad(id uint, actividadDTO dtos.ActividadDTO) (models.Actividad, error) {
+	var actividad models.Actividad
+
+	// Buscar incluso si fue borrada lógicamente
+	if err := s.DB.Unscoped().First(&actividad, id).Error; err != nil {
+		return models.Actividad{}, errors.New("Actividad no encontrada")
+	}
+
+	// Verificar si fue borrada lógicamente
+	if actividad.DeletedAt.Valid {
+		return models.Actividad{}, errors.New("No se puede modificar una actividad que fue borrada")
+	}
+
+	// Actualizamos solo los campos provistos
+	if actividadDTO.Titulo != "" {
+		actividad.Titulo = actividadDTO.Titulo
+	}
+	if actividadDTO.Descripcion != "" {
+		actividad.Descripcion = actividadDTO.Descripcion
+	}
+	if actividadDTO.Dia != "" {
+		actividad.Dia = actividadDTO.Dia
+	}
+	if !actividadDTO.Horario.IsZero() {
+		actividad.Horario = actividadDTO.Horario
+	}
+	if actividadDTO.Duracion > 0 {
+		actividad.Duracion = actividadDTO.Duracion
+	}
+	if actividadDTO.Cupo > 0 {
+		actividad.Cupo = actividadDTO.Cupo
+	}
+	if actividadDTO.Categoria != "" {
+		actividad.Categoria = actividadDTO.Categoria
+	}
+	if actividadDTO.ImagenURL != "" {
+		actividad.ImagenURL = actividadDTO.ImagenURL
+	}
+
+	actividad.Active = actividadDTO.Active
+
+	// Guardar en la base de datos
+	if err := s.DB.Save(&actividad).Error; err != nil {
+		return models.Actividad{}, err
+	}
+
+	return actividad, nil
+}
+
