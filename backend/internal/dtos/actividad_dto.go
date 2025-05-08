@@ -6,7 +6,7 @@ type ActividadDTO struct {
 	Titulo      string `json:"titulo" binding:"required,max=100"`
 	Descripcion string `json:"descripcion" binding:"max=200"`
 	Dia         string `json:"dia" binding:"required,max=20"`
-	Horario     string `json:"horario" binding:"required"`
+	Horario     time.Time `json:"horario" binding:"required"`
 	Duracion    int    `json:"duracion" binding:"required,min=1"`
 	Cupo        int    `json:"cupo" binding:"required,min=1"`
 	Categoria   string `json:"categoria" binding:"required,max=50"`
