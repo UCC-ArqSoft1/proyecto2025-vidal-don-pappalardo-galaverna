@@ -17,4 +17,5 @@ type Actividad struct {
 	ImagenURL     string        `gorm:"size:255" json:"imagen_url"`
 	Active        bool          `json:"active"`
 	Inscripciones []Inscripcion `json:"inscripciones,omitempty"`
+
 }
