@@ -1,16 +1,19 @@
+
 FROM golang:1.24
 
-WORKDIR /app
+# Instalar air
+RUN go install github.com/air-verse/air@latest
 
-COPY go.mod ./
+# Setear directorio de trabajo
+WORKDIR /app/backend
+
+# Copiar mod y sum
+COPY backend/go.mod ./
+COPY backend/go.sum ./
 RUN go mod download
 
-COPY . .
+# Copiar el código fuente correctamente
+COPY backend/ ./
 
-WORKDIR /app/cmd/api
-
-RUN GOOS=linux GOARCH=amd64 go build -o /proyecto2025
-
-EXPOSE 8080
-
-CMD ["/proyecto2025"]
+# Establecer punto de inicio
+CMD ["air"]

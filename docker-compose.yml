@@ -14,7 +14,7 @@ services:
 
   api:
     build: 
-      context: ./backend  # Adjust this path to your backend project root
+      context: ./  # Adjust this path to your backend project root
     depends_on:
       - mysql
     ports:

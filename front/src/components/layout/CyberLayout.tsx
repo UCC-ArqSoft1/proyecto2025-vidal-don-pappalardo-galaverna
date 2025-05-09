@@ -1,12 +1,12 @@
 import type React from "react"
-import CyberNavbar from "./CyberNavbar"
-import CyberFooter from "./CyberFooter"
+import SportNavbar from "./CyberNavbar"
+import SportFooter from "./CyberFooter"
 
-interface CyberLayoutProps {
+interface SportLayoutProps {
   children: React.ReactNode
 }
 
-export const CyberLayout: React.FC<CyberLayoutProps> = ({ children }) => {
+export const SportLayout: React.FC<SportLayoutProps> = ({ children }) => {
   const navLinks = [
     { to: "/", label: "Inicio" },
     { to: "/mis-actividades", label: "Mis Actividades" },
@@ -22,11 +22,11 @@ export const CyberLayout: React.FC<CyberLayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <CyberNavbar links={navLinks} />
-      <main className="flex-grow cyber-container">{children}</main>
-      <CyberFooter links={footerLinks} />
+      <SportNavbar links={navLinks} />
+      <main className="flex-grow sport-main">{children}</main>
+      <SportFooter links={footerLinks} />
     </div>
   )
 }
 
-export default CyberLayout
+export default SportLayout

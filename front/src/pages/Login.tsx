@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, type FormEvent } from "react"
-import CyberLayout from "../components/CyberLayout"
+import SportLayout from "../components/layout/CyberLayout"
 import type { LoginFormData } from "../types"
 
 const Login: React.FC = () => {
@@ -23,17 +23,14 @@ const Login: React.FC = () => {
   }
 
   return (
-    <CyberLayout>
+    <SportLayout>
       <div className="login-container">
-        <h1 className="text-4xl mb-6 cyber-header neon-text glitch-effect">ACCESO</h1>
+        <h1 className="text-3xl mb-6 text-center">Iniciar Sesión</h1>
 
-        <div className="cyber-card login-card">
-          <div className="login-orb-1"></div>
-          <div className="login-orb-2"></div>
-
+        <div className="login-card">
           <form onSubmit={handleSubmit} className="login-form">
             <div className="login-form-group">
-              <label className="login-form-label">EMAIL</label>
+              <label className="login-form-label">Email</label>
               <input
                 type="email"
                 name="email"
@@ -41,12 +38,12 @@ const Login: React.FC = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="cyber-input"
+                className="sport-input"
               />
             </div>
 
             <div className="login-form-group">
-              <label className="login-form-label">CONTRASEÑA</label>
+              <label className="login-form-label">Contraseña</label>
               <input
                 type="password"
                 name="password"
@@ -54,17 +51,17 @@ const Login: React.FC = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="cyber-input"
+                className="sport-input"
               />
             </div>
 
-            <button type="submit" className="cyber-button cyber-button-full">
+            <button type="submit" className="sport-button sport-button-full">
               INICIAR SESIÓN
             </button>
           </form>
         </div>
       </div>
-    </CyberLayout>
+    </SportLayout>
   )
 }
 

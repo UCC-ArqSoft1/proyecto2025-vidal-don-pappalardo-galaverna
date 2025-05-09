@@ -1,6 +1,6 @@
 import type React from "react"
 import { Link } from "react-router-dom"
-import CyberLayout from "../components/CyberLayout"
+import SportLayout from "../components/layout/CyberLayout"
 import type { UserActivity } from "../types"
 
 // Simulación de actividades del usuario
@@ -11,26 +11,24 @@ const userActivities: UserActivity[] = [
 
 const MyActivities: React.FC = () => {
   return (
-    <CyberLayout>
-      <h1 className="text-4xl mb-8 cyber-header neon-text glitch-effect">MIS ACTIVIDADES</h1>
+    <SportLayout>
+      <h1 className="text-3xl mb-6">Mis Actividades</h1>
 
       {userActivities.length === 0 ? (
-        <div className="cyber-card my-activities-empty">
+        <div className="sport-card my-activities-empty">
           <h2 className="text-2xl mb-4">No tienes actividades</h2>
           <p className="mb-6">Inscríbete en alguna actividad para verla aquí</p>
-          <Link to="/" className="cyber-button">
+          <Link to="/" className="sport-button">
             VER ACTIVIDADES
           </Link>
         </div>
       ) : (
         <div className="space-y-6">
           {userActivities.map((activity) => (
-            <div key={activity.id} className="cyber-card my-activity-card">
-              <div className="my-activity-orb"></div>
-
+            <div key={activity.id} className="my-activity-card">
               <div className="my-activity-content">
                 <div className="my-activity-info">
-                  <h2 className="my-activity-title neon-text">{activity.name}</h2>
+                  <h2 className="my-activity-title">{activity.name}</h2>
                   <p className="my-activity-date">
                     {new Date(activity.date).toLocaleDateString("es-ES", {
                       weekday: "long",
@@ -43,17 +41,17 @@ const MyActivities: React.FC = () => {
                 </div>
 
                 <div className="my-activity-actions">
-                  <Link to={`/detalle/${activity.id}`} className="cyber-button cyber-button-secondary">
+                  <Link to={`/detalle/${activity.id}`} className="sport-button sport-button-outline">
                     VER DETALLES
                   </Link>
-                  <button className="cyber-button">CANCELAR</button>
+                  <button className="sport-button sport-button-secondary">CANCELAR</button>
                 </div>
               </div>
             </div>
           ))}
         </div>
       )}
-    </CyberLayout>
+    </SportLayout>
   )
 }
 
