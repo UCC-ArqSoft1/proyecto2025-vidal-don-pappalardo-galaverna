@@ -6,22 +6,22 @@ interface FooterLink {
   label: string
 }
 
-interface CyberFooterProps {
+interface SportFooterProps {
   copyright?: string
   links?: FooterLink[]
 }
 
-export const CyberFooter: React.FC<CyberFooterProps> = ({
-  copyright = `© ${new Date().getFullYear()} CYBER GYM`,
+export const SportFooter: React.FC<SportFooterProps> = ({
+  copyright = `© ${new Date().getFullYear()} SPORT GYM`,
   links = [],
 }) => {
   return (
-    <footer className="cyber-footer">
-      <div className="cyber-footer-text">{copyright}</div>
+    <footer className="sport-footer">
+      <div className="sport-footer-text">{copyright}</div>
       {links.length > 0 && (
-        <div className="cyber-footer-links">
+        <div className="sport-footer-links">
           {links.map((link, index) => (
-            <Link key={index} to={link.to} className="cyber-footer-link">
+            <Link key={index} to={link.to} className="sport-footer-link">
               {link.label}
             </Link>
           ))}
@@ -31,4 +31,4 @@ export const CyberFooter: React.FC<CyberFooterProps> = ({
   )
 }
 
-export default CyberFooter
+export default SportFooter

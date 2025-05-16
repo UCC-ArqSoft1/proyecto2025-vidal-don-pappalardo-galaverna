@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, type ChangeEvent, type FormEvent } from "react"
-import CyberLayout from "../components/CyberLayout"
+import SportLayout from "../components/layout/CyberLayout"
 import type { ActivityFormData } from "../types"
 
 interface ActivityFormProps {
@@ -52,80 +52,75 @@ export const ActivityForm: React.FC<ActivityFormProps> = ({ isEdit = false, init
   }
 
   return (
-    <CyberLayout>
+    <SportLayout>
       <div className="activity-form-container">
-        <h1 className="text-4xl mb-8 cyber-header neon-text glitch-effect">
-          {isEdit ? "EDITAR ACTIVIDAD" : "NUEVA ACTIVIDAD"}
-        </h1>
+        <h1 className="text-3xl mb-6">{isEdit ? "Editar Actividad" : "Nueva Actividad"}</h1>
 
-        <div className="cyber-card activity-form-card">
-          <div className="activity-form-orb-1"></div>
-          <div className="activity-form-orb-2"></div>
-
+        <div className="activity-form-card">
           <form onSubmit={handleSubmit} className="activity-form">
             <div className="activity-form-grid">
               <div className="activity-form-group">
-                <label className="activity-form-label">TÍTULO</label>
+                <label className="activity-form-label">Título</label>
                 <input
                   name="title"
                   value={form.title}
                   onChange={handleChange}
                   placeholder="Título de la actividad"
                   required
-                  className="cyber-input"
+                  className="sport-input"
                 />
               </div>
 
               <div className="activity-form-group">
-                <label className="activity-form-label">CATEGORÍA</label>
+                <label className="activity-form-label">Categoría</label>
                 <input
                   name="category"
                   value={form.category}
                   onChange={handleChange}
                   placeholder="Ej: yoga, cardio, funcional"
                   required
-                  className="cyber-input"
+                  className="sport-input"
                 />
               </div>
 
               <div className="activity-form-group">
-                <label className="activity-form-label">DÍA</label>
+                <label className="activity-form-label">Día</label>
                 <input
                   name="day"
                   value={form.day}
                   onChange={handleChange}
                   placeholder="Ej: lunes, martes"
                   required
-                  className="cyber-input"
+                  className="sport-input"
                 />
               </div>
 
               <div className="activity-form-group">
-                <label className="activity-form-label">HORA</label>
+                <label className="activity-form-label">Hora</label>
                 <input
                   name="time"
                   value={form.time}
                   onChange={handleChange}
                   placeholder="Ej: 18:00"
                   required
-                  className="cyber-input"
+                  className="sport-input"
                 />
               </div>
 
               <div className="activity-form-group">
-                <label className="activity-form-label">DURACIÓN</label>
+                <label className="activity-form-label">Duración</label>
                 <input
                   name="duration"
                   value={form.duration}
                   onChange={handleChange}
                   placeholder="Ej: 1h, 45min"
                   required
-                  className="cyber-input"
+                  className="sport-input"
                 />
               </div>
 
               <div className="activity-form-group">
-                <label className="activity-form-label">CUPO</label>
+                <label className="activity-form-label">Cupo</label>
                 <input
                   type="number"
                   name="capacity"
@@ -134,27 +129,27 @@ export const ActivityForm: React.FC<ActivityFormProps> = ({ isEdit = false, init
                   placeholder="Número de participantes"
                   min={1}
                   required
-                  className="cyber-input"
+                  className="sport-input"
                 />
               </div>
 
               <div className="activity-form-group">
-                <label className="activity-form-label">INSTRUCTOR</label>
+                <label className="activity-form-label">Instructor</label>
                 <input
                   name="instructor"
                   value={form.instructor}
                   onChange={handleChange}
                   placeholder="Nombre del instructor"
                   required
-                  className="cyber-input"
+                  className="sport-input"
                 />
               </div>
 
               <div className="activity-form-group">
-                <label className="activity-form-label">FOTO</label>
-                <div className="cyber-file-input">
+                <label className="activity-form-label">Foto</label>
+                <div className="sport-file-input">
                   <input type="file" name="photo" accept="image/*" onChange={handleFileChange} />
-                  <div className="cyber-file-input-label">
+                  <div className="sport-file-input-label">
                     {form.photo ? (form.photo as File).name : "Seleccionar imagen"}
                   </div>
                 </div>
@@ -162,7 +157,7 @@ export const ActivityForm: React.FC<ActivityFormProps> = ({ isEdit = false, init
             </div>
 
             <div className="activity-form-group">
-              <label className="activity-form-label">DESCRIPCIÓN</label>
+              <label className="activity-form-label">Descripción</label>
               <textarea
                 name="description"
                 value={form.description}
@@ -170,22 +165,22 @@ export const ActivityForm: React.FC<ActivityFormProps> = ({ isEdit = false, init
                 placeholder="Describe la actividad en detalle"
                 rows={5}
                 required
-                className="cyber-textarea"
+                className="sport-textarea"
               ></textarea>
             </div>
 
             <div className="activity-form-actions">
-              <button type="button" className="cyber-button cyber-button-secondary">
+              <button type="button" className="sport-button sport-button-outline">
                 CANCELAR
               </button>
-              <button type="submit" className="cyber-button">
+              <button type="submit" className="sport-button">
                 {isEdit ? "GUARDAR CAMBIOS" : "CREAR ACTIVIDAD"}
               </button>
             </div>
           </form>
         </div>
       </div>
-    </CyberLayout>
+    </SportLayout>
   )
 }
 

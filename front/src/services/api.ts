@@ -1,7 +1,9 @@
 import { Activity, ApiResponse, AuthResponse, Enrollment, User } from '../types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
-
+// In Docker, the API is available at http://api:8080/api
+// For local development, use http://localhost:8080/api
+const API_URL =
+  import.meta.env.VITE_API_URL || (window.location.hostname === "localhost" ? "http://localhost:8080/api" : "/api")
 // Helper to get the auth token from localStorage
 const getToken = (): string | null => {
   return localStorage.getItem('token');

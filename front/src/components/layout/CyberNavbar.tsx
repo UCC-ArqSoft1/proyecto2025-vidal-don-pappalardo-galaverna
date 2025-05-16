@@ -6,18 +6,18 @@ interface NavLink {
   label: string
 }
 
-interface CyberNavbarProps {
+interface SportNavbarProps {
   logo?: string
   links: NavLink[]
 }
 
-export const CyberNavbar: React.FC<CyberNavbarProps> = ({ logo = "CYBER GYM", links }) => {
+export const SportNavbar: React.FC<SportNavbarProps> = ({ logo = "SPORT GYM", links }) => {
   return (
-    <nav className="cyber-navbar">
-      <div className="cyber-logo glitch-effect">{logo}</div>
-      <div className="cyber-nav-links">
+    <nav className="sport-navbar">
+      <div className="sport-logo">{logo}</div>
+      <div className="sport-nav-links">
         {links.map((link, index) => (
-          <Link key={index} to={link.to} className="cyber-nav-link">
+          <Link key={index} to={link.to} className="sport-nav-link">
             {link.label}
           </Link>
         ))}
@@ -26,4 +26,4 @@ export const CyberNavbar: React.FC<CyberNavbarProps> = ({ logo = "CYBER GYM", li
   )
 }
 
-export default CyberNavbar
+export default SportNavbar

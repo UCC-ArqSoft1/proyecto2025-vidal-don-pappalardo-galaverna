@@ -43,3 +43,35 @@ export interface UserActivity {
   date: string
   time: string
 }
+
+
+export interface User {
+  id: number
+  username: string
+  email: string
+  role: string
+  name?: string
+  profileImage?: string
+}
+
+export interface AuthResponse {
+  success: boolean
+  message?: string
+  user: User
+  token: string
+}
+
+export interface ApiResponse<T = any> {
+  success: boolean
+  message?: string
+  data?: T
+}
+
+export interface Enrollment {
+  id: number
+  userId: number
+  activityId: number
+  enrollmentDate: string
+  status: "active" | "cancelled"
+  activity?: Activity
+}

@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import CyberLayout from "../components/CyberLayout"
+import SportLayout from "../components/layout/CyberLayout"
 import { mockActivities } from "../mock/activities"
 import type { Activity } from "../types"
 
@@ -16,70 +16,65 @@ const Home: React.FC = () => {
   )
 
   return (
-    <CyberLayout>
-      <div className="relative">
-        <div className="home-background-orb-1"></div>
-        <div className="home-background-orb-2"></div>
+    <SportLayout>
+      <div className="home-banner">
+        <h1>ACTIVIDADES DEPORTIVAS</h1>
+        <p>Descubre nuestras clases y actividades para mantenerte en forma y saludable.</p>
+        <div className="home-banner-pattern"></div>
+      </div>
 
-        <h1 className="text-5xl mb-8 cyber-header neon-text glitch-effect">ACTIVIDADES</h1>
+      <div className="home-search">
+        <input
+          type="text"
+          placeholder="Buscar por nombre o categoría..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="sport-input"
+        />
+      </div>
 
-        <div className="home-search">
-          <input
-            type="text"
-            placeholder="Buscar por nombre o categoría..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="cyber-input"
-          />
-        </div>
-
-        <div className="cyber-card-grid">
-          {filtered.map((activity) => (
-            <div key={activity.id} className="cyber-card">
-              <div className="cyber-card-content">
-                <div className="cyber-card-image">
-                  <img src={activity.image || "/placeholder.svg?height=200&width=400"} alt={activity.title} />
-                  <div className="cyber-card-image-overlay"></div>
-                  <div className="cyber-card-badge">
-                    <span
-                      className={`cyber-badge ${
-                        activity.category === "yoga"
-                          ? "cyber-badge-accent"
-                          : activity.category === "cardio"
-                            ? "cyber-badge-secondary"
-                            : ""
-                      }`}
-                    >
-                      {activity.category.toUpperCase()}
-                    </span>
-                  </div>
-                </div>
-
-                <h2 className="cyber-card-title neon-text">{activity.title}</h2>
-
-                <div className="cyber-card-meta">
-                  <p>
-                    <span className="text-primary">HORARIO:</span> {activity.schedule}
-                  </p>
-                  <p>
-                    <span className="text-primary">INSTRUCTOR:</span> {activity.instructor}
-                  </p>
-                </div>
-
-                <div className="cyber-card-actions">
-                  <Link
-                    to={`/detalle/${activity.id}`}
-                    className="cyber-button cyber-button-secondary cyber-button-full"
+      <div className="sport-card-grid">
+        {filtered.map((activity) => (
+          <div key={activity.id} className="sport-card">
+            <div className="sport-card-content">
+              <div className="sport-card-image">
+                <img src={activity.image || "/placeholder.svg?height=200&width=400"} alt={activity.title} />
+                <div className="sport-card-badge">
+                  <span
+                    className={`sport-badge ${
+                      activity.category === "yoga"
+                        ? "sport-badge-accent"
+                        : activity.category === "cardio"
+                          ? "sport-badge-secondary"
+                          : ""
+                    }`}
                   >
-                    VER DETALLES
-                  </Link>
+                    {activity.category.toUpperCase()}
+                  </span>
                 </div>
               </div>
+
+              <h2 className="sport-card-title">{activity.title}</h2>
+
+              <div className="sport-card-meta">
+                <p>
+                  <span className="text-primary font-semibold">HORARIO:</span> {activity.schedule}
+                </p>
+                <p>
+                  <span className="text-primary font-semibold">INSTRUCTOR:</span> {activity.instructor}
+                </p>
+              </div>
+
+              <div className="sport-card-actions">
+                <Link to={`/detalle/${activity.id}`} className="sport-button sport-button-full">
+                  VER DETALLES
+                </Link>
+              </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
-    </CyberLayout>
+    </SportLayout>
   )
 }
 
