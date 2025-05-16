@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/proyecto2025/backend/internal/db"
@@ -25,6 +26,9 @@ func main() {
 
 	// Crear el router Gin
 	r := gin.Default()
+
+	// Habilitar CORS (modo desarrollo: permite todos los orígenes)
+	r.Use(cors.Default())
 
 	// Configurar rutas de autenticación
 	routes.ConfigurarRutasAuth(r, authHandler)
