@@ -1,8 +1,9 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Actividad struct {
@@ -10,7 +11,7 @@ type Actividad struct {
 	Titulo        string        `gorm:"size:100;not null" json:"titulo"`
 	Descripcion   string        `gorm:"size:200" json:"descripcion"`
 	Dia           string        `gorm:"size:20" json:"dia"`
-	Horario       time.Time     `gorm:"type:time" json:"horario"`  // Cambio aquí
+	Horario       time.Time     `gorm:"type:time" json:"horario"`
 	Duracion      int           `json:"duracion"`
 	Cupo          int           `json:"cupo"`
 	Categoria     string        `gorm:"size:50" json:"categoria"`
@@ -18,4 +19,6 @@ type Actividad struct {
 	Active        bool          `json:"active"`
 	Inscripciones []Inscripcion `json:"inscripciones,omitempty"`
 
+	ProfesorID uint    `json:"profesor_id"` // Foreign Key
+	Profesor   Usuario `json:"profesor"`    // Relación con Usuario
 }
