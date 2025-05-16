@@ -1,25 +1,45 @@
 "use client"
 
 import type React from "react"
-import { useState, type FormEvent } from "react"
-import SportLayout from "../components/layout/CyberLayout"
-import type { LoginFormData } from "../types"
 
-const Login: React.FC = () => {
+import { useState, type FormEvent } from "react"
+import { useNavigate } from "react-router-dom"
+import SportLayout from "../components/layout/CyberLayout"
+import { authService } from "../api"
+
+interface LoginFormData {
+  email: string
+  password: string
+}
+
+const Login = () => {
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
   })
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    console.log("Login data:", formData)
-    // Aquí iría la lógica de autenticación
+    setLoading(true)
+    setError(null)
+
+    const response = await authService.login(formData.email, formData.password)
+
+    if (response.success) {
+      navigate("/")
+    } else {
+      setError(response.message || "Error al iniciar sesión")
+    }
+
+    setLoading(false)
   }
 
   return (
@@ -28,6 +48,8 @@ const Login: React.FC = () => {
         <h1 className="text-3xl mb-6 text-center">Iniciar Sesión</h1>
 
         <div className="login-card">
+          {error && <div className="error-message mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>}
+
           <form onSubmit={handleSubmit} className="login-form">
             <div className="login-form-group">
               <label className="login-form-label">Email</label>
@@ -55,8 +77,15 @@ const Login: React.FC = () => {
               />
             </div>
 
-            <button type="submit" className="sport-button sport-button-full">
-              INICIAR SESIÓN
+            <button type="submit" className="sport-button sport-button-full" disabled={loading}>
+              {loading ? (
+                <>
+                  <span className="sport-spinner mr-2"></span>
+                  PROCESANDO...
+                </>
+              ) : (
+                "INICIAR SESIÓN"
+              )}
             </button>
           </form>
         </div>

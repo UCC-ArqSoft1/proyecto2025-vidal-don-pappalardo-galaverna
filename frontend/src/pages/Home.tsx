@@ -1,19 +1,60 @@
 "use client"
 
-import type React from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import SportLayout from "../components/layout/CyberLayout"
-import { mockActivities } from "../mock/activities"
+import { activityService } from "../api"
 import type { Activity } from "../types"
 
-const Home: React.FC = () => {
+const Home = () => {
+  const [activities, setActivities] = useState<Activity[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
   const [search, setSearch] = useState<string>("")
+  const [error, setError] = useState<string | null>(null)
 
-  const filtered: Activity[] = mockActivities.filter(
+  useEffect(() => {
+    const fetchActivities = async () => {
+      setLoading(true)
+      const response = await activityService.getAllActivities()
+
+      if (response.success && response.data) {
+        setActivities(response.data)
+      } else {
+        setError(response.message || "Error al cargar actividades")
+      }
+
+      setLoading(false)
+    }
+
+    fetchActivities()
+  }, [])
+
+  const filtered: Activity[] = activities.filter(
     (a) =>
-      a.title.toLowerCase().includes(search.toLowerCase()) || a.category.toLowerCase().includes(search.toLowerCase()),
+      a.titulo.toLowerCase().includes(search.toLowerCase()) || a.categoria.toLowerCase().includes(search.toLowerCase()),
   )
+
+  if (loading) {
+    return (
+      <SportLayout>
+        <div className="flex justify-center items-center h-64">
+          <div className="sport-spinner"></div>
+        </div>
+      </SportLayout>
+    )
+  }
+
+  if (error) {
+    return (
+      <SportLayout>
+        <div className="error-container">
+          <h1 className="error-title">ERROR</h1>
+          <div className="error-divider"></div>
+          <p className="error-message">{error}</p>
+        </div>
+      </SportLayout>
+    )
+  }
 
   return (
     <SportLayout>
@@ -38,30 +79,30 @@ const Home: React.FC = () => {
           <div key={activity.id} className="sport-card">
             <div className="sport-card-content">
               <div className="sport-card-image">
-                <img src={activity.image || "/placeholder.svg?height=200&width=400"} alt={activity.title} />
+                <img src={activity.imagen_url || "/placeholder.svg?height=200&width=400"} alt={activity.titulo} />
                 <div className="sport-card-badge">
                   <span
                     className={`sport-badge ${
-                      activity.category === "yoga"
+                      activity.categoria === "yoga"
                         ? "sport-badge-accent"
-                        : activity.category === "cardio"
+                        : activity.categoria === "cardio"
                           ? "sport-badge-secondary"
                           : ""
                     }`}
                   >
-                    {activity.category.toUpperCase()}
+                    {activity.categoria.toUpperCase()}
                   </span>
                 </div>
               </div>
 
-              <h2 className="sport-card-title">{activity.title}</h2>
+              <h2 className="sport-card-title">{activity.titulo}</h2>
 
               <div className="sport-card-meta">
                 <p>
-                  <span className="text-primary font-semibold">HORARIO:</span> {activity.schedule}
+                  <span className="text-primary font-semibold">HORARIO:</span> {activity.horario}
                 </p>
                 <p>
-                  <span className="text-primary font-semibold">INSTRUCTOR:</span> {activity.instructor}
+                  <span className="text-primary font-semibold">DÍA:</span> {activity.dia}
                 </p>
               </div>
 
