@@ -2,12 +2,11 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/proyecto2025/backend/internal/db"
 	"github.com/proyecto2025/backend/internal/handlers"
 	"github.com/proyecto2025/backend/internal/routes"
 	"github.com/proyecto2025/backend/internal/services"
-	"github.com/go-playground/validator/v10"
-
 )
 
 func main() {
@@ -16,7 +15,6 @@ func main() {
 
 	// Crear el servicio de actividad
 	actividadService := &services.ActividadService{DB: db.DB}
-
 
 	// Crear el validador
 	validate := validator.New()
@@ -34,7 +32,6 @@ func main() {
 	// Configurar rutas de actividades
 	routes.ConfigurarRutasActividad(r, actividadHandler)
 
-
 	// ----------------------
 	// SWAGGER CONFIGURACIÓN
 	// ----------------------
@@ -48,8 +45,6 @@ func main() {
 	})
 
 	// ----------------------
-
-
 
 	r.Run(":8080")
 }
