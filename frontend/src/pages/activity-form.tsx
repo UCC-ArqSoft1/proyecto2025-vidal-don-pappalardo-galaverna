@@ -18,8 +18,9 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
       ...initialData,
       // Asegurarnos de que instructor sea el ID del profesor
       instructor: initialData.profesor_id?.toString() || "",
-      // Si la imagen es una URL blob, no la usamos
-      imagen_url: initialData.imagen_url?.startsWith("blob:") ? "" : initialData.imagen_url || ""
+      // Mantener los datos de la imagen si existen
+      imagen_data: initialData.imagen_data || "",
+      imagen_type: initialData.imagen_type || ""
     } : {
       titulo: "",
       descripcion: "",
@@ -29,7 +30,8 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
       cupo: 10,
       categoria: "",
       instructor: "",
-      imagen_url: "",
+      imagen_data: "",
+      imagen_type: "",
       active: true,
       profesor_id: 0,
     }

@@ -15,17 +15,17 @@ type ProfesorResponseDTO struct {
 }
 
 type ActividadDTO struct {
-	Titulo      string    `json:"titulo" binding:"required,max=100"`
-	Descripcion string    `json:"descripcion" binding:"max=200"`
-	Dia         string    `json:"dia" binding:"required,max=20"`
-	Horario     time.Time `json:"horario" binding:"required"`
-	Duracion    int       `json:"duracion" binding:"required,min=1"`
-	Cupo        int       `json:"cupo" binding:"required,min=1"`
-	Categoria   string    `json:"categoria" binding:"required,max=50"`
-	ImagenData  string    `json:"imagen_data"` // Base64 encoded image data
-	ImagenType  string    `json:"imagen_type"` // MIME type of the image
-	Active      bool      `json:"active"`
-	ProfesorID  uint      `json:"profesor_id" binding:"required"`
+	Titulo      string `json:"titulo" binding:"required,max=100"`
+	Descripcion string `json:"descripcion" binding:"max=200"`
+	Dia         string `json:"dia" binding:"required,max=20"`
+	Horario     string `json:"horario" binding:"required"`
+	Duracion    int    `json:"duracion" binding:"required,min=1"`
+	Cupo        int    `json:"cupo" binding:"required,min=1"`
+	Categoria   string `json:"categoria" binding:"required,max=50"`
+	ImagenData  string `json:"imagen_data"` // Base64 encoded image data
+	ImagenType  string `json:"imagen_type"` // MIME type of the image
+	Active      bool   `json:"active"`
+	ProfesorID  uint   `json:"profesor_id" binding:"required"`
 }
 
 type ActividadResponseDTO struct {
@@ -96,4 +96,12 @@ func Base64ToImage(base64Str string) ([]byte, string, error) {
 	}
 
 	return data, mimeType, nil
+}
+
+// Función para convertir un string de hora a time.Time
+func ParseTimeString(timeStr string) (time.Time, error) {
+	// Usar una fecha base (2000-01-01) y agregar la hora
+	baseDate := "2000-01-01T"
+	timeWithDate := baseDate + timeStr + ":00Z"
+	return time.Parse(time.RFC3339, timeWithDate)
 }

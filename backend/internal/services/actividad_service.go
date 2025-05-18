@@ -30,12 +30,18 @@ func (s *ActividadService) CrearActividad(actividadDTO dtos.ActividadDTO) (*mode
 		return nil, fmt.Errorf("error al procesar la imagen: %v", err)
 	}
 
+	// Convertir el string de hora a time.Time
+	horario, err := dtos.ParseTimeString(actividadDTO.Horario)
+	if err != nil {
+		return nil, fmt.Errorf("error al procesar el horario: %v", err)
+	}
+
 	// Crear el modelo de actividad
 	actividad := models.Actividad{
 		Titulo:      actividadDTO.Titulo,
 		Descripcion: actividadDTO.Descripcion,
 		Dia:         actividadDTO.Dia,
-		Horario:     actividadDTO.Horario,
+		Horario:     horario,
 		Duracion:    actividadDTO.Duracion,
 		Cupo:        actividadDTO.Cupo,
 		Categoria:   actividadDTO.Categoria,
@@ -102,11 +108,17 @@ func (s *ActividadService) UpdateActividad(id uint, actividadDTO dtos.ActividadD
 		actividad.ImagenType = imagenType
 	}
 
+	// Convertir el string de hora a time.Time
+	horario, err := dtos.ParseTimeString(actividadDTO.Horario)
+	if err != nil {
+		return nil, fmt.Errorf("error al procesar el horario: %v", err)
+	}
+
 	// Actualizar los demás campos
 	actividad.Titulo = actividadDTO.Titulo
 	actividad.Descripcion = actividadDTO.Descripcion
 	actividad.Dia = actividadDTO.Dia
-	actividad.Horario = actividadDTO.Horario
+	actividad.Horario = horario
 	actividad.Duracion = actividadDTO.Duracion
 	actividad.Cupo = actividadDTO.Cupo
 	actividad.Categoria = actividadDTO.Categoria
