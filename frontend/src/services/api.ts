@@ -241,7 +241,7 @@ export const activityService = {
         profesor_id: activity.profesor_id ? Number(activity.profesor_id) : undefined
       }
 
-      const response = await authFetch(`/api/actividades/${id}`, {
+      const response = await authFetch(`/actividades/${id}`, {
         method: "PUT",
         body: JSON.stringify(formattedActivity),
       })
