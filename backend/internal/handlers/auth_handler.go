@@ -13,7 +13,6 @@ import (
 	"github.com/proyecto2025/backend/internal/services"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-
 )
 
 // A revisar: Problema de separacion de logica, se deberia crear un repository o servicio para
@@ -24,8 +23,6 @@ type AuthHandler struct {
 	secretKey   string
 	authService *services.AuthService
 }
-
-
 
 func NewAuthHandler(db *gorm.DB, v *validator.Validate, secretKey string) *AuthHandler {
 	return &AuthHandler{
@@ -44,7 +41,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	var usuario models.Usuario
-	if err := h.db.Where("email = ?", loginDTO.Email).First(&usuario).Error; err != nil {
+	if err := h.db.Preload("Role").Where("email = ?", loginDTO.Email).First(&usuario).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "credenciales inválidas"})
 		return
 	}
@@ -55,9 +52,9 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": usuario.ID,
-		"role_id": usuario.RoleID,
-		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id":   usuario.ID,
+		"role_name": usuario.Role.Nombre,
+		"exp":       time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte(h.secretKey))
@@ -94,9 +91,9 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 	}
 
 	newToken := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": usuario.ID,
-		"role_id": usuario.RoleID, // también acá
-		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+		"user_id":   usuario.ID,
+		"role_name": usuario.Role.Nombre,
+		"exp":       time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	tokenStr, err := newToken.SignedString([]byte(h.secretKey))
@@ -107,7 +104,6 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"token": tokenStr})
 }
-
 
 func (h *AuthHandler) Register(c *gin.Context) {
 	var usuarioDTO dtos.UsuarioDTO

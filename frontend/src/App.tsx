@@ -1,5 +1,7 @@
 import type React from "react"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { AuthProvider } from "./contexts/AuthContext"
+import { ProtectedRoute } from "./components/ProtectedRoute"
 import Home from "./pages/Home"
 import Login from "./pages/Login"
 import ActivityDetail from "./pages/activity-detail"
@@ -16,15 +18,43 @@ import Signup from "./pages/signup"
 const App: React.FC = () => {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/detalle/:id" element={<ActivityDetail />} />
-        <Route path="/mis-actividades" element={<MyActivities />} />
-        <Route path="/nueva-actividad" element={<NewActivityPage />} />
-        <Route path="/editar-actividad/:id" element={<EditActivityPage />} />
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/detalle/:id" element={<ActivityDetail />} />
+
+          {/* Protected routes */}
+          <Route
+            path="/mis-actividades"
+            element={
+              <ProtectedRoute>
+                <MyActivities />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin only routes */}
+          <Route
+            path="/nueva-actividad"
+            element={
+              <ProtectedRoute requireAdmin>
+                <NewActivityPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editar-actividad/:id"
+            element={
+              <ProtectedRoute requireAdmin>
+                <EditActivityPage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </AuthProvider>
     </Router>
   )
 }

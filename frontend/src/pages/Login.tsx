@@ -3,9 +3,9 @@
 import type React from "react"
 
 import { useState, type FormEvent } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useNavigate, Link, useLocation } from "react-router-dom"
 import SportLayout from "../components/layout/CyberLayout"
-import { authService } from "../services/api"
+import { useAuth } from "../contexts/AuthContext"
 
 interface LoginFormData {
   email: string
@@ -20,6 +20,11 @@ const Login = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
+  const location = useLocation()
+  const { login } = useAuth()
+
+  // Get the redirect path from location state, or default to home
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/"
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -31,10 +36,11 @@ const Login = () => {
     setLoading(true)
     setError(null)
 
-    const response = await authService.login(formData.email, formData.password)
+    const response = await login(formData.email, formData.password)
 
     if (response.success) {
-      navigate("/")
+      // Redirect to the page they tried to visit or home
+      navigate(from, { replace: true })
     } else {
       setError(response.message || "Error al iniciar sesión")
     }

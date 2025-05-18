@@ -40,10 +40,10 @@ export const authService = {
         // Decode the JWT token to get user info
         const tokenPayload = JSON.parse(atob(data.access_token.split('.')[1]))
         
-        // Create minimal user object with just id and role_id
+        // Create minimal user object with just id and role_name
         const user: User = {
           id: tokenPayload.user_id,
-          role_id: tokenPayload.role_id,
+          role_name: tokenPayload.role_name,
           email: "", // Required by type but not used
           nombre: "", // Required by type but not used
           apellido: "", // Required by type but not used
@@ -165,7 +165,7 @@ export const authService = {
 
   isAdmin: (): boolean => {
     const user = authService.getCurrentUser()
-    return user?.role_id === 1 // Assuming role_id 1 is admin
+    return user?.role_name === "admin"
   },
 }
 

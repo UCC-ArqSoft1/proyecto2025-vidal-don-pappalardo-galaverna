@@ -5,7 +5,7 @@ export interface User {
   apellido: string
   email: string
   active: boolean
-  role_id: number
+  role_name: string
 }
 
 export interface UserRegistration {

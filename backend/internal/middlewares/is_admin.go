@@ -8,8 +8,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-
-
 func IsAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -41,8 +39,8 @@ func IsAdmin() gin.HandlerFunc {
 			return
 		}
 
-		// Aquí verificamos si role_id es 1 (admin)
-		if roleID, ok := claims["role_id"].(float64); !ok || int(roleID) != 1 {
+		// Aquí verificamos si el rol es "admin"
+		if roleName, ok := claims["role_name"].(string); !ok || roleName != "admin" {
 			c.JSON(http.StatusForbidden, gin.H{"error": "Acceso restringido a administradores"})
 			c.Abort()
 			return

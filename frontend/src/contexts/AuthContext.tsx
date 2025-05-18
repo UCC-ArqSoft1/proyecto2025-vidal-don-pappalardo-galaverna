@@ -1,73 +1,63 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { authService } from '../services/api';
-import { User } from '../types';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { authService } from '../services/api'
+import type { User, AuthResponse } from '../types'
 
-interface AuthContextProps {
-  user: User | null;
-  isAuthenticated: boolean;
-  isAdmin: boolean;
-  loading: boolean;
-  login: (username: string, password: string) => Promise<boolean>;
-  logout: () => void;
+interface AuthContextType {
+  user: User | null
+  isAuthenticated: boolean
+  isAdmin: boolean
+  login: (email: string, password: string) => Promise<AuthResponse>
+  logout: () => Promise<void>
+  loading: boolean
 }
 
-const AuthContext = createContext<AuthContextProps>({
-  user: null,
-  isAuthenticated: false,
-  isAdmin: false,
-  loading: true,
-  login: async () => false,
-  logout: () => {},
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export const useAuth = () => useContext(AuthContext);
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Check if user is already logged in on mount
   useEffect(() => {
-    const checkLoggedIn = async () => {
-      const currentUser = authService.getCurrentUser();
-      setUser(currentUser);
-      setLoading(false);
-    };
-
-    checkLoggedIn();
-  }, []);
-
-  const login = async (username: string, password: string): Promise<boolean> => {
-    const response = await authService.login(username, password);
-    
-    if (response.success) {
-      setUser(response.user);
-      return true;
+    // Check if user is already logged in on mount
+    const storedUser = authService.getCurrentUser()
+    if (storedUser) {
+      setUser(storedUser)
     }
-    
-    return false;
-  };
+    setLoading(false)
+  }, [])
 
-  const logout = () => {
-    authService.logout();
-    setUser(null);
-  };
+  const login = async (email: string, password: string) => {
+    const response = await authService.login(email, password)
+    if (response.success) {
+      setUser(response.user)
+    }
+    return response
+  }
 
-  const isAuthenticated = !!user;
-  const isAdmin = user?.role === 'admin';
+  const logout = async () => {
+    await authService.logout()
+    setUser(null)
+    navigate('/login')
+  }
 
   const value = {
     user,
-    isAuthenticated,
-    isAdmin,
-    loading,
+    isAuthenticated: !!user,
+    isAdmin: user?.role_name === 'admin',
     login,
     logout,
-  };
+    loading
+  }
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
+}
