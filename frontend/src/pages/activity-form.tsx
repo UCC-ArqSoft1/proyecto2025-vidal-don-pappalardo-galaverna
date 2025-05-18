@@ -30,7 +30,15 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setForm((prev) => ({ ...prev, [name]: value }))
+    if (name === "horario") {
+      // Convertir la hora HH:mm a un objeto Date con la fecha actual
+      const [hours, minutes] = value.split(":").map(Number)
+      const date = new Date()
+      date.setHours(hours, minutes, 0, 0)
+      setForm((prev) => ({ ...prev, [name]: date.toISOString() }))
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }))
+    }
   }
 
   const handleNumberChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -50,7 +58,12 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     if (onSubmit) {
-      onSubmit(form)
+      // Asegurarnos de que el horario sea un string ISO
+      const formData = {
+        ...form,
+        horario: new Date(form.horario).toISOString(),
+      }
+      onSubmit(formData)
     } else {
       console.log("Form data:", form)
     }
@@ -107,10 +120,10 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
               <div className="activity-form-group">
                 <label className="activity-form-label">Hora</label>
                 <input
+                  type="time"
                   name="horario"
-                  value={form.horario}
+                  value={form.horario ? new Date(form.horario).toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" }) : ""}
                   onChange={handleChange}
-                  placeholder="Ej: 18:00"
                   required
                   className="sport-input"
                 />
