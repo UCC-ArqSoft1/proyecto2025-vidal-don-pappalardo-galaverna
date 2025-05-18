@@ -231,8 +231,8 @@ export const activityService = {
         ...activity,
         // Asegurarnos de que el día sea un solo valor
         dia: activity.dia?.split(',')[0] || activity.dia,
-        // Convertir el horario a formato ISO completo
-        horario: activity.horario ? new Date(`2000-01-01T${activity.horario}:00`).toISOString() : activity.horario,
+        // Mantener el horario como string HH:mm
+        horario: activity.horario,
         // Remover campos innecesarios
         profesor: undefined,
         created_at: undefined,
