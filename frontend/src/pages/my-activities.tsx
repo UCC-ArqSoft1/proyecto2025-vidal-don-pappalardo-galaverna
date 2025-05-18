@@ -77,7 +77,7 @@ const MyActivities = () => {
                   <h2 className="text-2xl font-bold">{enrollment.actividad?.titulo || "Actividad"}</h2>
                   <span className="text-sm text-gray-400">
                     Inscrito el:{" "}
-                    {new Date(enrollment.fechaInscripcion.replace(" ", "T")).toLocaleDateString("es-ES", {
+                    {new Date(enrollment.fecha_inscripcion.replace(" ", "T")).toLocaleDateString("es-ES", {
                       year: "numeric",
                       month: "long",
                       day: "numeric",

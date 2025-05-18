@@ -42,9 +42,9 @@ export interface Activity {
 // Enrollment related interfaces
 export interface Enrollment {
   id: number
-  usuarioId: number
-  actividadId: number
-  fechaInscripcion: string
+  usuario_id: number
+  actividad_id: number
+  fecha_inscripcion: string
   actividad?: Activity
 }
 
