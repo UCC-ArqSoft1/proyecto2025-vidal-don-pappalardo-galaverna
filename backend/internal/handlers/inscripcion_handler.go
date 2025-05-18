@@ -26,19 +26,19 @@ func NewInscripcionHandler(db *gorm.DB, service *services.InscripcionService) *I
 	}
 }
 
-// CrearInscripcion crea una nueva inscripción
+// CrearInscripcion crea una nueva inscripci?n
 func (h *InscripcionHandler) CrearInscripcion(c *gin.Context) {
-	log.Printf("Recibida petición POST a /actividades/:id/inscribirse")
+	log.Printf("Recibida petici?n POST a /inscripciones/:actividadId")
 
 	// Obtener el ID de la actividad de la URL
-	actividadIDStr := c.Param("id")
+	actividadIDStr := c.Param("actividadId")
 	log.Printf("ID de actividad: %s", actividadIDStr)
 
 	// Convertir el ID a uint
 	actividadID, err := strconv.ParseUint(actividadIDStr, 10, 32)
 	if err != nil {
 		log.Printf("Error al convertir ID de actividad: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de actividad inválido"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de actividad inv?lido"})
 		return
 	}
 
@@ -46,14 +46,14 @@ func (h *InscripcionHandler) CrearInscripcion(c *gin.Context) {
 	claims, exists := c.Get("claims")
 	if !exists {
 		log.Printf("No se encontraron claims en el token")
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener la información del usuario"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener la informaci?n del usuario"})
 		return
 	}
 
 	userID := uint(claims.(jwt.MapClaims)["user_id"].(float64))
 	log.Printf("ID de usuario: %d", userID)
 
-	// Crear la inscripción
+	// Crear la inscripci?n
 	inscripcion := models.Inscripcion{
 		UsuarioID:        userID,
 		ActividadID:      uint(actividadID),
@@ -84,24 +84,24 @@ func (h *InscripcionHandler) CrearInscripcion(c *gin.Context) {
 		return
 	}
 
-	// Verificar si el usuario ya está inscrito
+	// Verificar si el usuario ya est? inscrito
 	var inscripcionExistente models.Inscripcion
 	if err := h.db.Where("usuario_id = ? AND actividad_id = ?", userID, actividadID).First(&inscripcionExistente).Error; err == nil {
 		log.Printf("Usuario ya inscrito")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Ya estás inscrito en esta actividad"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Ya est?s inscrito en esta actividad"})
 		return
 	}
 
-	// Crear la inscripción
+	// Crear la inscripci?n
 	if err := h.db.Create(&inscripcion).Error; err != nil {
-		log.Printf("Error al crear inscripción: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al crear la inscripción"})
+		log.Printf("Error al crear inscripci?n: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al crear la inscripci?n"})
 		return
 	}
-	log.Printf("Inscripción creada exitosamente: %+v", inscripcion)
+	log.Printf("Inscripci?n creada exitosamente: %+v", inscripcion)
 
 	c.JSON(http.StatusCreated, gin.H{
-		"message": "Inscripción creada exitosamente",
+		"message": "Inscripci?n creada exitosamente",
 		"data": dtos.InscripcionResponseDTO{
 			ID:               inscripcion.ID,
 			UsuarioID:        inscripcion.UsuarioID,
@@ -111,19 +111,23 @@ func (h *InscripcionHandler) CrearInscripcion(c *gin.Context) {
 	})
 }
 
-// GetInscripcionesByUsuario obtiene todas las inscripciones de un usuario
+// GetInscripcionesByUsuario obtiene todas las inscripciones del usuario autenticado
 func (h *InscripcionHandler) GetInscripcionesByUsuario(c *gin.Context) {
+	log.Printf("Recibida petici?n GET a /inscripciones/usuarios/me")
+
 	// Obtener el ID del usuario del token JWT
 	claims, exists := c.Get("claims")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener la información del usuario"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener la informaci?n del usuario"})
 		return
 	}
 
 	userID := uint(claims.(jwt.MapClaims)["user_id"].(float64))
+	log.Printf("Obteniendo inscripciones para usuario: %d", userID)
 
 	var inscripciones []models.Inscripcion
 	if err := h.db.Preload("Actividad").Where("usuario_id = ?", userID).Find(&inscripciones).Error; err != nil {
+		log.Printf("Error al obtener inscripciones: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener las inscripciones"})
 		return
 	}
@@ -135,37 +139,157 @@ func (h *InscripcionHandler) GetInscripcionesByUsuario(c *gin.Context) {
 			UsuarioID:        i.UsuarioID,
 			ActividadID:      i.ActividadID,
 			FechaInscripcion: i.FechaInscripcion,
+			Actividad:        i.Actividad,
 		})
 	}
 
 	c.JSON(http.StatusOK, response)
 }
 
-// CancelarInscripcion cancela una inscripción
-func (h *InscripcionHandler) CancelarInscripcion(c *gin.Context) {
-	inscripcionID := c.Param("id")
+// GetInscripcionesByActividad obtiene todas las inscripciones de una actividad espec?fica
+func (h *InscripcionHandler) GetInscripcionesByActividad(c *gin.Context) {
+	log.Printf("Recibida petici?n GET a /inscripciones/:actividadId")
+
+	actividadIDStr := c.Param("actividadId")
+	actividadID, err := strconv.ParseUint(actividadIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de actividad inv?lido"})
+		return
+	}
+
+	// Verificar que la actividad existe
+	var actividad models.Actividad
+	if err := h.db.First(&actividad, actividadID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Actividad no encontrada"})
+		return
+	}
+
+	var inscripciones []models.Inscripcion
+	if err := h.db.Preload("Usuario").Where("actividad_id = ?", actividadID).Find(&inscripciones).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener las inscripciones"})
+		return
+	}
+
+	var response []dtos.InscripcionResponseDTO
+	for _, i := range inscripciones {
+		response = append(response, dtos.InscripcionResponseDTO{
+			ID:               i.ID,
+			UsuarioID:        i.UsuarioID,
+			ActividadID:      i.ActividadID,
+			FechaInscripcion: i.FechaInscripcion,
+			Usuario:          i.Usuario,
+		})
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+// GetAllInscripciones obtiene todas las inscripciones (solo admin)
+func (h *InscripcionHandler) GetAllInscripciones(c *gin.Context) {
+	log.Printf("Recibida petici?n GET a /inscripciones/all")
+
+	var inscripciones []models.Inscripcion
+	if err := h.db.Preload("Usuario").Preload("Actividad").Find(&inscripciones).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener las inscripciones"})
+		return
+	}
+
+	var response []dtos.InscripcionResponseDTO
+	for _, i := range inscripciones {
+		response = append(response, dtos.InscripcionResponseDTO{
+			ID:               i.ID,
+			UsuarioID:        i.UsuarioID,
+			ActividadID:      i.ActividadID,
+			FechaInscripcion: i.FechaInscripcion,
+			Usuario:          i.Usuario,
+			Actividad:        i.Actividad,
+		})
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+// GetInscripcionByID obtiene una inscripci?n espec?fica
+func (h *InscripcionHandler) GetInscripcionByID(c *gin.Context) {
+	log.Printf("Recibida petici?n GET a /inscripciones/:inscripcionId")
+
+	inscripcionIDStr := c.Param("inscripcionId")
+	inscripcionID, err := strconv.ParseUint(inscripcionIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de inscripci?n inv?lido"})
+		return
+	}
 
 	// Obtener el ID del usuario del token JWT
 	claims, exists := c.Get("claims")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener la información del usuario"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener la informaci?n del usuario"})
 		return
 	}
 
 	userID := uint(claims.(jwt.MapClaims)["user_id"].(float64))
+	roleID := uint(claims.(jwt.MapClaims)["role_id"].(float64))
 
-	// Verificar que la inscripción existe y pertenece al usuario
 	var inscripcion models.Inscripcion
-	if err := h.db.Where("id = ? AND usuario_id = ?", inscripcionID, userID).First(&inscripcion).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Inscripción no encontrada"})
+	if err := h.db.Preload("Usuario").Preload("Actividad").First(&inscripcion, inscripcionID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Inscripci?n no encontrada"})
 		return
 	}
 
-	// Eliminar la inscripción
+	// Verificar que el usuario es el due?o de la inscripci?n o es admin
+	if inscripcion.UsuarioID != userID && roleID != 1 {
+		c.JSON(http.StatusForbidden, gin.H{"error": "No tienes permiso para ver esta inscripci?n"})
+		return
+	}
+
+	c.JSON(http.StatusOK, dtos.InscripcionResponseDTO{
+		ID:               inscripcion.ID,
+		UsuarioID:        inscripcion.UsuarioID,
+		ActividadID:      inscripcion.ActividadID,
+		FechaInscripcion: inscripcion.FechaInscripcion,
+		Usuario:          inscripcion.Usuario,
+		Actividad:        inscripcion.Actividad,
+	})
+}
+
+// CancelarInscripcion cancela una inscripci?n
+func (h *InscripcionHandler) CancelarInscripcion(c *gin.Context) {
+	log.Printf("Recibida petici?n DELETE a /inscripciones/:inscripcionId")
+
+	inscripcionIDStr := c.Param("inscripcionId")
+	inscripcionID, err := strconv.ParseUint(inscripcionIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de inscripci?n inv?lido"})
+		return
+	}
+
+	// Obtener el ID del usuario del token JWT
+	claims, exists := c.Get("claims")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener la informaci?n del usuario"})
+		return
+	}
+
+	userID := uint(claims.(jwt.MapClaims)["user_id"].(float64))
+	roleID := uint(claims.(jwt.MapClaims)["role_id"].(float64))
+
+	// Verificar que la inscripci?n existe y pertenece al usuario o es admin
+	var inscripcion models.Inscripcion
+	if err := h.db.First(&inscripcion, inscripcionID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Inscripci?n no encontrada"})
+		return
+	}
+
+	if inscripcion.UsuarioID != userID && roleID != 1 {
+		c.JSON(http.StatusForbidden, gin.H{"error": "No tienes permiso para cancelar esta inscripci?n"})
+		return
+	}
+
+	// Eliminar la inscripci?n
 	if err := h.db.Delete(&inscripcion).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al cancelar la inscripción"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al cancelar la inscripci?n"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Inscripción cancelada exitosamente"})
+	c.JSON(http.StatusOK, gin.H{"message": "Inscripci?n cancelada exitosamente"})
 }

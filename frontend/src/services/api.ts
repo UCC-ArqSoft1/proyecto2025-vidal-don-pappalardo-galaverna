@@ -264,7 +264,7 @@ export const activityService = {
 export const enrollmentService = {
   enrollInActivity: async (activityId: number): Promise<ApiResponse<Enrollment>> => {
     try {
-      const response = await authFetch(`/actividades/${activityId}/inscribirse`, {
+      const response = await authFetch(`/inscripciones/${activityId}`, {
         method: "POST",
       })
       const data = await response.json()
@@ -279,22 +279,18 @@ export const enrollmentService = {
     }
   },
 
-  getUserEnrollments: async (userId?: number): Promise<ApiResponse<Enrollment[]>> => {
+  getUserEnrollments: async (): Promise<ApiResponse<Enrollment[]>> => {
     try {
-      // If userId is provided, get enrollments for that user (admin function)
-      // Otherwise, get enrollments for the current user
-      const endpoint = userId ? `/inscripciones/usuarios/${userId}` : "/inscripciones/usuarios/me"
-
-      const response = await authFetch(endpoint)
+      const response = await authFetch("/inscripciones/usuarios/me")
       const data = await response.json()
 
       return {
         success: response.ok,
         data: response.ok ? data : undefined,
-        message: response.ok ? undefined : "Failed to fetch enrollments",
+        message: response.ok ? undefined : "Error al obtener inscripciones",
       }
     } catch (error) {
-      return { success: false, message: "Network error" }
+      return { success: false, message: "Error de red" }
     }
   },
 
@@ -306,25 +302,25 @@ export const enrollmentService = {
       return {
         success: response.ok,
         data: response.ok ? data : undefined,
-        message: response.ok ? undefined : "Failed to fetch enrollment",
+        message: response.ok ? undefined : "Error al obtener inscripción",
       }
     } catch (error) {
-      return { success: false, message: "Network error" }
+      return { success: false, message: "Error de red" }
     }
   },
 
   getEnrollmentsByActivity: async (activityId: number): Promise<ApiResponse<Enrollment[]>> => {
     try {
-      const response = await authFetch(`/inscripciones/${activityId}`)
+      const response = await authFetch(`/inscripciones/actividad/${activityId}`)
       const data = await response.json()
 
       return {
         success: response.ok,
         data: response.ok ? data : undefined,
-        message: response.ok ? undefined : "Failed to fetch enrollments for activity",
+        message: response.ok ? undefined : "Error al obtener inscripciones de la actividad",
       }
     } catch (error) {
-      return { success: false, message: "Network error" }
+      return { success: false, message: "Error de red" }
     }
   },
 
@@ -336,10 +332,25 @@ export const enrollmentService = {
       return {
         success: response.ok,
         data: response.ok ? data : undefined,
-        message: response.ok ? undefined : "Failed to fetch all enrollments",
+        message: response.ok ? undefined : "Error al obtener todas las inscripciones",
       }
     } catch (error) {
-      return { success: false, message: "Network error" }
+      return { success: false, message: "Error de red" }
+    }
+  },
+
+  cancelEnrollment: async (enrollmentId: number): Promise<ApiResponse<void>> => {
+    try {
+      const response = await authFetch(`/inscripciones/${enrollmentId}`, {
+        method: "DELETE",
+      })
+
+      return {
+        success: response.ok,
+        message: response.ok ? "Inscripción cancelada exitosamente" : "Error al cancelar inscripción",
+      }
+    } catch (error) {
+      return { success: false, message: "Error de red" }
     }
   },
 }
