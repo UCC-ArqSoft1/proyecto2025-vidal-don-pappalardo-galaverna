@@ -27,8 +27,15 @@ func main() {
 	// Crear el router Gin
 	r := gin.Default()
 
-	// Habilitar CORS (modo desarrollo: permite todos los orígenes)
-	r.Use(cors.Default())
+	// Configurar CORS
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * 60 * 60, // 12 hours
+	}))
 
 	// Configurar rutas de autenticación
 	routes.ConfigurarRutasAuth(r, authHandler)
