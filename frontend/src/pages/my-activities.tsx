@@ -88,7 +88,7 @@ const MyActivities = () => {
                 <div className="sport-divider"></div>
 
                 <div className="flex justify-end gap-4 mt-4">
-                  <Link to={`/detalle/${enrollment.actividadId}`} className="sport-button sport-button-outline">
+                  <Link to={`/detalle/${enrollment.id}`} className="sport-button sport-button-outline">
                     VER DETALLES
                   </Link>
                 </div>
