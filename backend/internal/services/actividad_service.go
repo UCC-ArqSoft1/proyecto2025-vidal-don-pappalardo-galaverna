@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/proyecto2025/backend/internal/dtos"
@@ -23,7 +24,13 @@ func (s *ActividadService) GetAll() ([]models.Actividad, error) {
 }
 
 func (s *ActividadService) CrearActividad(actividadDTO dtos.ActividadDTO) (*models.Actividad, error) {
-	// Aquí debes convertir el DTO a un modelo de actividad
+	// Convertir la imagen base64 a bytes
+	imagenData, imagenType, err := dtos.Base64ToImage(actividadDTO.ImagenData)
+	if err != nil {
+		return nil, fmt.Errorf("error al procesar la imagen: %v", err)
+	}
+
+	// Crear el modelo de actividad
 	actividad := models.Actividad{
 		Titulo:      actividadDTO.Titulo,
 		Descripcion: actividadDTO.Descripcion,
@@ -32,7 +39,8 @@ func (s *ActividadService) CrearActividad(actividadDTO dtos.ActividadDTO) (*mode
 		Duracion:    actividadDTO.Duracion,
 		Cupo:        actividadDTO.Cupo,
 		Categoria:   actividadDTO.Categoria,
-		ImagenURL:   actividadDTO.ImagenURL,
+		ImagenData:  imagenData,
+		ImagenType:  imagenType,
 		Active:      actividadDTO.Active,
 		ProfesorID:  actividadDTO.ProfesorID,
 	}
@@ -70,54 +78,43 @@ func (s *ActividadService) DeleteActividad(id uint) error {
 	return nil // Todo salió bien
 }
 
-func (s *ActividadService) UpdateActividad(id uint, actividadDTO dtos.ActividadDTO) (models.Actividad, error) {
+func (s *ActividadService) UpdateActividad(id uint, actividadDTO dtos.ActividadDTO) (*models.Actividad, error) {
 	var actividad models.Actividad
-
-	// Buscar incluso si fue borrada lógicamente
-	if err := s.DB.Unscoped().First(&actividad, id).Error; err != nil {
-		return models.Actividad{}, errors.New("Actividad no encontrada")
-	}
-	if actividadDTO.ProfesorID != 0 {
-		actividad.ProfesorID = actividadDTO.ProfesorID
+	if err := s.DB.First(&actividad, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.New("actividad no encontrada")
+		}
+		return nil, err
 	}
 
-	// Verificar si fue borrada lógicamente
-	if actividad.DeletedAt.Valid {
-		return models.Actividad{}, errors.New("No se puede modificar una actividad que fue borrada")
+	// Si la actividad está eliminada lógicamente, no permitir actualización
+	if !actividad.Active {
+		return nil, errors.New("no se puede actualizar una actividad eliminada")
 	}
 
-	// Actualizamos solo los campos provistos
-	if actividadDTO.Titulo != "" {
-		actividad.Titulo = actividadDTO.Titulo
-	}
-	if actividadDTO.Descripcion != "" {
-		actividad.Descripcion = actividadDTO.Descripcion
-	}
-	if actividadDTO.Dia != "" {
-		actividad.Dia = actividadDTO.Dia
-	}
-	if !actividadDTO.Horario.IsZero() {
-		actividad.Horario = actividadDTO.Horario
-	}
-	if actividadDTO.Duracion > 0 {
-		actividad.Duracion = actividadDTO.Duracion
-	}
-	if actividadDTO.Cupo > 0 {
-		actividad.Cupo = actividadDTO.Cupo
-	}
-	if actividadDTO.Categoria != "" {
-		actividad.Categoria = actividadDTO.Categoria
-	}
-	if actividadDTO.ImagenURL != "" {
-		actividad.ImagenURL = actividadDTO.ImagenURL
+	// Convertir la imagen base64 a bytes si se proporciona una nueva imagen
+	if actividadDTO.ImagenData != "" {
+		imagenData, imagenType, err := dtos.Base64ToImage(actividadDTO.ImagenData)
+		if err != nil {
+			return nil, fmt.Errorf("error al procesar la imagen: %v", err)
+		}
+		actividad.ImagenData = imagenData
+		actividad.ImagenType = imagenType
 	}
 
-	actividad.Active = actividadDTO.Active
+	// Actualizar los demás campos
+	actividad.Titulo = actividadDTO.Titulo
+	actividad.Descripcion = actividadDTO.Descripcion
+	actividad.Dia = actividadDTO.Dia
+	actividad.Horario = actividadDTO.Horario
+	actividad.Duracion = actividadDTO.Duracion
+	actividad.Cupo = actividadDTO.Cupo
+	actividad.Categoria = actividadDTO.Categoria
+	actividad.ProfesorID = actividadDTO.ProfesorID
 
-	// Guardar en la base de datos
 	if err := s.DB.Save(&actividad).Error; err != nil {
-		return models.Actividad{}, err
+		return nil, err
 	}
 
-	return actividad, nil
+	return &actividad, nil
 }

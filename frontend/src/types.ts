@@ -33,9 +33,10 @@ export interface Activity {
   duracion: number
   cupo: number
   categoria: string
+  imagen_data?: string
+  imagen_type?: string
+  active: boolean
   instructor: string
-  imagen_url?: string
-  active?: boolean
   profesor_id: number
 }
 

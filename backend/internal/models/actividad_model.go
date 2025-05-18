@@ -15,7 +15,8 @@ type Actividad struct {
 	Duracion      int           `json:"duracion"`
 	Cupo          int           `json:"cupo"`
 	Categoria     string        `gorm:"size:50" json:"categoria"`
-	ImagenURL     string        `gorm:"size:255" json:"imagen_url"`
+	ImagenData    []byte        `gorm:"type:longblob" json:"imagen_data"`
+	ImagenType    string        `gorm:"size:50" json:"imagen_type"` // Para guardar el tipo MIME (ej: "image/jpeg")
 	Active        bool          `json:"active"`
 	Inscripciones []Inscripcion `json:"inscripciones,omitempty"`
 

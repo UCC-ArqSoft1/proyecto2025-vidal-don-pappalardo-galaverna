@@ -58,12 +58,23 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
     setForm((prev) => ({ ...prev, [name]: Number.parseInt(value) || 0 }))
   }
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      // En un caso real, aquí subirías la imagen a un servidor y obtendrías la URL
       const file = e.target.files[0]
-      const localUrl = URL.createObjectURL(file)
-      setForm((prev) => ({ ...prev, imagen_url: localUrl }))
+      
+      // Convertir el archivo a base64
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          const base64String = event.target.result as string
+          setForm((prev) => ({ 
+            ...prev, 
+            imagen_data: base64String,
+            imagen_type: file.type
+          }))
+        }
+      }
+      reader.readAsDataURL(file)
     }
   }
 
@@ -187,14 +198,10 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
                 <div className="sport-file-input">
                   <input type="file" name="photo" accept="image/*" onChange={handleFileChange} />
                   <div className="sport-file-input-label">
-                    {form.imagen_url ? (
+                    {form.imagen_data ? (
                       <div className="flex items-center gap-2">
                         <span>Imagen seleccionada</span>
-                        {form.imagen_url.startsWith("blob:") ? (
-                          <img src={form.imagen_url} alt="Preview" className="w-8 h-8 object-cover rounded" />
-                        ) : (
-                          <img src={form.imagen_url} alt="Preview" className="w-8 h-8 object-cover rounded" />
-                        )}
+                        <img src={form.imagen_data} alt="Preview" className="w-8 h-8 object-cover rounded" />
                       </div>
                     ) : (
                       "Seleccionar imagen"

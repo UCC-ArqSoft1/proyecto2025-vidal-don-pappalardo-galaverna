@@ -1,6 +1,9 @@
 package dtos
 
 import (
+	"encoding/base64"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/proyecto2025/backend/internal/models"
@@ -19,7 +22,8 @@ type ActividadDTO struct {
 	Duracion    int       `json:"duracion" binding:"required,min=1"`
 	Cupo        int       `json:"cupo" binding:"required,min=1"`
 	Categoria   string    `json:"categoria" binding:"required,max=50"`
-	ImagenURL   string    `json:"imagen_url" binding:"max=255"`
+	ImagenData  string    `json:"imagen_data"` // Base64 encoded image data
+	ImagenType  string    `json:"imagen_type"` // MIME type of the image
 	Active      bool      `json:"active"`
 	ProfesorID  uint      `json:"profesor_id" binding:"required"`
 }
@@ -33,7 +37,8 @@ type ActividadResponseDTO struct {
 	Duracion    int                 `json:"duracion"`
 	Cupo        int                 `json:"cupo"`
 	Categoria   string              `json:"categoria"`
-	ImagenURL   string              `json:"imagen_url"`
+	ImagenData  string              `json:"imagen_data"` // Base64 encoded image data
+	ImagenType  string              `json:"imagen_type"` // MIME type of the image
 	Active      bool                `json:"active"`
 	ProfesorID  uint                `json:"profesor_id"`
 	Profesor    ProfesorResponseDTO `json:"profesor"`
@@ -52,7 +57,7 @@ func MapActividadToDTO(a models.Actividad) ActividadResponseDTO {
 		Duracion:    a.Duracion,
 		Cupo:        a.Cupo,
 		Categoria:   a.Categoria,
-		ImagenURL:   a.ImagenURL,
+		ImagenData:  ImageToBase64(a.ImagenData, a.ImagenType),
 		Active:      a.Active,
 		ProfesorID:  a.ProfesorID,
 		Profesor: ProfesorResponseDTO{
@@ -62,4 +67,33 @@ func MapActividadToDTO(a models.Actividad) ActividadResponseDTO {
 		CreatedAt: a.CreatedAt,
 		UpdatedAt: a.UpdatedAt,
 	}
+}
+
+// Función para convertir una imagen a base64
+func ImageToBase64(imageData []byte, mimeType string) string {
+	if len(imageData) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("data:%s;base64,%s", mimeType, base64.StdEncoding.EncodeToString(imageData))
+}
+
+// Función para convertir base64 a bytes
+func Base64ToImage(base64Str string) ([]byte, string, error) {
+	if base64Str == "" {
+		return nil, "", nil
+	}
+
+	// Extraer el tipo MIME y los datos base64
+	parts := strings.Split(base64Str, ";base64,")
+	if len(parts) != 2 {
+		return nil, "", fmt.Errorf("formato base64 inválido")
+	}
+
+	mimeType := strings.TrimPrefix(parts[0], "data:")
+	data, err := base64.StdEncoding.DecodeString(parts[1])
+	if err != nil {
+		return nil, "", err
+	}
+
+	return data, mimeType, nil
 }
