@@ -77,7 +77,7 @@ const Home = () => {
 
       {isAdmin && (
         <div className="mb-6 mt-4">
-          <Link to="/crear" className="sport-button">
+          <Link to="/nueva-actividad" className="sport-button">
             CREAR NUEVA ACTIVIDAD
           </Link>
         </div>

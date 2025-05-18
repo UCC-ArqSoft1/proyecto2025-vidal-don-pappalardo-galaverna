@@ -14,8 +14,9 @@ func main() {
 	// Iniciar base de datos
 	db.InitDB()
 
-	// Crear el servicio de actividad
+	// Crear los servicios
 	actividadService := &services.ActividadService{DB: db.DB}
+	inscripcionService := services.NewInscripcionService(db.DB)
 
 	// Crear el validador
 	validate := validator.New()
@@ -23,6 +24,7 @@ func main() {
 	// Inicializar los handlers
 	authHandler := handlers.NewAuthHandler(db.DB, validate, "mi_clave_secreta_super_segura")
 	actividadHandler := handlers.NewActividadHandler(db.DB, validate, actividadService)
+	inscripcionHandler := handlers.NewInscripcionHandler(db.DB, inscripcionService)
 
 	// Crear el router Gin
 	r := gin.Default()
@@ -42,6 +44,9 @@ func main() {
 
 	// Configurar rutas de actividades
 	routes.ConfigurarRutasActividad(r, actividadHandler)
+
+	// Configurar rutas de inscripciones
+	routes.ConfigurarRutasInscripcion(r, inscripcionHandler)
 
 	// ----------------------
 	// SWAGGER CONFIGURACIÓN
