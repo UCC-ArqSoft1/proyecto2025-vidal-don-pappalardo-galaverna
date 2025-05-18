@@ -41,7 +41,7 @@ const CyberLayout: React.FC<CyberLayoutProps> = ({ children }) => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="sport-layout">
       <nav className="sport-navbar">
         <div className="sport-logo">CYBER GYM</div>
         <div className="sport-nav-links">
@@ -54,7 +54,7 @@ const CyberLayout: React.FC<CyberLayoutProps> = ({ children }) => {
         </div>
       </nav>
 
-      <main className="flex-grow container mx-auto px-4 py-8">
+      <main className="sport-main">
         {children}
       </main>
 
