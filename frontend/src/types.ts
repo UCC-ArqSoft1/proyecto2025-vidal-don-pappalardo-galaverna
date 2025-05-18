@@ -38,6 +38,12 @@ export interface Activity {
   active: boolean
   instructor: string
   profesor_id: number
+  profesor?: {
+    id: number
+    nombre: string
+  }
+  created_at?: string
+  updated_at?: string
 }
 
 // Enrollment related interfaces

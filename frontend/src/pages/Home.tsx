@@ -94,7 +94,10 @@ const Home = () => {
             <div key={activity.id} className="sport-card">
               <div className="sport-card-content">
                 <div className="sport-card-image">
-                  <img src={activity.imagen_url || "/placeholder.svg?height=200&width=400"} alt={activity.titulo} />
+                  <img 
+                    src={activity.imagen_data || "/placeholder.svg?height=200&width=400"} 
+                    alt={activity.titulo} 
+                  />
                   <div className="sport-card-badge">
                     <span
                       className={`sport-badge ${
@@ -120,7 +123,7 @@ const Home = () => {
                     <span className="text-primary font-semibold">DÍA:</span> {activity.dia}
                   </p>
                   <p>
-                    <span className="text-primary font-semibold">INSTRUCTOR:</span> {activity.instructor}
+                    <span className="text-primary font-semibold">INSTRUCTOR:</span> {activity.profesor?.nombre || "No asignado"}
                   </p>
                 </div>
 
