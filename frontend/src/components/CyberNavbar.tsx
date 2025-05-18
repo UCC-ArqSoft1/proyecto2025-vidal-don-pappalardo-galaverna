@@ -1,8 +1,8 @@
 import type React from "react"
 import { Link } from "react-router-dom"
-import { useAuth } from "../contexts/AuthContext"
 import { UserMenu } from "./UserMenu"
 import type { NavLink } from "../types"
+import { isAuthenticated, isAdmin } from "../utils/auth"
 
 interface CyberNavbarProps {
   links?: NavLink[]
@@ -10,11 +10,12 @@ interface CyberNavbarProps {
 }
 
 const CyberNavbar: React.FC<CyberNavbarProps> = ({ links = [], logo = "CYBER GYM" }) => {
-  const { isAuthenticated, isAdmin } = useAuth()
+  const authenticated = isAuthenticated()
+  const admin = isAdmin()
 
   // Solo usamos los links personalizados si se proporcionan explícitamente
   // y el usuario está autenticado
-  if (links.length > 0 && isAuthenticated) {
+  if (links.length > 0 && authenticated) {
     return (
       <nav className="cyber-navbar">
         <div className="cyber-logo glitch-effect">{logo}</div>
@@ -31,7 +32,7 @@ const CyberNavbar: React.FC<CyberNavbarProps> = ({ links = [], logo = "CYBER GYM
   }
 
   // Links por defecto basados en el estado de autenticación
-  const defaultLinks = !isAuthenticated
+  const defaultLinks = !authenticated
     ? [
         { to: "/", label: "Inicio" },
         { to: "/login", label: "Iniciar Sesión" },
@@ -40,7 +41,7 @@ const CyberNavbar: React.FC<CyberNavbarProps> = ({ links = [], logo = "CYBER GYM
     : [
         { to: "/", label: "Inicio" },
         { to: "/mis-actividades", label: "Mis Actividades" },
-        ...(isAdmin ? [{ to: "/nueva-actividad", label: "Nueva Actividad" }] : []),
+        ...(admin ? [{ to: "/nueva-actividad", label: "Nueva Actividad" }] : []),
       ]
 
   return (
@@ -52,7 +53,7 @@ const CyberNavbar: React.FC<CyberNavbarProps> = ({ links = [], logo = "CYBER GYM
             {link.label}
           </Link>
         ))}
-        {isAuthenticated && <UserMenu />}
+        {authenticated && <UserMenu />}
       </div>
     </nav>
   )
