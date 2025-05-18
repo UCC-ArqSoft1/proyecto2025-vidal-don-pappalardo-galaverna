@@ -1,4 +1,5 @@
-import { useAuth } from '../contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
+import { isAuthenticated, isAdmin } from '../utils/auth'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -6,9 +7,18 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
-  const { checkAuth } = useAuth()
+  const navigate = useNavigate()
+  const authenticated = isAuthenticated()
   
-  // Si checkAuth retorna true, renderizar los children
-  // Si retorna false, ya se encargó de la redirección
-  return checkAuth(requireAdmin) ? <>{children}</> : null
+  if (!authenticated) {
+    navigate('/login')
+    return null
+  }
+
+  if (requireAdmin && !isAdmin()) {
+    navigate('/')
+    return null
+  }
+
+  return <>{children}</>
 } 

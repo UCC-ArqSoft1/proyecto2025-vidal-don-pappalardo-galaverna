@@ -1,12 +1,15 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getUserName, clearAuthData } from '../utils/auth'
+import { clearAuthData } from '../utils/auth'
 
-export function UserMenu() {
+interface UserMenuProps {
+  userName: string
+}
+
+export function UserMenu({ userName }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
-  const userName = getUserName()
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -22,39 +25,21 @@ export function UserMenu() {
   const handleLogout = () => {
     clearAuthData()
     navigate('/login')
-    setIsOpen(false)
   }
 
-  if (!userName) return null
-
   return (
-    <div className="relative" ref={menuRef}>
+    <div className="user-menu" ref={menuRef}>
       <button
+        className="user-menu-button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none"
       >
-        <span>{userName}</span>
-        <svg
-          className={`h-5 w-5 transform transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+        {userName}
       </button>
-
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-          <div className="py-1" role="menu" aria-orientation="vertical">
-            <button
-              onClick={handleLogout}
-              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              role="menuitem"
-            >
-              Cerrar sesión
-            </button>
-          </div>
+        <div className="user-menu-dropdown">
+          <button onClick={handleLogout} className="user-menu-item">
+            Cerrar Sesión
+          </button>
         </div>
       )}
     </div>
