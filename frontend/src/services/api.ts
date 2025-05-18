@@ -40,13 +40,13 @@ export const authService = {
         // Decode the JWT token to get user info
         const tokenPayload = JSON.parse(atob(data.access_token.split('.')[1]))
         
-        // Create minimal user object with just id and role_name
+        // Create user object with all required fields from JWT
         const user: User = {
           id: tokenPayload.user_id,
           role_name: tokenPayload.role_name,
-          email: "", // Required by type but not used
-          nombre: "", // Required by type but not used
-          apellido: "", // Required by type but not used
+          nombre: tokenPayload.nombre,
+          apellido: tokenPayload.apellido,
+          email: email, // We can use the email from the login form
           active: true // Required by type but not used
         }
 
