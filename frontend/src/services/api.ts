@@ -37,14 +37,28 @@ export const authService = {
       const data = await response.json()
 
       if (response.ok) {
-        // Store token in localStorage
+        // Decode the JWT token to get user info
+        const tokenPayload = JSON.parse(atob(data.access_token.split('.')[1]))
+        
+        // Create minimal user object with just id and role_id
+        const user: User = {
+          id: tokenPayload.user_id,
+          role_id: tokenPayload.role_id,
+          email: "", // Required by type but not used
+          nombre: "", // Required by type but not used
+          apellido: "", // Required by type but not used
+          active: true // Required by type but not used
+        }
+
+        // Store token and user in localStorage
         localStorage.setItem("token", data.access_token)
         localStorage.setItem("refresh_token", data.refresh_token)
-        localStorage.setItem("user", JSON.stringify(data.user))
+        localStorage.setItem("user", JSON.stringify(user))
+
         return {
           success: true,
           message: "Login successful",
-          user: data.user,
+          user: user,
           token: data.access_token,
           refreshToken: data.refresh_token,
         }
@@ -58,6 +72,7 @@ export const authService = {
         }
       }
     } catch (error) {
+      console.error("Login error:", error)
       return {
         success: false,
         message: "Network error",
