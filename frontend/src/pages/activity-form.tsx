@@ -14,7 +14,13 @@ interface ActivityFormProps {
 export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: ActivityFormProps) => {
   const navigate = useNavigate()
   const [form, setForm] = useState<Activity>(
-    initialData || {
+    initialData ? {
+      ...initialData,
+      // Asegurarnos de que instructor sea el ID del profesor
+      instructor: initialData.profesor_id?.toString() || "",
+      // Si la imagen es una URL blob, no la usamos
+      imagen_url: initialData.imagen_url?.startsWith("blob:") ? "" : initialData.imagen_url || ""
+    } : {
       titulo: "",
       descripcion: "",
       dia: "",
@@ -26,7 +32,7 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
       imagen_url: "",
       active: true,
       profesor_id: 0,
-    },
+    }
   )
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -181,7 +187,18 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
                 <div className="sport-file-input">
                   <input type="file" name="photo" accept="image/*" onChange={handleFileChange} />
                   <div className="sport-file-input-label">
-                    {form.imagen_url ? "Imagen seleccionada" : "Seleccionar imagen"}
+                    {form.imagen_url ? (
+                      <div className="flex items-center gap-2">
+                        <span>Imagen seleccionada</span>
+                        {form.imagen_url.startsWith("blob:") ? (
+                          <img src={form.imagen_url} alt="Preview" className="w-8 h-8 object-cover rounded" />
+                        ) : (
+                          <img src={form.imagen_url} alt="Preview" className="w-8 h-8 object-cover rounded" />
+                        )}
+                      </div>
+                    ) : (
+                      "Seleccionar imagen"
+                    )}
                   </div>
                 </div>
               </div>
