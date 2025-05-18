@@ -130,7 +130,7 @@ const Home = () => {
                   </Link>
                   {isAdmin && (
                     <Link
-                      to={`/editar/${activity.id}`}
+                      to={`/editar-actividad/${activity.id}`}
                       className="sport-button sport-button-outline sport-button-full mt-2"
                     >
                       EDITAR

@@ -226,9 +226,24 @@ export const activityService = {
 
   updateActivity: async (id: number, activity: Partial<Activity>): Promise<ApiResponse<Activity>> => {
     try {
-      const response = await authFetch(`/actividades/${id}`, {
+      // Formatear los datos antes de enviarlos
+      const formattedActivity = {
+        ...activity,
+        // Asegurarnos de que el día sea un solo valor
+        dia: activity.dia?.split(',')[0] || activity.dia,
+        // Convertir el horario a formato de hora si es una fecha ISO
+        horario: activity.horario ? new Date(activity.horario).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }) : activity.horario,
+        // Remover campos innecesarios
+        profesor: undefined,
+        created_at: undefined,
+        updated_at: undefined,
+        // Asegurarnos de que profesor_id sea un número
+        profesor_id: activity.profesor_id ? Number(activity.profesor_id) : undefined
+      }
+
+      const response = await authFetch(`/api/actividades/${id}`, {
         method: "PUT",
-        body: JSON.stringify(activity),
+        body: JSON.stringify(formattedActivity),
       })
       const data = await response.json()
 
