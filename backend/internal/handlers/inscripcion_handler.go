@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -26,17 +28,30 @@ func NewInscripcionHandler(db *gorm.DB, service *services.InscripcionService) *I
 
 // CrearInscripcion crea una nueva inscripción
 func (h *InscripcionHandler) CrearInscripcion(c *gin.Context) {
+	log.Printf("Recibida petición POST a /actividades/:id/inscribirse")
+
 	// Obtener el ID de la actividad de la URL
-	actividadID := c.Param("id")
+	actividadIDStr := c.Param("id")
+	log.Printf("ID de actividad: %s", actividadIDStr)
+
+	// Convertir el ID a uint
+	actividadID, err := strconv.ParseUint(actividadIDStr, 10, 32)
+	if err != nil {
+		log.Printf("Error al convertir ID de actividad: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID de actividad inválido"})
+		return
+	}
 
 	// Obtener el ID del usuario del token JWT
 	claims, exists := c.Get("claims")
 	if !exists {
+		log.Printf("No se encontraron claims en el token")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener la información del usuario"})
 		return
 	}
 
 	userID := uint(claims.(jwt.MapClaims)["user_id"].(float64))
+	log.Printf("ID de usuario: %d", userID)
 
 	// Crear la inscripción
 	inscripcion := models.Inscripcion{
@@ -48,18 +63,23 @@ func (h *InscripcionHandler) CrearInscripcion(c *gin.Context) {
 	// Verificar si la actividad existe y tiene cupo disponible
 	var actividad models.Actividad
 	if err := h.db.First(&actividad, actividadID).Error; err != nil {
+		log.Printf("Error al buscar actividad: %v", err)
 		c.JSON(http.StatusNotFound, gin.H{"error": "Actividad no encontrada"})
 		return
 	}
+	log.Printf("Actividad encontrada: %+v", actividad)
 
 	// Verificar si hay cupo disponible
 	var inscripcionesCount int64
 	if err := h.db.Model(&models.Inscripcion{}).Where("actividad_id = ?", actividadID).Count(&inscripcionesCount).Error; err != nil {
+		log.Printf("Error al contar inscripciones: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al verificar cupos"})
 		return
 	}
+	log.Printf("Cupos ocupados: %d/%d", inscripcionesCount, actividad.Cupo)
 
 	if inscripcionesCount >= int64(actividad.Cupo) {
+		log.Printf("No hay cupos disponibles")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No hay cupos disponibles"})
 		return
 	}
@@ -67,15 +87,18 @@ func (h *InscripcionHandler) CrearInscripcion(c *gin.Context) {
 	// Verificar si el usuario ya está inscrito
 	var inscripcionExistente models.Inscripcion
 	if err := h.db.Where("usuario_id = ? AND actividad_id = ?", userID, actividadID).First(&inscripcionExistente).Error; err == nil {
+		log.Printf("Usuario ya inscrito")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Ya estás inscrito en esta actividad"})
 		return
 	}
 
 	// Crear la inscripción
 	if err := h.db.Create(&inscripcion).Error; err != nil {
+		log.Printf("Error al crear inscripción: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al crear la inscripción"})
 		return
 	}
+	log.Printf("Inscripción creada exitosamente: %+v", inscripcion)
 
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "Inscripción creada exitosamente",
