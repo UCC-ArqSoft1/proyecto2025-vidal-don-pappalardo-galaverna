@@ -25,6 +25,7 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
       instructor: "",
       imagen_url: "",
       active: true,
+      profesor_id: 0,
     },
   )
 
@@ -36,6 +37,14 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
       const date = new Date()
       date.setHours(hours, minutes, 0, 0)
       setForm((prev) => ({ ...prev, [name]: date.toISOString() }))
+    } else if (name === "instructor") {
+      // Convertir el instructor a número y usarlo como profesor_id
+      const profesorId = Number(value)
+      setForm((prev) => ({ 
+        ...prev, 
+        instructor: value,
+        profesor_id: profesorId 
+      }))
     } else {
       setForm((prev) => ({ ...prev, [name]: value }))
     }
@@ -58,10 +67,11 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     if (onSubmit) {
-      // Asegurarnos de que el horario sea un string ISO
+      // Asegurarnos de que el horario sea un string ISO y que profesor_id sea un número
       const formData = {
         ...form,
         horario: new Date(form.horario).toISOString(),
+        profesor_id: Number(form.instructor)
       }
       onSubmit(formData)
     } else {
@@ -157,13 +167,15 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
               </div>
 
               <div className="activity-form-group">
-                <label className="activity-form-label">Instructor</label>
+                <label className="activity-form-label">ID del Instructor</label>
                 <input
+                  type="number"
                   name="instructor"
                   value={form.instructor}
                   onChange={handleChange}
-                  placeholder="Nombre del instructor"
+                  placeholder="ID del instructor"
                   required
+                  min={1}
                   className="sport-input"
                 />
               </div>

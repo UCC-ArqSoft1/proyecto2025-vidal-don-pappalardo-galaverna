@@ -36,6 +36,7 @@ export interface Activity {
   instructor: string
   imagen_url?: string
   active?: boolean
+  profesor_id: number
 }
 
 // Enrollment related interfaces
