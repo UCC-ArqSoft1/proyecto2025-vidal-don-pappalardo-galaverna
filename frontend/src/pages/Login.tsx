@@ -3,9 +3,9 @@
 import type React from "react"
 
 import { useState, type FormEvent } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import SportLayout from "../components/layout/CyberLayout"
-import { authService } from "../api"
+import { authService } from "../services/api"
 
 interface LoginFormData {
   email: string
@@ -87,6 +87,15 @@ const Login = () => {
                 "INICIAR SESIÓN"
               )}
             </button>
+
+            <div className="mt-4 text-center">
+              <p>
+                ¿No tienes una cuenta?{" "}
+                <Link to="/registro" className="text-primary hover:underline">
+                  Regístrate
+                </Link>
+              </p>
+            </div>
           </form>
         </div>
       </div>

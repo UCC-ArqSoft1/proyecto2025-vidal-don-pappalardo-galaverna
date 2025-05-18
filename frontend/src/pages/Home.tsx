@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import SportLayout from "../components/layout/CyberLayout"
-import { activityService } from "../api"
+import { activityService, authService } from "../services/api"
 import type { Activity } from "../types"
 
 const Home = () => {
@@ -11,6 +11,7 @@ const Home = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const [search, setSearch] = useState<string>("")
   const [error, setError] = useState<string | null>(null)
+  const isAdmin = authService.isAdmin()
 
   useEffect(() => {
     const fetchActivities = async () => {
@@ -74,47 +75,73 @@ const Home = () => {
         />
       </div>
 
-      <div className="sport-card-grid">
-        {filtered.map((activity) => (
-          <div key={activity.id} className="sport-card">
-            <div className="sport-card-content">
-              <div className="sport-card-image">
-                <img src={activity.imagen_url || "/placeholder.svg?height=200&width=400"} alt={activity.titulo} />
-                <div className="sport-card-badge">
-                  <span
-                    className={`sport-badge ${
-                      activity.categoria === "yoga"
-                        ? "sport-badge-accent"
-                        : activity.categoria === "cardio"
-                          ? "sport-badge-secondary"
-                          : ""
-                    }`}
-                  >
-                    {activity.categoria.toUpperCase()}
-                  </span>
+      {isAdmin && (
+        <div className="mb-6 mt-4">
+          <Link to="/crear" className="sport-button">
+            CREAR NUEVA ACTIVIDAD
+          </Link>
+        </div>
+      )}
+
+      {filtered.length === 0 ? (
+        <div className="sport-card p-6 text-center">
+          <h2 className="text-xl mb-4">No se encontraron actividades</h2>
+          <p>Intenta con otra búsqueda o vuelve más tarde.</p>
+        </div>
+      ) : (
+        <div className="sport-card-grid">
+          {filtered.map((activity) => (
+            <div key={activity.id} className="sport-card">
+              <div className="sport-card-content">
+                <div className="sport-card-image">
+                  <img src={activity.imagen_url || "/placeholder.svg?height=200&width=400"} alt={activity.titulo} />
+                  <div className="sport-card-badge">
+                    <span
+                      className={`sport-badge ${
+                        activity.categoria === "yoga"
+                          ? "sport-badge-accent"
+                          : activity.categoria === "cardio"
+                            ? "sport-badge-secondary"
+                            : ""
+                      }`}
+                    >
+                      {activity.categoria.toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+
+                <h2 className="sport-card-title">{activity.titulo}</h2>
+
+                <div className="sport-card-meta">
+                  <p>
+                    <span className="text-primary font-semibold">HORARIO:</span> {activity.horario}
+                  </p>
+                  <p>
+                    <span className="text-primary font-semibold">DÍA:</span> {activity.dia}
+                  </p>
+                  <p>
+                    <span className="text-primary font-semibold">INSTRUCTOR:</span> {activity.instructor}
+                  </p>
+                </div>
+
+                <div className="sport-card-actions">
+                  <Link to={`/detalle/${activity.id}`} className="sport-button sport-button-full">
+                    VER DETALLES
+                  </Link>
+                  {isAdmin && (
+                    <Link
+                      to={`/editar/${activity.id}`}
+                      className="sport-button sport-button-outline sport-button-full mt-2"
+                    >
+                      EDITAR
+                    </Link>
+                  )}
                 </div>
               </div>
-
-              <h2 className="sport-card-title">{activity.titulo}</h2>
-
-              <div className="sport-card-meta">
-                <p>
-                  <span className="text-primary font-semibold">HORARIO:</span> {activity.horario}
-                </p>
-                <p>
-                  <span className="text-primary font-semibold">DÍA:</span> {activity.dia}
-                </p>
-              </div>
-
-              <div className="sport-card-actions">
-                <Link to={`/detalle/${activity.id}`} className="sport-button sport-button-full">
-                  VER DETALLES
-                </Link>
-              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </SportLayout>
   )
 }

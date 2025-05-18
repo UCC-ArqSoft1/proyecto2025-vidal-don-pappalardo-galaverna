@@ -1,13 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import SportLayout from "../components/layout/CyberLayout"
-import { activityService, authService, enrollmentService } from "../api"
+import { activityService, authService, enrollmentService } from "../services/api"
 import type { Activity } from "../types"
 
 const ActivityDetail = () => {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const [activity, setActivity] = useState<Activity | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [isEnrolling, setIsEnrolling] = useState<boolean>(false)
@@ -33,8 +34,11 @@ const ActivityDetail = () => {
   }, [id])
 
   const handleEnroll = async () => {
-    if (!id || !authService.isAuthenticated()) {
+    if (!id) return
+
+    if (!authService.isAuthenticated()) {
       alert("Debes iniciar sesión para inscribirte")
+      navigate("/login")
       return
     }
 
@@ -127,6 +131,11 @@ const ActivityDetail = () => {
               <div className="activity-detail-info-item">
                 <span className="activity-detail-info-label">Horario</span>
                 <span className="activity-detail-info-value">{activity.horario}</span>
+              </div>
+
+              <div className="activity-detail-info-item">
+                <span className="activity-detail-info-label">Instructor</span>
+                <span className="activity-detail-info-value">{activity.instructor}</span>
               </div>
             </div>
 

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, type ChangeEvent, type FormEvent } from "react"
+import { useNavigate } from "react-router-dom"
 import SportLayout from "../components/layout/CyberLayout"
 import type { Activity } from "../types"
 
@@ -11,6 +12,7 @@ interface ActivityFormProps {
 }
 
 export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: ActivityFormProps) => {
+  const navigate = useNavigate()
   const [form, setForm] = useState<Activity>(
     initialData || {
       titulo: "",
@@ -20,6 +22,7 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
       duracion: 60,
       cupo: 10,
       categoria: "",
+      instructor: "",
       imagen_url: "",
       active: true,
     },
@@ -38,7 +41,6 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       // En un caso real, aquí subirías la imagen a un servidor y obtendrías la URL
-      // Por ahora, simulamos una URL local
       const file = e.target.files[0]
       const localUrl = URL.createObjectURL(file)
       setForm((prev) => ({ ...prev, imagen_url: localUrl }))
@@ -52,6 +54,10 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
     } else {
       console.log("Form data:", form)
     }
+  }
+
+  const handleCancel = () => {
+    navigate("/")
   }
 
   return (
@@ -138,12 +144,13 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
               </div>
 
               <div className="activity-form-group">
-                <label className="activity-form-label">Imagen URL</label>
+                <label className="activity-form-label">Instructor</label>
                 <input
-                  name="imagen_url"
-                  value={form.imagen_url}
+                  name="instructor"
+                  value={form.instructor}
                   onChange={handleChange}
-                  placeholder="URL de la imagen"
+                  placeholder="Nombre del instructor"
+                  required
                   className="sport-input"
                 />
               </div>
@@ -152,7 +159,9 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
                 <label className="activity-form-label">Foto</label>
                 <div className="sport-file-input">
                   <input type="file" name="photo" accept="image/*" onChange={handleFileChange} />
-                  <div className="sport-file-input-label">Seleccionar imagen</div>
+                  <div className="sport-file-input-label">
+                    {form.imagen_url ? "Imagen seleccionada" : "Seleccionar imagen"}
+                  </div>
                 </div>
               </div>
             </div>
@@ -171,7 +180,7 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
             </div>
 
             <div className="activity-form-actions">
-              <button type="button" className="sport-button sport-button-outline">
+              <button type="button" onClick={handleCancel} className="sport-button sport-button-outline">
                 CANCELAR
               </button>
               <button type="submit" className="sport-button">

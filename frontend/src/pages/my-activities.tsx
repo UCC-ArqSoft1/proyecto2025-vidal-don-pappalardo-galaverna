@@ -1,24 +1,24 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import SportLayout from "../components/layout/CyberLayout"
-import { enrollmentService, authService } from "../api"
+import { enrollmentService, authService } from "../services/api"
 import type { Enrollment } from "../types"
 
 const MyActivities = () => {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   useEffect(() => {
-    const fetchEnrollments = async () => {
-      if (!authService.isAuthenticated()) {
-        setError("Debes iniciar sesión para ver tus actividades")
-        setLoading(false)
-        return
-      }
+    if (!authService.isAuthenticated()) {
+      navigate("/login")
+      return
+    }
 
+    const fetchEnrollments = async () => {
       setLoading(true)
       const response = await enrollmentService.getUserEnrollments()
 
@@ -32,7 +32,7 @@ const MyActivities = () => {
     }
 
     fetchEnrollments()
-  }, [])
+  }, [navigate])
 
   if (loading) {
     return (
@@ -61,7 +61,7 @@ const MyActivities = () => {
       <h1 className="text-3xl mb-6">Mis Actividades</h1>
 
       {enrollments.length === 0 ? (
-        <div className="sport-card my-activities-empty">
+        <div className="sport-card p-6 text-center">
           <h2 className="text-2xl mb-4">No tienes actividades</h2>
           <p className="mb-6">Inscríbete en alguna actividad para verla aquí</p>
           <Link to="/" className="sport-button">
@@ -71,25 +71,26 @@ const MyActivities = () => {
       ) : (
         <div className="space-y-6">
           {enrollments.map((enrollment) => (
-            <div key={enrollment.id} className="my-activity-card">
-              <div className="my-activity-content">
-                <div className="my-activity-info">
-                  <h2 className="my-activity-title">{enrollment.actividad?.titulo || "Actividad"}</h2>
-                  <p className="my-activity-date">
-                    Fecha de inscripción:{" "}
+            <div key={enrollment.id} className="sport-card">
+              <div className="p-6">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold">{enrollment.actividad?.titulo || "Actividad"}</h2>
+                  <span className="text-sm text-gray-400">
+                    Inscrito el:{" "}
                     {new Date(enrollment.fechaInscripcion).toLocaleDateString("es-ES", {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
                     })}
-                  </p>
+                  </span>
                 </div>
 
-                <div className="my-activity-actions">
+                <div className="sport-divider"></div>
+
+                <div className="flex justify-end gap-4 mt-4">
                   <Link to={`/detalle/${enrollment.actividadId}`} className="sport-button sport-button-outline">
                     VER DETALLES
                   </Link>
-                  <button className="sport-button sport-button-secondary">CANCELAR</button>
                 </div>
               </div>
             </div>

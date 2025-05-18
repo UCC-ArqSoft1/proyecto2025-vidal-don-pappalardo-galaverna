@@ -3,9 +3,9 @@
 import type React from "react"
 
 import { useState, type FormEvent } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import SportLayout from "../components/layout/CyberLayout"
-import { authService } from "../api"
+import { authService } from "../services/api"
 import type { UserRegistration } from "../types"
 
 const Signup = () => {
@@ -156,9 +156,9 @@ const Signup = () => {
             <div className="mt-4 text-center">
               <p>
                 ¿Ya tienes una cuenta?{" "}
-                <a href="/login" className="text-primary hover:underline">
+                <Link to="/login" className="text-primary hover:underline">
                   Iniciar sesión
-                </a>
+                </Link>
               </p>
             </div>
           </form>

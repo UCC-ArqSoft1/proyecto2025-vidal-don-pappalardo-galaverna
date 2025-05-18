@@ -3,18 +3,30 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import ActivityForm from "./activity-form"
-import CyberLayout from "../components/layout/CyberLayout"
-import { activityService } from "../api"
+import SportLayout from "../components/layout/CyberLayout"
+import { activityService, authService } from "../services/api"
 import type { Activity } from "../types"
 
 const EditActivityPage = () => {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const [activity, setActivity] = useState<Activity | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
-  const navigate = useNavigate()
 
   useEffect(() => {
+    // Verificar si el usuario está autenticado y es administrador
+    if (!authService.isAuthenticated()) {
+      navigate("/login")
+      return
+    }
+
+    if (!authService.isAdmin()) {
+      navigate("/")
+      alert("No tienes permisos para editar actividades")
+      return
+    }
+
     const fetchActivity = async () => {
       if (!id) return
 
@@ -31,7 +43,7 @@ const EditActivityPage = () => {
     }
 
     fetchActivity()
-  }, [id])
+  }, [id, navigate])
 
   const handleUpdate = async (data: Activity) => {
     if (!id) return
@@ -48,22 +60,24 @@ const EditActivityPage = () => {
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="cyber-spinner"></div>
-        <span className="loading-text">Cargando actividad...</span>
-      </div>
+      <SportLayout>
+        <div className="loading-container">
+          <div className="sport-spinner"></div>
+          <span className="loading-text">Cargando actividad...</span>
+        </div>
+      </SportLayout>
     )
   }
 
   if (error || !activity) {
     return (
-      <CyberLayout>
+      <SportLayout>
         <div className="error-container">
-          <h1 className="error-title neon-text-secondary">ACTIVIDAD NO ENCONTRADA</h1>
-          <div className="cyber-divider-secondary error-divider"></div>
+          <h1 className="error-title">ACTIVIDAD NO ENCONTRADA</h1>
+          <div className="error-divider"></div>
           <p className="error-message">{error || "La actividad que intentas editar no existe o ha sido eliminada."}</p>
         </div>
-      </CyberLayout>
+      </SportLayout>
     )
   }
 

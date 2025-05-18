@@ -2,7 +2,7 @@
 
 import { useNavigate } from "react-router-dom"
 import ActivityForm from "./activity-form"
-import { activityService } from "../api"
+import { activityService } from "../services/api"
 import type { Activity } from "../types"
 
 const NewActivityPage = () => {

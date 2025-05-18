@@ -1,264 +1,266 @@
-import { Activity, ApiResponse, AuthResponse, Enrollment, User, UserRegistration } from '../types';
+import type { Activity, ApiResponse, AuthResponse, Enrollment, User, UserRegistration } from "../types"
 
-const API_URL = 'http://localhost:8080';
+const API_URL = "http://localhost:8080"
 
 // Helper to get the auth token from localStorage
 const getToken = (): string | null => {
-  return localStorage.getItem('token');
-};
+  return localStorage.getItem("token")
+}
 
 // Helper for making authenticated API requests
 const authFetch = async (endpoint: string, options: RequestInit = {}): Promise<Response> => {
-  const token = getToken();
+  const token = getToken()
   const headers = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
-  };
+  }
 
   return fetch(`${API_URL}${endpoint}`, {
     ...options,
     headers,
-  });
-};
+  })
+}
 
 // Auth services
 export const authService = {
   login: async (email: string, password: string): Promise<AuthResponse> => {
     try {
       const response = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
-      });
-      
-      const data = await response.json();
-      
+      })
+
+      const data = await response.json()
+
       if (response.ok) {
         // Store token in localStorage
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('refresh_token', data.refresh_token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        return { 
-          success: true, 
-          message: 'Login successful', 
-          user: data.user, 
+        localStorage.setItem("token", data.access_token)
+        localStorage.setItem("refresh_token", data.refresh_token)
+        localStorage.setItem("user", JSON.stringify(data.user))
+        return {
+          success: true,
+          message: "Login successful",
+          user: data.user,
           token: data.access_token,
-          refreshToken: data.refresh_token
-        };
+          refreshToken: data.refresh_token,
+        }
       } else {
-        return { 
-          success: false, 
-          message: data.message || 'Login failed', 
-          user: {} as User, 
-          token: '',
-          refreshToken: ''
-        };
+        return {
+          success: false,
+          message: data.message || "Login failed",
+          user: {} as User,
+          token: "",
+          refreshToken: "",
+        }
       }
     } catch (error) {
-      return { 
-        success: false, 
-        message: 'Network error', 
-        user: {} as User, 
-        token: '',
-        refreshToken: ''
-      };
+      return {
+        success: false,
+        message: "Network error",
+        user: {} as User,
+        token: "",
+        refreshToken: "",
+      }
     }
   },
 
   register: async (userData: UserRegistration): Promise<ApiResponse<User>> => {
     try {
       const response = await fetch(`${API_URL}/auth/register`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(userData),
-      });
-      
-      const data = await response.json();
-      
-      return { 
-        success: response.ok, 
-        data: response.ok ? data : undefined, 
-        message: response.ok ? 'Registration successful' : (data.message || 'Registration failed')
-      };
+      })
+
+      const data = await response.json()
+
+      return {
+        success: response.ok,
+        data: response.ok ? data : undefined,
+        message: response.ok ? "Registration successful" : data.message || "Registration failed",
+      }
     } catch (error) {
-      return { success: false, message: 'Network error' };
+      return { success: false, message: "Network error" }
     }
   },
 
   refreshToken: async (refreshToken: string): Promise<ApiResponse<{ access_token: string }>> => {
     try {
       const response = await fetch(`${API_URL}/auth/refresh-token`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ refresh_token: refreshToken }),
-      });
-      
-      const data = await response.json();
-      
+      })
+
+      const data = await response.json()
+
       if (response.ok) {
         // Update token in localStorage
-        localStorage.setItem('token', data.access_token);
-        return { success: true, data: data };
+        localStorage.setItem("token", data.access_token)
+        return { success: true, data: data }
       } else {
-        return { success: false, message: data.message || 'Failed to refresh token' };
+        return { success: false, message: data.message || "Failed to refresh token" }
       }
     } catch (error) {
-      return { success: false, message: 'Network error' };
+      return { success: false, message: "Network error" }
     }
   },
 
   logout: async (): Promise<ApiResponse<void>> => {
     try {
-      const response = await authFetch('/auth/logout', {
-        method: 'POST',
-      });
-      
+      const response = await authFetch("/auth/logout", {
+        method: "POST",
+      })
+
       // Clear local storage regardless of response
-      localStorage.removeItem('token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user');
-      
-      return { 
-        success: response.ok, 
-        message: response.ok ? 'Logout successful' : 'Logout failed on server' 
-      };
+      localStorage.removeItem("token")
+      localStorage.removeItem("refresh_token")
+      localStorage.removeItem("user")
+
+      return {
+        success: response.ok,
+        message: response.ok ? "Logout successful" : "Logout failed on server",
+      }
     } catch (error) {
       // Still clear local storage on error
-      localStorage.removeItem('token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user');
-      
-      return { success: false, message: 'Network error during logout' };
+      localStorage.removeItem("token")
+      localStorage.removeItem("refresh_token")
+      localStorage.removeItem("user")
+
+      return { success: false, message: "Network error during logout" }
     }
   },
 
   getCurrentUser: (): User | null => {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
+    const userStr = localStorage.getItem("user")
+    return userStr ? JSON.parse(userStr) : null
   },
 
   isAuthenticated: (): boolean => {
-    return !!getToken();
+    return !!getToken()
   },
 
   isAdmin: (): boolean => {
-    const user = authService.getCurrentUser();
-    return user?.role_id === 1; // Assuming role_id 1 is admin
+    const user = authService.getCurrentUser()
+    return user?.role_id === 1 // Assuming role_id 1 is admin
   },
-};
+}
 
 // Activity services
 export const activityService = {
-  getAllActivities: async (filters?: { nombre?: string, dia?: string, categoria?: string }): Promise<ApiResponse<Activity[]>> => {
+  getAllActivities: async (filters?: { nombre?: string; dia?: string; categoria?: string }): Promise<
+    ApiResponse<Activity[]>
+  > => {
     try {
-      let queryParams = '';
-      
+      let queryParams = ""
+
       if (filters) {
-        const params = new URLSearchParams();
-        if (filters.nombre) params.append('nombre', filters.nombre);
-        if (filters.dia) params.append('dia', filters.dia);
-        if (filters.categoria) params.append('categoria', filters.categoria);
-        queryParams = `?${params.toString()}`;
+        const params = new URLSearchParams()
+        if (filters.nombre) params.append("nombre", filters.nombre)
+        if (filters.dia) params.append("dia", filters.dia)
+        if (filters.categoria) params.append("categoria", filters.categoria)
+        queryParams = `?${params.toString()}`
       }
-      
-      const response = await fetch(`${API_URL}/actividades${queryParams}`);
-      const data = await response.json();
-      
-      return { success: response.ok, data: data, message: response.ok ? undefined : 'Failed to fetch activities' };
+
+      const response = await fetch(`${API_URL}/actividades${queryParams}`)
+      const data = await response.json()
+
+      return { success: response.ok, data: data, message: response.ok ? undefined : "Failed to fetch activities" }
     } catch (error) {
-      return { success: false, message: 'Network error' };
+      return { success: false, message: "Network error" }
     }
   },
 
   getActivityById: async (id: number): Promise<ApiResponse<Activity>> => {
     try {
-      const response = await fetch(`${API_URL}/actividades/${id}`);
-      const data = await response.json();
-      
-      return { success: response.ok, data: data, message: response.ok ? undefined : 'Failed to fetch activity' };
+      const response = await fetch(`${API_URL}/actividades/${id}`)
+      const data = await response.json()
+
+      return { success: response.ok, data: data, message: response.ok ? undefined : "Failed to fetch activity" }
     } catch (error) {
-      return { success: false, message: 'Network error' };
+      return { success: false, message: "Network error" }
     }
   },
 
   // Admin functions
-  createActivity: async (activity: Omit<Activity, 'id'>): Promise<ApiResponse<Activity>> => {
+  createActivity: async (activity: Omit<Activity, "id">): Promise<ApiResponse<Activity>> => {
     try {
-      const response = await authFetch('/actividades', {
-        method: 'POST',
+      const response = await authFetch("/actividades", {
+        method: "POST",
         body: JSON.stringify(activity),
-      });
-      const data = await response.json();
-      
-      return { 
-        success: response.ok, 
-        data: response.ok ? data : undefined, 
-        message: response.ok ? 'Activity created successfully' : (data.message || 'Failed to create activity')
-      };
+      })
+      const data = await response.json()
+
+      return {
+        success: response.ok,
+        data: response.ok ? data : undefined,
+        message: response.ok ? "Activity created successfully" : data.message || "Failed to create activity",
+      }
     } catch (error) {
-      return { success: false, message: 'Network error' };
+      return { success: false, message: "Network error" }
     }
   },
 
   updateActivity: async (id: number, activity: Partial<Activity>): Promise<ApiResponse<Activity>> => {
     try {
       const response = await authFetch(`/actividades/${id}`, {
-        method: 'PUT',
+        method: "PUT",
         body: JSON.stringify(activity),
-      });
-      const data = await response.json();
-      
-      return { 
-        success: response.ok, 
-        data: response.ok ? data : undefined, 
-        message: response.ok ? 'Activity updated successfully' : (data.message || 'Failed to update activity')
-      };
+      })
+      const data = await response.json()
+
+      return {
+        success: response.ok,
+        data: response.ok ? data : undefined,
+        message: response.ok ? "Activity updated successfully" : data.message || "Failed to update activity",
+      }
     } catch (error) {
-      return { success: false, message: 'Network error' };
+      return { success: false, message: "Network error" }
     }
   },
 
   deleteActivity: async (id: number): Promise<ApiResponse<void>> => {
     try {
       const response = await authFetch(`/actividades/${id}`, {
-        method: 'DELETE',
-      });
-      
-      const data = response.status === 204 ? {} : await response.json();
-      
-      return { 
-        success: response.ok, 
-        message: response.ok ? 'Activity deleted successfully' : (data.message || 'Failed to delete activity') 
-      };
+        method: "DELETE",
+      })
+
+      const data = response.status === 204 ? {} : await response.json()
+
+      return {
+        success: response.ok,
+        message: response.ok ? "Activity deleted successfully" : data.message || "Failed to delete activity",
+      }
     } catch (error) {
-      return { success: false, message: 'Network error' };
+      return { success: false, message: "Network error" }
     }
   },
-};
+}
 
 // Enrollment services
 export const enrollmentService = {
   enrollInActivity: async (activityId: number): Promise<ApiResponse<Enrollment>> => {
     try {
       const response = await authFetch(`/inscripciones/${activityId}`, {
-        method: 'POST',
-      });
-      const data = await response.json();
-      
-      return { 
-        success: response.ok, 
-        data: response.ok ? data : undefined, 
-        message: response.ok ? 'Enrolled successfully' : (data.message || 'Failed to enroll')
-      };
+        method: "POST",
+      })
+      const data = await response.json()
+
+      return {
+        success: response.ok,
+        data: response.ok ? data : undefined,
+        message: response.ok ? "Enrolled successfully" : data.message || "Failed to enroll",
+      }
     } catch (error) {
-      return { success: false, message: 'Network error' };
+      return { success: false, message: "Network error" }
     }
   },
 
@@ -266,118 +268,63 @@ export const enrollmentService = {
     try {
       // If userId is provided, get enrollments for that user (admin function)
       // Otherwise, get enrollments for the current user
-      const endpoint = userId ? `/inscripciones/usuarios/${userId}` : '/inscripciones/usuarios/me';
-      
-      const response = await authFetch(endpoint);
-      const data = await response.json();
-      
-      return { 
-        success: response.ok, 
-        data: response.ok ? data : undefined, 
-        message: response.ok ? undefined : 'Failed to fetch enrollments'
-      };
+      const endpoint = userId ? `/inscripciones/usuarios/${userId}` : "/inscripciones/usuarios/me"
+
+      const response = await authFetch(endpoint)
+      const data = await response.json()
+
+      return {
+        success: response.ok,
+        data: response.ok ? data : undefined,
+        message: response.ok ? undefined : "Failed to fetch enrollments",
+      }
     } catch (error) {
-      return { success: false, message: 'Network error' };
+      return { success: false, message: "Network error" }
     }
   },
-  
+
   getEnrollmentById: async (enrollmentId: number): Promise<ApiResponse<Enrollment>> => {
     try {
-      const response = await authFetch(`/inscripciones/${enrollmentId}`);
-      const data = await response.json();
-      
-      return { 
-        success: response.ok, 
-        data: response.ok ? data : undefined, 
-        message: response.ok ? undefined : 'Failed to fetch enrollment'
-      };
+      const response = await authFetch(`/inscripciones/${enrollmentId}`)
+      const data = await response.json()
+
+      return {
+        success: response.ok,
+        data: response.ok ? data : undefined,
+        message: response.ok ? undefined : "Failed to fetch enrollment",
+      }
     } catch (error) {
-      return { success: false, message: 'Network error' };
+      return { success: false, message: "Network error" }
     }
   },
-  
+
   getEnrollmentsByActivity: async (activityId: number): Promise<ApiResponse<Enrollment[]>> => {
     try {
-      const response = await authFetch(`/inscripciones/${activityId}`);
-      const data = await response.json();
-      
-      return { 
-        success: response.ok, 
-        data: response.ok ? data : undefined, 
-        message: response.ok ? undefined : 'Failed to fetch enrollments for activity'
-      };
+      const response = await authFetch(`/inscripciones/${activityId}`)
+      const data = await response.json()
+
+      return {
+        success: response.ok,
+        data: response.ok ? data : undefined,
+        message: response.ok ? undefined : "Failed to fetch enrollments for activity",
+      }
     } catch (error) {
-      return { success: false, message: 'Network error' };
+      return { success: false, message: "Network error" }
     }
   },
-  
+
   getAllEnrollments: async (): Promise<ApiResponse<Enrollment[]>> => {
     try {
-      const response = await authFetch('/inscripciones/all');
-      const data = await response.json();
-      
-      return { 
-        success: response.ok, 
-        data: response.ok ? data : undefined, 
-        message: response.ok ? undefined : 'Failed to fetch all enrollments'
-      };
+      const response = await authFetch("/inscripciones/all")
+      const data = await response.json()
+
+      return {
+        success: response.ok,
+        data: response.ok ? data : undefined,
+        message: response.ok ? undefined : "Failed to fetch all enrollments",
+      }
     } catch (error) {
-      return { success: false, message: 'Network error' };
+      return { success: false, message: "Network error" }
     }
-  }
-};
-
-// Example of how to use these services
-const exampleUsage = async () => {
-  // Login
-  const loginResult = await authService.login('user@example.com', 'password123');
-  console.log('Login result:', loginResult);
-  
-  // Get all activities
-  const activitiesResult = await activityService.getAllActivities();
-  console.log('Activities:', activitiesResult);
-  
-  // Get activities with filters
-  const filteredActivities = await activityService.getAllActivities({
-    categoria: 'Musculación',
-    dia: 'Lunes'
-  });
-  console.log('Filtered activities:', filteredActivities);
-  
-  // Enroll in an activity
-  if (authService.isAuthenticated()) {
-    const enrollResult = await enrollmentService.enrollInActivity(1);
-    console.log('Enrollment result:', enrollResult);
-    
-    // Get user enrollments
-    const userEnrollments = await enrollmentService.getUserEnrollments();
-    console.log('User enrollments:', userEnrollments);
-  }
-  
-  // Admin functions
-  if (authService.isAdmin()) {
-    // Create a new activity
-    const newActivity: Omit<Activity, 'id'> = {
-      titulo: 'Nueva Clase',
-      descripcion: 'Descripción de la nueva clase',
-      dia: 'Miércoles',
-      horario: '18:00:00',
-      duracion: 60,
-      cupo: 15,
-      categoria: 'Yoga',
-      imagen_url: 'https://example.com/yoga.jpg'
-    };
-    
-    const createResult = await activityService.createActivity(newActivity);
-    console.log('Create activity result:', createResult);
-    
-    // Get all enrollments (admin only)
-    const allEnrollments = await enrollmentService.getAllEnrollments();
-    console.log('All enrollments:', allEnrollments);
-  }
-};
-
-// Uncomment to run the example
-// exampleUsage();
-
-console.log('API service file updated to match Swagger specification');
+  },
+}
