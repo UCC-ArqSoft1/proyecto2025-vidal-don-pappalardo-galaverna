@@ -1,32 +1,70 @@
 import type React from "react"
-import SportNavbar from "./CyberNavbar"
-import SportFooter from "./CyberFooter"
+import { Link } from "react-router-dom"
+import { isAuthenticated, isAdmin, getUserName } from "../../utils/auth"
+import { UserMenu } from "../UserMenu"
 
-interface SportLayoutProps {
+interface NavLink {
+  to: string
+  label: string
+}
+
+interface CyberLayoutProps {
   children: React.ReactNode
 }
 
-export const SportLayout: React.FC<SportLayoutProps> = ({ children }) => {
-  const navLinks = [
-    { to: "/", label: "Inicio" },
-    { to: "/mis-actividades", label: "Mis Actividades" },
-    { to: "/nueva-actividad", label: "Nueva Actividad" },
-    { to: "/login", label: "Login" },
-  ]
+const CyberLayout: React.FC<CyberLayoutProps> = ({ children }) => {
+  const authenticated = isAuthenticated()
+  const admin = isAdmin()
+  const userName = getUserName()
 
-  const footerLinks = [
-    { to: "/terminos", label: "Términos" },
-    { to: "/privacidad", label: "Privacidad" },
-    { to: "/contacto", label: "Contacto" },
-  ]
+  const getNavLinks = () => {
+    if (!authenticated) {
+      return [
+        { to: "/", label: "Inicio" },
+        { to: "/login", label: "Iniciar Sesión" },
+        { to: "/signup", label: "Registrarse" }
+      ]
+    }
+
+    if (admin) {
+      return [
+        { to: "/", label: "Inicio" },
+        { to: "/mis-actividades", label: "Mis Actividades" },
+        { to: "/nueva-actividad", label: "Nueva Actividad" }
+      ]
+    }
+
+    return [
+      { to: "/", label: "Inicio" },
+      { to: "/mis-actividades", label: "Mis Actividades" }
+    ]
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
-      <SportNavbar links={navLinks} />
-      <main className="flex-grow sport-main">{children}</main>
-      <SportFooter links={footerLinks} />
+      <nav className="sport-navbar">
+        <div className="sport-logo">CYBER GYM</div>
+        <div className="sport-nav-links">
+          {getNavLinks().map((link, index) => (
+            <Link key={index} to={link.to} className="sport-nav-link">
+              {link.label}
+            </Link>
+          ))}
+          {authenticated && <UserMenu userName={userName} />}
+        </div>
+      </nav>
+
+      <main className="flex-grow container mx-auto px-4 py-8">
+        {children}
+      </main>
+
+      <footer className="sport-footer">
+        <div className="sport-footer-text">
+          © {new Date().getFullYear()} CYBER GYM
+        </div>
+      </footer>
     </div>
   )
 }
 
-export default SportLayout
+export default CyberLayout
