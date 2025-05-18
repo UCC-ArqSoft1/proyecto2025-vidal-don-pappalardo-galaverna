@@ -185,7 +185,7 @@ export const activityService = {
         queryParams = `?${params.toString()}`
       }
 
-      const response = await fetch(`${API_URL}/actividades${queryParams}`)
+      const response = await authFetch(`/actividades${queryParams}`)
       const data = await response.json()
 
       return { success: response.ok, data: data, message: response.ok ? undefined : "Failed to fetch activities" }
@@ -196,7 +196,7 @@ export const activityService = {
 
   getActivityById: async (id: number): Promise<ApiResponse<Activity>> => {
     try {
-      const response = await fetch(`${API_URL}/actividades/${id}`)
+      const response = await authFetch(`/actividades/${id}`)
       const data = await response.json()
 
       return { success: response.ok, data: data, message: response.ok ? undefined : "Failed to fetch activity" }
