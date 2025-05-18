@@ -264,18 +264,18 @@ export const activityService = {
 export const enrollmentService = {
   enrollInActivity: async (activityId: number): Promise<ApiResponse<Enrollment>> => {
     try {
-      const response = await authFetch(`/inscripciones/${activityId}`, {
+      const response = await authFetch(`/actividades/${activityId}/inscribirse`, {
         method: "POST",
       })
       const data = await response.json()
 
       return {
         success: response.ok,
-        data: response.ok ? data : undefined,
-        message: response.ok ? "Enrolled successfully" : data.message || "Failed to enroll",
+        data: response.ok ? data.data : undefined,
+        message: response.ok ? "Inscripción exitosa" : data.error || "Error al inscribirse",
       }
     } catch (error) {
-      return { success: false, message: "Network error" }
+      return { success: false, message: "Error de red" }
     }
   },
 
