@@ -10,26 +10,9 @@ interface CyberNavbarProps {
 }
 
 const CyberNavbar: React.FC<CyberNavbarProps> = ({ links = [], logo = "CYBER GYM" }) => {
+  // Obtener el estado de autenticación directamente de las utilidades
   const authenticated = isAuthenticated()
   const admin = isAdmin()
-
-  // Solo usamos los links personalizados si se proporcionan explícitamente
-  // y el usuario está autenticado
-  if (links.length > 0 && authenticated) {
-    return (
-      <nav className="cyber-navbar">
-        <div className="cyber-logo glitch-effect">{logo}</div>
-        <div className="cyber-nav-links">
-          {links.map((link, index) => (
-            <Link key={index} to={link.to} className="cyber-nav-link">
-              {link.label}
-            </Link>
-          ))}
-          <UserMenu />
-        </div>
-      </nav>
-    )
-  }
 
   // Links por defecto basados en el estado de autenticación
   const defaultLinks = !authenticated
@@ -44,11 +27,14 @@ const CyberNavbar: React.FC<CyberNavbarProps> = ({ links = [], logo = "CYBER GYM
         ...(admin ? [{ to: "/nueva-actividad", label: "Nueva Actividad" }] : []),
       ]
 
+  // Si se proporcionan links personalizados y el usuario está autenticado, usarlos
+  const navLinks = links.length > 0 && authenticated ? links : defaultLinks
+
   return (
     <nav className="cyber-navbar">
       <div className="cyber-logo glitch-effect">{logo}</div>
       <div className="cyber-nav-links">
-        {defaultLinks.map((link, index) => (
+        {navLinks.map((link, index) => (
           <Link key={index} to={link.to} className="cyber-nav-link">
             {link.label}
           </Link>
