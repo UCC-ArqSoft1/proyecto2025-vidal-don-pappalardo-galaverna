@@ -11,6 +11,7 @@ import "./assets/styles/components.css"
 import "./assets/styles/animations.css"
 import "./assets/styles/layout.css"
 import "./assets/styles/pages.css"
+import Signup from "./pages/signup"
 
 const App: React.FC = () => {
   return (
@@ -18,6 +19,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/detalle/:id" element={<ActivityDetail />} />
         <Route path="/mis-actividades" element={<MyActivities />} />
         <Route path="/nueva-actividad" element={<NewActivityPage />} />

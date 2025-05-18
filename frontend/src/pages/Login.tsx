@@ -91,7 +91,7 @@ const Login = () => {
             <div className="mt-4 text-center">
               <p>
                 ¿No tienes una cuenta?{" "}
-                <Link to="/registro" className="text-primary hover:underline">
+                <Link to="/signup" className="text-primary hover:underline">
                   Regístrate
                 </Link>
               </p>
