@@ -10,22 +10,22 @@ func ConfigurarRutasInscripcion(r *gin.Engine, handler *handlers.InscripcionHand
 	// Rutas protegidas con JWT
 	inscripciones := r.Group("/inscripciones")
 	{
-		// Inscribirse a una actividad
-		inscripciones.POST("/:actividadId", middlewares.IsAuthenticated(), handler.CrearInscripcion)
-
-		// Obtener inscripciones de una actividad específica
-		inscripciones.GET("/actividad/:actividadId", middlewares.IsAuthenticated(), handler.GetInscripcionesByActividad)
-
-		// Obtener inscripciones del usuario autenticado
+		// Obtener inscripciones del usuario autenticado (más específica)
 		inscripciones.GET("/usuarios/me", middlewares.IsAuthenticated(), handler.GetInscripcionesByUsuario)
+
+		// Obtener inscripciones de una actividad específica (más específica)
+		inscripciones.GET("/actividad/:actividadId", middlewares.IsAuthenticated(), handler.GetInscripcionesByActividad)
 
 		// Obtener todas las inscripciones (solo admin)
 		inscripciones.GET("/all", middlewares.IsAuthenticated(), middlewares.IsAdmin(), handler.GetAllInscripciones)
 
-		// Obtener una inscripción específica
+		// Inscribirse a una actividad
+		inscripciones.POST("/:actividadId", middlewares.IsAuthenticated(), handler.CrearInscripcion)
+
+		// Obtener una inscripción específica (más genérica)
 		inscripciones.GET("/:inscripcionId", middlewares.IsAuthenticated(), handler.GetInscripcionByID)
 
-		// Cancelar una inscripción
+		// Cancelar una inscripción (más genérica)
 		inscripciones.DELETE("/:inscripcionId", middlewares.IsAuthenticated(), handler.CancelarInscripcion)
 	}
 }
