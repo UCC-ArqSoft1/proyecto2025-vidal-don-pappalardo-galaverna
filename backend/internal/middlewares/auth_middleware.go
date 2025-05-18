@@ -33,6 +33,15 @@ func IsAuthenticated() gin.HandlerFunc {
 			return
 		}
 
+		// Guardar los claims en el contexto
+		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			c.Set("claims", claims)
+		} else {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token inválido"})
+			c.Abort()
+			return
+		}
+
 		c.Next()
 	}
 }
