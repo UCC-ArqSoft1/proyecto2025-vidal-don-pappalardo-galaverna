@@ -97,7 +97,7 @@ const ActivityDetail = () => {
           </div>
 
           <div className="activity-detail-image">
-            <img src={activity.imagen_url || "/placeholder.svg?height=400&width=800"} alt={activity.titulo} />
+            <img src={activity.imagen_data || "/placeholder.svg?height=400&width=800"} alt={activity.titulo} />
           </div>
 
           <div className="sport-card">
