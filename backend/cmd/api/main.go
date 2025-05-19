@@ -48,6 +48,9 @@ func main() {
 	// Configurar rutas de inscripciones
 	routes.ConfigurarRutasInscripcion(r, inscripcionHandler)
 
+	// Configurar rutas de usuarios
+	routes.SetupUserRoutes(r, db.DB)
+
 	// ----------------------
 	// SWAGGER CONFIGURACIÓN
 	// ----------------------
