@@ -20,6 +20,11 @@ export const isAdmin = (): boolean => {
   return user?.role_name === 'admin'
 }
 
+export const isInstructor = (): boolean => {
+  const user = getUserFromStorage()
+  return user?.role_name === 'instructor'
+}
+
 export const getUserName = (): string => {
   const user = getUserFromStorage()
   return user ? `${user.nombre} ${user.apellido}` : ''

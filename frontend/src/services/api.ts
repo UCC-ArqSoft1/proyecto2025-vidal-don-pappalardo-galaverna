@@ -260,17 +260,16 @@ export const activityService = {
   deleteActivity: async (id: number): Promise<ApiResponse<void>> => {
     try {
       const response = await authFetch(`/actividades/${id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       })
-
-      const data = response.status === 204 ? {} : await response.json()
+      const data = await response.json()
 
       return {
         success: response.ok,
-        message: response.ok ? "Activity deleted successfully" : data.message || "Failed to delete activity",
+        message: response.ok ? 'Actividad eliminada exitosamente' : data.error || 'Error al eliminar la actividad',
       }
     } catch (error) {
-      return { success: false, message: "Network error" }
+      return { success: false, message: 'Error de red al eliminar la actividad' }
     }
   },
 }
@@ -422,6 +421,22 @@ export const userService = {
       }
     } catch (error) {
       return { success: false, message: "Error de red al obtener los detalles del instructor" }
+    }
+  },
+
+  deleteInstructor: async (id: number): Promise<ApiResponse<void>> => {
+    try {
+      const response = await authFetch(`/usuarios/instructores/${id}`, {
+        method: 'DELETE',
+      })
+      const data = await response.json()
+
+      return {
+        success: response.ok,
+        message: response.ok ? 'Instructor eliminado exitosamente' : data.error || 'Error al eliminar el instructor',
+      }
+    } catch (error) {
+      return { success: false, message: 'Error de red al eliminar el instructor' }
     }
   },
 }

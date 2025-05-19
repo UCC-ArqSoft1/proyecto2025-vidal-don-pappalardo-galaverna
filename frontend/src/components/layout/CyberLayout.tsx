@@ -1,6 +1,6 @@
 import type React from "react"
 import { Link } from "react-router-dom"
-import { isAuthenticated, isAdmin, getUserName } from "../../utils/auth"
+import { isAuthenticated, isAdmin, isInstructor, getUserName } from "../../utils/auth"
 import { UserMenu } from "../UserMenu"
 
 interface NavLink {
@@ -15,6 +15,7 @@ interface CyberLayoutProps {
 const CyberLayout: React.FC<CyberLayoutProps> = ({ children }) => {
   const authenticated = isAuthenticated()
   const admin = isAdmin()
+  const instructor = isInstructor()
   const userName = getUserName()
 
   const getNavLinks = () => {
@@ -31,6 +32,12 @@ const CyberLayout: React.FC<CyberLayoutProps> = ({ children }) => {
         { to: "/", label: "Inicio" },
         { to: "/admin/actividades", label: "Gestionar Actividades" },
         { to: "/admin/instructores", label: "Gestionar Instructores" }
+      ]
+    }
+
+    if (instructor) {
+      return [
+        { to: "/mis-actividades", label: "Mis Actividades" }
       ]
     }
 

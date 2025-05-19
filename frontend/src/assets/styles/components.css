@@ -362,3 +362,22 @@
 .dropdown-arrow.open {
   transform: rotate(180deg);
 }
+
+.user-menu-section {
+  padding: 0.5rem 0;
+}
+
+.user-menu-section-title {
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.user-menu-divider {
+  height: 1px;
+  background-color: var(--border);
+  margin: 0.5rem 0;
+}

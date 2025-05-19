@@ -2,7 +2,7 @@ import type React from "react"
 import { Link } from "react-router-dom"
 import { UserMenu } from "./UserMenu"
 import type { NavLink } from "../types"
-import { isAuthenticated, isAdmin, getUserName } from "../utils/auth"
+import { isAuthenticated, isAdmin, isInstructor, getUserName } from "../utils/auth"
 
 interface CyberNavbarProps {
   logo?: string
@@ -11,6 +11,7 @@ interface CyberNavbarProps {
 const CyberNavbar: React.FC<CyberNavbarProps> = ({ logo = "CYBER GYM" }) => {
   const authenticated = isAuthenticated()
   const admin = isAdmin()
+  const instructor = isInstructor()
   const userName = getUserName()
 
   const getNavLinks = () => {
@@ -27,6 +28,12 @@ const CyberNavbar: React.FC<CyberNavbarProps> = ({ logo = "CYBER GYM" }) => {
         { to: "/", label: "Inicio" },
         { to: "/admin/actividades", label: "Gestionar Actividades" },
         { to: "/admin/instructores", label: "Gestionar Instructores" }
+      ]
+    }
+
+    if (instructor) {
+      return [
+        { to: "/mis-actividades", label: "Mis Actividades" }
       ]
     }
 
