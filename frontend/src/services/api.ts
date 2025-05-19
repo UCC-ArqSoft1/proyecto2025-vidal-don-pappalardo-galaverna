@@ -369,3 +369,21 @@ export const enrollmentService = {
     }
   },
 }
+
+// User services
+export const userService = {
+  getInstructors: async (): Promise<ApiResponse<Array<{ id: number; nombre: string }>>> => {
+    try {
+      const response = await authFetch("/usuarios/instructores")
+      const data = await response.json()
+
+      return {
+        success: response.ok,
+        data: response.ok ? data.data : undefined,
+        message: response.ok ? undefined : data.error || "Error al obtener instructores",
+      }
+    } catch (error) {
+      return { success: false, message: "Error de red" }
+    }
+  },
+}

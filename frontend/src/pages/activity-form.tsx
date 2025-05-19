@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, type ChangeEvent, type FormEvent } from "react"
+import { useState, type ChangeEvent, type FormEvent, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import SportLayout from "../components/layout/CyberLayout"
+import { userService } from "../services/api"
 import type { Activity } from "../types"
 
 interface ActivityFormProps {
@@ -11,8 +12,15 @@ interface ActivityFormProps {
   onSubmit?: (data: Activity) => void
 }
 
+interface Instructor {
+  id: number
+  nombre: string
+}
+
 export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: ActivityFormProps) => {
   const navigate = useNavigate()
+  const [instructors, setInstructors] = useState<Instructor[]>([])
+  const [loadingInstructors, setLoadingInstructors] = useState(true)
   const [form, setForm] = useState<Activity>(
     initialData ? {
       ...initialData,
@@ -37,7 +45,20 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
     }
   )
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  useEffect(() => {
+    const fetchInstructors = async () => {
+      setLoadingInstructors(true)
+      const response = await userService.getInstructors()
+      if (response.success && response.data) {
+        setInstructors(response.data)
+      }
+      setLoadingInstructors(false)
+    }
+
+    fetchInstructors()
+  }, [])
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     if (name === "horario") {
       // Mantener el horario como string HH:mm
@@ -182,17 +203,25 @@ export const ActivityForm = ({ isEdit = false, initialData, onSubmit }: Activity
               </div>
 
               <div className="activity-form-group">
-                <label className="activity-form-label">ID del Instructor</label>
-                <input
-                  type="number"
+                <label className="activity-form-label">Instructor</label>
+                <select
                   name="instructor"
                   value={form.instructor}
                   onChange={handleChange}
-                  placeholder="ID del instructor"
                   required
-                  min={1}
                   className="sport-input"
-                />
+                  disabled={loadingInstructors}
+                >
+                  <option value="">Seleccionar instructor</option>
+                  {instructors.map((instructor) => (
+                    <option key={instructor.id} value={instructor.id}>
+                      {instructor.nombre}
+                    </option>
+                  ))}
+                </select>
+                {loadingInstructors && (
+                  <div className="mt-2 text-sm text-gray-500">Cargando instructores...</div>
+                )}
               </div>
 
               <div className="activity-form-group">
