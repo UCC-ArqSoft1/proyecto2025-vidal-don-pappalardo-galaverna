@@ -13,6 +13,7 @@ const ActivityDetail = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const [isEnrolling, setIsEnrolling] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
+  const isAdmin = authService.isAdmin()
 
   useEffect(() => {
     const fetchActivity = async () => {
@@ -139,16 +140,18 @@ const ActivityDetail = () => {
               </div>
             </div>
 
-            <button onClick={handleEnroll} className="sport-button sport-button-full" disabled={isEnrolling}>
-              {isEnrolling ? (
-                <>
-                  <span className="sport-spinner mr-2"></span>
-                  PROCESANDO...
-                </>
-              ) : (
-                "INSCRIBIRME"
-              )}
-            </button>
+            {!isAdmin && (
+              <button onClick={handleEnroll} className="sport-button sport-button-full" disabled={isEnrolling}>
+                {isEnrolling ? (
+                  <>
+                    <span className="sport-spinner mr-2"></span>
+                    PROCESANDO...
+                  </>
+                ) : (
+                  "INSCRIBIRME"
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>
