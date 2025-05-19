@@ -12,6 +12,7 @@ func SetupUserRoutes(r *gin.Engine, db *gorm.DB) {
 
 	// Rutas públicas
 	r.GET("/usuarios/instructores", userHandler.GetInstructors)
+	r.GET("/usuarios/instructores/:id", userHandler.GetInstructorDetails)
 
 	// Rutas protegidas
 	userRoutes := r.Group("/usuarios")

@@ -117,3 +117,43 @@ func (h *UserHandler) CreateInstructor(c *gin.Context) {
 		},
 	})
 }
+
+// GetInstructorDetails obtiene los detalles de un instructor específico y sus actividades
+func (h *UserHandler) GetInstructorDetails(c *gin.Context) {
+	id := c.Param("id")
+	var instructor models.Usuario
+
+	// Buscar el instructor y sus actividades
+	result := h.db.Preload("Role").
+		Where("usuarios.id = ? AND roles.nombre = ?", id, "instructor").
+		Joins("JOIN roles ON usuarios.role_id = roles.id").
+		First(&instructor)
+
+	if result.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Instructor no encontrado",
+		})
+		return
+	}
+
+	// Obtener las actividades asignadas al instructor
+	var actividades []models.Actividad
+	if err := h.db.Where("profesor_id = ?", instructor.ID).Find(&actividades).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Error al obtener las actividades del instructor",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": gin.H{
+			"instructor": gin.H{
+				"id":       instructor.ID,
+				"nombre":   instructor.Nombre,
+				"apellido": instructor.Apellido,
+				"email":    instructor.Email,
+			},
+			"activities": actividades,
+		},
+	})
+}
