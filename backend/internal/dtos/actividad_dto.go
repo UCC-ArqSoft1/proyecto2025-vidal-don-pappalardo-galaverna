@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/proyecto2025/backend/internal/models"
+	"gorm.io/gorm"
 )
 
 type ProfesorResponseDTO struct {
@@ -48,9 +49,9 @@ type ActividadResponseDTO struct {
 }
 
 // mapeo porque quiero devovler unicamente los campos id y nombre del profesor
-func MapActividadToDTO(a models.Actividad) ActividadResponseDTO {
+func MapActividadToDTO(a models.Actividad, db *gorm.DB) ActividadResponseDTO {
 	var inscritosCount int64
-	a.DB.Model(&models.Inscripcion{}).Where("actividad_id = ?", a.ID).Count(&inscritosCount)
+	db.Model(&models.Inscripcion{}).Where("actividad_id = ?", a.ID).Count(&inscritosCount)
 
 	return ActividadResponseDTO{
 		ID:          a.ID,

@@ -37,7 +37,7 @@ func (h *ActividadHandler) GetAll(c *gin.Context) {
 
 	var response []dtos.ActividadResponseDTO
 	for _, a := range actividades {
-		response = append(response, dtos.MapActividadToDTO(a))
+		response = append(response, dtos.MapActividadToDTO(a, h.db))
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -54,7 +54,7 @@ func (h *ActividadHandler) GetByID(c *gin.Context) {
 	}
 
 	// Mapear la actividad al DTO
-	response := dtos.MapActividadToDTO(actividad)
+	response := dtos.MapActividadToDTO(actividad, h.db)
 
 	c.JSON(http.StatusOK, response)
 }
