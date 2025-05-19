@@ -4,31 +4,55 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import SportLayout from "../components/layout/CyberLayout"
 import { userService } from "../services/api"
+import { ConfirmDialog } from "../components/ConfirmDialog"
 import type { Instructor } from "../types"
 
 export const InstructorList = () => {
   const [instructors, setInstructors] = useState<Instructor[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>("")
+  const [deleteDialog, setDeleteDialog] = useState<{ isOpen: boolean; instructorId: number | null }>({
+    isOpen: false,
+    instructorId: null
+  })
+
+  const fetchInstructors = async () => {
+    try {
+      const response = await userService.getInstructors()
+      if (response.success && response.data) {
+        setInstructors(response.data)
+      } else {
+        setError(response.message || "Error al cargar los instructores")
+      }
+    } catch (err) {
+      setError("Error al cargar los instructores")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchInstructors = async () => {
-      try {
-        const response = await userService.getInstructors()
-        if (response.success && response.data) {
-          setInstructors(response.data)
-        } else {
-          setError(response.message || "Error al cargar los instructores")
-        }
-      } catch (err) {
-        setError("Error al cargar los instructores")
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchInstructors()
   }, [])
+
+  const handleDeleteClick = (instructorId: number) => {
+    setDeleteDialog({ isOpen: true, instructorId })
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog.instructorId) return
+
+    try {
+      const response = await userService.deleteInstructor(deleteDialog.instructorId)
+      if (response.success) {
+        await fetchInstructors() // Recargar la lista
+      } else {
+        setError(response.message || "Error al eliminar el instructor")
+      }
+    } catch (err) {
+      setError("Error al eliminar el instructor")
+    }
+  }
 
   if (loading) {
     return (
@@ -103,12 +127,20 @@ export const InstructorList = () => {
                       <div className="text-sm text-gray-900">{instructor.email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <Link
-                        to={`/admin/instructores/detalle/${instructor.id}`}
-                        className="text-primary hover:text-primary-dark"
-                      >
-                        Ver detalles
-                      </Link>
+                      <div className="flex justify-end gap-2">
+                        <Link
+                          to={`/admin/instructores/detalle/${instructor.id}`}
+                          className="text-primary hover:text-primary-dark"
+                        >
+                          Ver detalles
+                        </Link>
+                        <button
+                          onClick={() => handleDeleteClick(instructor.id)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -116,6 +148,15 @@ export const InstructorList = () => {
             </table>
           </div>
         )}
+
+        <ConfirmDialog
+          isOpen={deleteDialog.isOpen}
+          onClose={() => setDeleteDialog({ isOpen: false, instructorId: null })}
+          onConfirm={handleDeleteConfirm}
+          title="Eliminar Instructor"
+          message="¿Estás seguro de que deseas eliminar este instructor? Esta acción no se puede deshacer."
+          confirmText="Eliminar"
+        />
       </div>
     </SportLayout>
   )
