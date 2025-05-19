@@ -7,6 +7,7 @@ import { useNavigate, Link } from "react-router-dom"
 import SportLayout from "../components/layout/CyberLayout"
 import { authService } from "../services/api"
 import type { UserRegistration } from "../types"
+import { toast } from "react-toastify"
 
 const Signup = () => {
   const [formData, setFormData] = useState<UserRegistration>({
@@ -57,7 +58,7 @@ const Signup = () => {
     const response = await authService.register(formData)
 
     if (response.success) {
-      alert("Registro exitoso. Ahora puedes iniciar sesión.")
+      toast.success("Registro exitoso. Ahora puedes iniciar sesión.")
       navigate("/login")
     } else {
       setError(response.message || "Error al registrarse")

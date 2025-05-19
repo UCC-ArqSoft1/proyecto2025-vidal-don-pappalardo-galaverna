@@ -6,6 +6,7 @@ import ActivityForm from "./activity-form"
 import SportLayout from "../components/layout/CyberLayout"
 import { activityService, authService } from "../services/api"
 import type { Activity } from "../types"
+import { toast } from "react-toastify"
 
 const EditActivityPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -22,8 +23,8 @@ const EditActivityPage = () => {
     }
 
     if (!authService.isAdmin()) {
+      toast.warning("No tienes permisos para editar actividades")
       navigate("/")
-      alert("No tienes permisos para editar actividades")
       return
     }
 
@@ -51,10 +52,10 @@ const EditActivityPage = () => {
     const response = await activityService.updateActivity(Number(id), data)
 
     if (response.success) {
-      alert("¡Actividad actualizada con éxito!")
+      toast.success("¡Actividad actualizada con éxito!")
       navigate("/")
     } else {
-      alert(response.message || "Error al actualizar la actividad")
+      toast.error(response.message || "Error al actualizar la actividad")
     }
   }
 

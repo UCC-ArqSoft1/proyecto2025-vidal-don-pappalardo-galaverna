@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { clearAuthData, isAdmin } from '../utils/auth'
 import { userService, activityService } from '../services/api'
+import { toast } from 'react-toastify'
 
 interface UserMenuProps {
   userName: string
@@ -34,13 +35,13 @@ export function UserMenu({ userName }: UserMenuProps) {
       try {
         const response = await userService.deleteInstructor(instructorId)
         if (response.success) {
-          alert('Instructor eliminado exitosamente')
+          toast.success('Instructor eliminado exitosamente')
           navigate('/admin/instructores')
         } else {
-          alert(response.message || 'Error al eliminar el instructor')
+          toast.error(response.message || 'Error al eliminar el instructor')
         }
       } catch (error) {
-        alert('Error al eliminar el instructor')
+        toast.error('Error al eliminar el instructor')
       }
     }
   }
@@ -50,13 +51,13 @@ export function UserMenu({ userName }: UserMenuProps) {
       try {
         const response = await activityService.deleteActivity(activityId)
         if (response.success) {
-          alert('Actividad eliminada exitosamente')
+          toast.success('Actividad eliminada exitosamente')
           navigate('/admin/actividades')
         } else {
-          alert(response.message || 'Error al eliminar la actividad')
+          toast.error(response.message || 'Error al eliminar la actividad')
         }
       } catch (error) {
-        alert('Error al eliminar la actividad')
+        toast.error('Error al eliminar la actividad')
       }
     }
   }

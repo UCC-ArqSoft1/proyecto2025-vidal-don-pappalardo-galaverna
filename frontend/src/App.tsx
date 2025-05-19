@@ -18,81 +18,97 @@ import InstructorForm from "./pages/instructor-form"
 import InstructorDetail from "./pages/instructor-detail"
 import ActivityForm from "./pages/activity-form"
 import ActivityList from "./pages/activity-list"
+import { ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        {/* Public routes */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/detalle/:id" element={<ActivityDetail />} />
+    <>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      <Router>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/detalle/:id" element={<ActivityDetail />} />
 
-        {/* Protected routes */}
-        <Route
-          path="/mis-actividades"
-          element={
-            <ProtectedRoute>
-              <MyActivities />
-            </ProtectedRoute>
-          }
-        />
+          {/* Protected routes */}
+          <Route
+            path="/mis-actividades"
+            element={
+              <ProtectedRoute>
+                <MyActivities />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/actividades"
-          element={
-            <ProtectedRoute>
-              <ActivityList />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/actividades"
+            element={
+              <ProtectedRoute>
+                <ActivityList />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Admin only routes */}
-        <Route
-          path="/nueva-actividad"
-          element={
-            <ProtectedRoute requireAdmin>
-              <NewActivityPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/editar-actividad/:id"
-          element={
-            <ProtectedRoute requireAdmin>
-              <EditActivityPage />
-            </ProtectedRoute>
-          }
-        />
+          {/* Admin only routes */}
+          <Route
+            path="/nueva-actividad"
+            element={
+              <ProtectedRoute requireAdmin>
+                <NewActivityPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editar-actividad/:id"
+            element={
+              <ProtectedRoute requireAdmin>
+                <EditActivityPage />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Admin routes */}
-        <Route
-          path="/admin/instructores"
-          element={
-            <ProtectedRoute requireAdmin>
-              <InstructorList />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/instructores/nuevo"
-          element={
-            <ProtectedRoute requireAdmin>
-              <InstructorForm />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/instructores/detalle/:id"
-          element={
-            <ProtectedRoute requireAdmin>
-              <InstructorDetail />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </Router>
+          {/* Admin routes */}
+          <Route
+            path="/admin/instructores"
+            element={
+              <ProtectedRoute requireAdmin>
+                <InstructorList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/instructores/nuevo"
+            element={
+              <ProtectedRoute requireAdmin>
+                <InstructorForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/instructores/detalle/:id"
+            element={
+              <ProtectedRoute requireAdmin>
+                <InstructorDetail />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </>
   )
 }
 

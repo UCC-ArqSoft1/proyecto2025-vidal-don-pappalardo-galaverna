@@ -1,6 +1,7 @@
 "use client"
 
 import { useNavigate } from "react-router-dom"
+import { toast } from "react-toastify"
 import ActivityForm from "./activity-form"
 import { activityService } from "../services/api"
 import type { Activity } from "../types"
@@ -12,10 +13,10 @@ const NewActivityPage = () => {
     const response = await activityService.createActivity(data)
 
     if (response.success) {
-      alert("¡Actividad creada con éxito!")
+      toast.success("¡Actividad creada con éxito!")
       navigate("/")
     } else {
-      alert(response.message || "Error al crear la actividad")
+      toast.error(response.message || "Error al crear la actividad")
     }
   }
 

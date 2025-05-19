@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
+import { toast } from "react-toastify"
 import SportLayout from "../components/layout/CyberLayout"
 import { activityService, authService, enrollmentService } from "../services/api"
 import type { Activity } from "../types"
@@ -55,7 +56,7 @@ const ActivityDetail = () => {
     if (!id) return
 
     if (!authService.isAuthenticated()) {
-      alert("Debes iniciar sesión para inscribirte")
+      toast.info("Debes iniciar sesión para inscribirte")
       navigate("/login")
       return
     }
@@ -65,9 +66,9 @@ const ActivityDetail = () => {
     setIsEnrolling(false)
 
     if (response.success) {
-      alert("¡Te has inscrito con éxito!")
+      toast.success("¡Te has inscrito con éxito!")
     } else {
-      alert(response.message || "Error al inscribirse")
+      toast.error(response.message || "Error al inscribirse")
     }
   }
 
