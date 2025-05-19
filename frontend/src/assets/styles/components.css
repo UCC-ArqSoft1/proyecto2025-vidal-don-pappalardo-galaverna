@@ -381,3 +381,40 @@
   background-color: var(--border);
   margin: 0.5rem 0;
 }
+
+/* Delete Button Styles */
+.sport-button-danger {
+  background: #dc2626; /* red-600 */
+  color: white;
+  border: 2px solid #dc2626;
+}
+
+.sport-button-danger:hover {
+  background: #b91c1c; /* red-700 */
+  border-color: #b91c1c;
+  color: white;
+}
+
+.sport-button-danger:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15); /* red-600 with opacity */
+}
+
+/* Confirm Dialog Styles */
+.confirm-dialog-button-danger {
+  background: #dc2626; /* red-600 */
+  color: white;
+  border: 2px solid #dc2626;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.confirm-dialog-button-danger:hover {
+  background: #b91c1c; /* red-700 */
+  border-color: #b91c1c;
+}
+
+.confirm-dialog-button-danger:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}

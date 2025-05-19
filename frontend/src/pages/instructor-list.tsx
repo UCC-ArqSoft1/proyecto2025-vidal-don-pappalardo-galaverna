@@ -139,7 +139,7 @@ export const InstructorList = () => {
                   </Link>
                   <button
                     onClick={() => handleDeleteClick(instructor.id)}
-                    className="sport-button sport-button-full mt-2 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
+                    className="sport-button sport-button-danger sport-button-full mt-2"
                   >
                     ELIMINAR
                   </button>
@@ -158,6 +158,7 @@ export const InstructorList = () => {
         cancelText="Cancelar"
         onConfirm={handleDeleteConfirm}
         onClose={() => setDeleteDialog({ isOpen: false, instructorId: null })}
+        isDelete={true}
       />
     </SportLayout>
   )

@@ -8,6 +8,7 @@ interface ConfirmDialogProps {
   message: string
   confirmText?: string
   cancelText?: string
+  isDelete?: boolean
 }
 
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
@@ -17,7 +18,8 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   title,
   message,
   confirmText = 'Confirmar',
-  cancelText = 'Cancelar'
+  cancelText = 'Cancelar',
+  isDelete = false
 }) => {
   const dialogRef = useRef<HTMLDivElement>(null)
 
@@ -44,7 +46,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         <div className="flex justify-end gap-4">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800"
+            className="sport-button sport-button-outline"
           >
             {cancelText}
           </button>
@@ -53,7 +55,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
               onConfirm()
               onClose()
             }}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            className={`sport-button ${isDelete ? 'confirm-dialog-button-danger' : ''}`}
           >
             {confirmText}
           </button>

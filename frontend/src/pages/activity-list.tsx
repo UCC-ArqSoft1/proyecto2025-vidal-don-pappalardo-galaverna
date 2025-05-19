@@ -191,6 +191,7 @@ export const ActivityList = () => {
         cancelText="Cancelar"
         onConfirm={handleDeleteConfirm}
         onClose={() => setDeleteDialog({ isOpen: false, activityId: null })}
+        isDelete={true}
       />
     </SportLayout>
   )
