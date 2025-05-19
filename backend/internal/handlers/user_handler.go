@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -156,4 +157,37 @@ func (h *UserHandler) GetInstructorDetails(c *gin.Context) {
 			"activities": actividades,
 		},
 	})
+}
+
+// DeleteInstructor elimina un instructor (borrado lógico)
+func (h *UserHandler) DeleteInstructor(c *gin.Context) {
+	id := c.Param("id")
+
+	// Convertir el id a uint
+	var parsedID uint
+	if _, err := fmt.Sscanf(id, "%d", &parsedID); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	// Verificar que el usuario existe y es un instructor
+	var usuario models.Usuario
+	if err := h.db.Joins("JOIN roles ON usuarios.role_id = roles.id").
+		Where("usuarios.id = ? AND roles.nombre = ?", parsedID, "instructor").
+		First(&usuario).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Instructor no encontrado"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al buscar el instructor"})
+		}
+		return
+	}
+
+	// Realizar el borrado lógico
+	if err := h.db.Model(&usuario).Update("active", false).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al eliminar el instructor"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Instructor eliminado correctamente"})
 }

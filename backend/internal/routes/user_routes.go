@@ -23,6 +23,7 @@ func SetupUserRoutes(r *gin.Engine, db *gorm.DB) {
 		adminRoutes.Use(middlewares.IsAdmin())
 		{
 			adminRoutes.POST("/instructores", userHandler.CreateInstructor)
+			adminRoutes.DELETE("/instructores/:id", userHandler.DeleteInstructor)
 		}
 	}
 }
