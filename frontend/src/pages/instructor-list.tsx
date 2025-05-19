@@ -2,13 +2,19 @@
 
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
+import { toast } from "react-toastify"
 import SportLayout from "../components/layout/CyberLayout"
 import { userService } from "../services/api"
 import { ConfirmDialog } from "../components/ConfirmDialog"
-import type { Instructor } from "../types"
+
+// Tipo que coincide con lo que devuelve el backend
+interface InstructorListItem {
+  id: number
+  nombre: string
+}
 
 export const InstructorList = () => {
-  const [instructors, setInstructors] = useState<Instructor[]>([])
+  const [instructors, setInstructors] = useState<InstructorListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>("")
   const [search, setSearch] = useState<string>("")
@@ -46,12 +52,13 @@ export const InstructorList = () => {
     try {
       const response = await userService.deleteInstructor(deleteDialog.instructorId)
       if (response.success) {
+        toast.success("Instructor eliminado exitosamente")
         await fetchInstructors()
       } else {
-        setError(response.message || "Error al eliminar el instructor")
+        toast.error(response.message || "Error al eliminar el instructor")
       }
     } catch (err) {
-      setError("Error al eliminar el instructor")
+      toast.error("Error al eliminar el instructor")
     } finally {
       setDeleteDialog({ isOpen: false, instructorId: null })
     }
@@ -59,9 +66,7 @@ export const InstructorList = () => {
 
   const filtered = instructors.filter(
     (i) =>
-      i.nombre.toLowerCase().includes(search.toLowerCase()) ||
-      i.apellido.toLowerCase().includes(search.toLowerCase()) ||
-      i.email.toLowerCase().includes(search.toLowerCase())
+      i.nombre.toLowerCase().includes(search.toLowerCase())
   )
 
   if (loading) {
@@ -97,7 +102,7 @@ export const InstructorList = () => {
       <div className="home-search">
         <input
           type="text"
-          placeholder="Buscar por nombre, apellido o email..."
+          placeholder="Buscar por nombre..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="sport-input"
@@ -121,16 +126,7 @@ export const InstructorList = () => {
             <div key={instructor.id} className="sport-card">
               <div className="sport-card-content">
                 <div className="flex justify-between items-start mb-4">
-                  <h2 className="sport-card-title">{instructor.nombre} {instructor.apellido}</h2>
-                  <span className="sport-badge sport-badge-accent">
-                    INSTRUCTOR
-                  </span>
-                </div>
-
-                <div className="sport-card-meta">
-                  <p>
-                    <span className="text-primary font-semibold">EMAIL:</span> {instructor.email}
-                  </p>
+                  <h2 className="sport-card-title">{instructor.nombre}</h2>
                 </div>
 
                 <div className="sport-card-actions">

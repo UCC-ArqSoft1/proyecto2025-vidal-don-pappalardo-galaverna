@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
+import { toast } from "react-toastify"
 import SportLayout from "../components/layout/CyberLayout"
 import { activityService, authService } from "../services/api"
 import { ConfirmDialog } from "../components/ConfirmDialog"
@@ -47,12 +48,13 @@ export const ActivityList = () => {
     try {
       const response = await activityService.deleteActivity(deleteDialog.activityId)
       if (response.success) {
+        toast.success("Actividad eliminada exitosamente")
         await fetchActivities()
       } else {
-        setError(response.message || "Error al eliminar la actividad")
+        toast.error(response.message || "Error al eliminar la actividad")
       }
     } catch (err) {
-      setError("Error al eliminar la actividad")
+      toast.error("Error al eliminar la actividad")
     } finally {
       setDeleteDialog({ isOpen: false, activityId: null })
     }
