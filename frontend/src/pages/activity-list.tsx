@@ -61,7 +61,8 @@ export const ActivityList = () => {
   const filtered = activities.filter(
     (a) =>
       a.titulo.toLowerCase().includes(search.toLowerCase()) || 
-      a.categoria.toLowerCase().includes(search.toLowerCase())
+      a.categoria.toLowerCase().includes(search.toLowerCase()) ||
+      a.horario.toLowerCase().includes(search.toLowerCase())
   )
 
   if (loading) {
@@ -97,7 +98,7 @@ export const ActivityList = () => {
       <div className="home-search">
         <input
           type="text"
-          placeholder="Buscar por nombre o categoría..."
+          placeholder="Buscar por nombre, categoría o horario..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="sport-input"
@@ -150,6 +151,9 @@ export const ActivityList = () => {
                   </p>
                   <p>
                     <span className="text-primary font-semibold">DÍA:</span> {activity.dia}
+                  </p>
+                  <p>
+                    <span className="text-primary font-semibold">CUPO:</span> {activity.inscritos} / {activity.cupo} personas
                   </p>
                   <p>
                     <span className="text-primary font-semibold">INSTRUCTOR:</span> {activity.profesor?.nombre || "No asignado"}

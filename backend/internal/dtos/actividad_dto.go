@@ -36,6 +36,7 @@ type ActividadResponseDTO struct {
 	Horario     string              `json:"horario"`
 	Duracion    int                 `json:"duracion"`
 	Cupo        int                 `json:"cupo"`
+	Inscritos   int                 `json:"inscritos"`
 	Categoria   string              `json:"categoria"`
 	ImagenData  string              `json:"imagen_data"` // Base64 encoded image data
 	ImagenType  string              `json:"imagen_type"` // MIME type of the image
@@ -48,6 +49,9 @@ type ActividadResponseDTO struct {
 
 // mapeo porque quiero devovler unicamente los campos id y nombre del profesor
 func MapActividadToDTO(a models.Actividad) ActividadResponseDTO {
+	var inscritosCount int64
+	a.DB.Model(&models.Inscripcion{}).Where("actividad_id = ?", a.ID).Count(&inscritosCount)
+
 	return ActividadResponseDTO{
 		ID:          a.ID,
 		Titulo:      a.Titulo,
@@ -56,6 +60,7 @@ func MapActividadToDTO(a models.Actividad) ActividadResponseDTO {
 		Horario:     a.Horario.Format("15:04"), // o el formato que prefieras
 		Duracion:    a.Duracion,
 		Cupo:        a.Cupo,
+		Inscritos:   int(inscritosCount),
 		Categoria:   a.Categoria,
 		ImagenData:  ImageToBase64(a.ImagenData, a.ImagenType),
 		Active:      a.Active,

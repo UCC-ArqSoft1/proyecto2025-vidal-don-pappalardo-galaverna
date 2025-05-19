@@ -32,6 +32,7 @@ export interface Activity {
   horario: string
   duracion: number
   cupo: number
+  inscritos: number
   categoria: string
   imagen_data?: string
   imagen_type?: string

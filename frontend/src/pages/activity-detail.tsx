@@ -126,7 +126,9 @@ const ActivityDetail = () => {
 
               <div className="activity-detail-info-item">
                 <span className="activity-detail-info-label">Cupo</span>
-                <span className="activity-detail-info-value">{activity.cupo} personas</span>
+                <span className="activity-detail-info-value">
+                  {activity.inscritos} / {activity.cupo} personas
+                </span>
               </div>
 
               <div className="activity-detail-info-item">
@@ -141,12 +143,18 @@ const ActivityDetail = () => {
             </div>
 
             {!isAdmin && (
-              <button onClick={handleEnroll} className="sport-button sport-button-full" disabled={isEnrolling}>
+              <button 
+                onClick={handleEnroll} 
+                className="sport-button sport-button-full" 
+                disabled={isEnrolling || activity.inscritos >= activity.cupo}
+              >
                 {isEnrolling ? (
                   <>
                     <span className="sport-spinner mr-2"></span>
                     PROCESANDO...
                   </>
+                ) : activity.inscritos >= activity.cupo ? (
+                  "CUPO COMPLETO"
                 ) : (
                   "INSCRIBIRME"
                 )}
