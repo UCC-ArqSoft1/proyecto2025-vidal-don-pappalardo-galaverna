@@ -31,12 +31,13 @@ export const InstructorDetail = () => {
         console.log("API Response:", response)
 
         // Verificar la estructura exacta de la respuesta
-        if (response.success && response.data) {
-          console.log("Response data:", response.data)
-          if (response.data.instructor) {
-            console.log("Setting instructor:", response.data.instructor)
-            setInstructor(response.data.instructor)
-            setActivities(response.data.activities || [])
+        if (response.success && response.data?.data) {
+          console.log("Response data:", response.data.data)
+          const instructorData = response.data.data.instructor
+          if (instructorData) {
+            console.log("Setting instructor:", instructorData)
+            setInstructor(instructorData)
+            setActivities(response.data.data.activities || [])
             setError("") // Limpiar cualquier error previo
           } else {
             console.log("No instructor data in response")

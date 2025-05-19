@@ -1,4 +1,4 @@
-import type { Activity, ApiResponse, AuthResponse, Enrollment, User, UserRegistration } from "../types"
+import type { Activity, ApiResponse, AuthResponse, Enrollment, Instructor, User, UserRegistration } from "../types"
 
 const API_URL = "http://localhost:8080"
 
@@ -410,7 +410,7 @@ export const userService = {
     }
   },
 
-  getInstructorDetails: async (id: number): Promise<ApiResponse<{ instructor: Instructor; activities: Activity[] }>> => {
+  getInstructorDetails: async (id: number): Promise<ApiResponse<{ data: { instructor: Instructor; activities: Activity[] } }>> => {
     try {
       const response = await authFetch(`/usuarios/instructores/${id}`)
       const data = await response.json()
