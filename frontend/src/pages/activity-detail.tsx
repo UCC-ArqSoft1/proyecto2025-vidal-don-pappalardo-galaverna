@@ -67,6 +67,13 @@ const ActivityDetail = () => {
 
     if (response.success) {
       toast.success("¡Te has inscrito con éxito!")
+      setIsEnrolled(true)
+      if (activity) {
+        setActivity({
+          ...activity,
+          inscritos: activity.inscritos + 1
+        })
+      }
     } else {
       toast.error(response.message || "Error al inscribirse")
     }

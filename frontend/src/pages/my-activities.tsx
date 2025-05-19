@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import { toast } from "react-toastify"
 import SportLayout from "../components/layout/CyberLayout"
 import { enrollmentService, authService } from "../services/api"
 import { ConfirmDialog } from "../components/ConfirmDialog"
@@ -51,16 +52,17 @@ const MyActivities = () => {
     try {
       const response = await enrollmentService.cancelEnrollment(cancelDialog.enrollmentId)
       if (response.success) {
+        toast.success("Inscripción cancelada exitosamente")
         // Refresh enrollments after successful cancellation
         const enrollmentsResponse = await enrollmentService.getUserEnrollments()
         if (enrollmentsResponse.success && enrollmentsResponse.data) {
           setEnrollments(enrollmentsResponse.data)
         }
       } else {
-        setError(response.message || "Error al cancelar la inscripción")
+        toast.error(response.message || "Error al cancelar la inscripción")
       }
     } catch (err) {
-      setError("Error al cancelar la inscripción")
+      toast.error("Error al cancelar la inscripción")
     } finally {
       setIsCancelling(false)
       setCancelDialog({ isOpen: false, enrollmentId: null })
