@@ -13,25 +13,42 @@ const ActivityDetail = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const [isEnrolling, setIsEnrolling] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
+  const [isEnrolled, setIsEnrolled] = useState<boolean>(false)
   const isAdmin = authService.isAdmin()
 
   useEffect(() => {
-    const fetchActivity = async () => {
+    const fetchData = async () => {
       if (!id) return
 
       setLoading(true)
-      const response = await activityService.getActivityById(Number(id))
+      try {
+        // Fetch activity details
+        const activityResponse = await activityService.getActivityById(Number(id))
+        if (activityResponse.success && activityResponse.data) {
+          setActivity(activityResponse.data)
+        } else {
+          setError(activityResponse.message || "No se pudo cargar la actividad")
+          return
+        }
 
-      if (response.success && response.data) {
-        setActivity(response.data)
-      } else {
-        setError(response.message || "No se pudo cargar la actividad")
+        // If user is authenticated, check if they are enrolled
+        if (authService.isAuthenticated()) {
+          const enrollmentsResponse = await enrollmentService.getUserEnrollments()
+          if (enrollmentsResponse.success && enrollmentsResponse.data) {
+            const isUserEnrolled = enrollmentsResponse.data.some(
+              enrollment => enrollment.actividad_id === Number(id)
+            )
+            setIsEnrolled(isUserEnrolled)
+          }
+        }
+      } catch (err) {
+        setError("Error al cargar los datos")
+      } finally {
+        setLoading(false)
       }
-
-      setLoading(false)
     }
 
-    fetchActivity()
+    fetchData()
   }, [id])
 
   const handleEnroll = async () => {
@@ -142,7 +159,7 @@ const ActivityDetail = () => {
               </div>
             </div>
 
-            {!isAdmin && (
+            {!isAdmin && authService.isAuthenticated() && !isEnrolled && (
               <button 
                 onClick={handleEnroll} 
                 className="sport-button sport-button-full" 
@@ -158,6 +175,21 @@ const ActivityDetail = () => {
                 ) : (
                   "INSCRIBIRME"
                 )}
+              </button>
+            )}
+
+            {!isAdmin && authService.isAuthenticated() && isEnrolled && (
+              <div className="text-center p-4 bg-green-100 text-green-800 rounded">
+                Ya estás inscrito en esta actividad
+              </div>
+            )}
+
+            {!authService.isAuthenticated() && (
+              <button 
+                onClick={() => navigate("/login")} 
+                className="sport-button sport-button-full"
+              >
+                INICIAR SESIÓN PARA INSCRIBIRSE
               </button>
             )}
           </div>

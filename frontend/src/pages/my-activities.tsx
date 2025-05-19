@@ -4,12 +4,18 @@ import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import SportLayout from "../components/layout/CyberLayout"
 import { enrollmentService, authService } from "../services/api"
+import { ConfirmDialog } from "../components/ConfirmDialog"
 import type { Enrollment } from "../types"
 
 const MyActivities = () => {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
+  const [isCancelling, setIsCancelling] = useState<boolean>(false)
+  const [cancelDialog, setCancelDialog] = useState<{ isOpen: boolean; enrollmentId: number | null }>({
+    isOpen: false,
+    enrollmentId: null
+  })
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -33,6 +39,33 @@ const MyActivities = () => {
 
     fetchEnrollments()
   }, [navigate])
+
+  const handleCancelClick = (enrollmentId: number) => {
+    setCancelDialog({ isOpen: true, enrollmentId })
+  }
+
+  const handleCancelConfirm = async () => {
+    if (!cancelDialog.enrollmentId) return
+
+    setIsCancelling(true)
+    try {
+      const response = await enrollmentService.cancelEnrollment(cancelDialog.enrollmentId)
+      if (response.success) {
+        // Refresh enrollments after successful cancellation
+        const enrollmentsResponse = await enrollmentService.getUserEnrollments()
+        if (enrollmentsResponse.success && enrollmentsResponse.data) {
+          setEnrollments(enrollmentsResponse.data)
+        }
+      } else {
+        setError(response.message || "Error al cancelar la inscripción")
+      }
+    } catch (err) {
+      setError("Error al cancelar la inscripción")
+    } finally {
+      setIsCancelling(false)
+      setCancelDialog({ isOpen: false, enrollmentId: null })
+    }
+  }
 
   if (loading) {
     return (
@@ -91,12 +124,37 @@ const MyActivities = () => {
                   <Link to={`/detalle/${enrollment.actividad_id}`} className="sport-button sport-button-outline">
                     VER DETALLES
                   </Link>
+                  <button
+                    onClick={() => handleCancelClick(enrollment.id)}
+                    className="sport-button sport-button-danger"
+                    disabled={isCancelling}
+                  >
+                    {isCancelling && cancelDialog.enrollmentId === enrollment.id ? (
+                      <>
+                        <span className="sport-spinner mr-2"></span>
+                        CANCELANDO...
+                      </>
+                    ) : (
+                      "CANCELAR INSCRIPCIÓN"
+                    )}
+                  </button>
                 </div>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={cancelDialog.isOpen}
+        title="Cancelar Inscripción"
+        message="¿Estás seguro que deseas cancelar tu inscripción en esta actividad?"
+        onConfirm={handleCancelConfirm}
+        onClose={() => setCancelDialog({ isOpen: false, enrollmentId: null })}
+        confirmText="Sí, Cancelar"
+        cancelText="No, Volver"
+        isDelete={true}
+      />
     </SportLayout>
   )
 }
