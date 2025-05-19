@@ -1,0 +1,66 @@
+# air.toml - Archivo de configuración para Air (Go)
+
+# El directorio raíz del proyecto
+root = "."
+
+# Configuración de la compilación
+[build]
+  # El comando que Air usará para compilar el código
+  cmd = "go build -o ./tmp/main ./cmd/api && chmod +x ./tmp/main"
+
+  # El archivo binario generado que Air ejecutará
+  bin = "./tmp/main"
+
+  # Extensiones de archivo que Air observará
+  include_ext = ["go"]
+
+  # Directorios que Air debe excluir del monitoreo
+  exclude_dir = ["tmp", "vendor"]
+
+  # Retraso en milisegundos antes de hacer una nueva compilación después de un cambio
+  delay = 1000
+
+  # Si el comando de compilación falló, Air no reiniciará el servidor
+  restart = true
+
+  # Comando que Air ejecuta cuando el contenedor se reinicia
+  run = "go run ./cmd/api"
+
+# Configuración de monitoreo de archivos
+[watch]
+  # Directorios que Air debe monitorear para cambios
+  dirs = ["cmd", "internal", "backend"]
+
+  # Extensiones de archivo a monitorear
+  extensions = ["go", "tmpl", "html"]
+
+  # Activar o desactivar el polling para la detección de cambios
+  poll = true  # Usar polling para sistemas de archivos que no soportan notificaciones de eventos
+
+  # Directorios que Air debe ignorar (archivos temporales, logs, etc.)
+  ignore = ["tmp", "vendor", ".git", "node_modules", "dist"]
+
+  # Archivos y directorios adicionales que Air debe ignorar
+  ignore_patterns = ["*.test", "*.md", "*.log"]
+
+# Configuración de logging
+[log]
+  # Nivel de log: "debug", "info", "warn", "error"
+  level = "debug"
+
+  # Mostrar mensajes más detallados, útil para la depuración
+  verbose = true
+
+  # Directorio donde Air almacenará los logs
+  dir = "./tmp/air-logs"
+
+# Configuración del servidor en caso de usar un framework como Gin
+[server]
+  # Puerto en el que Air ejecutará el servidor Go
+  port = "8080"
+
+  # Configuración de la URL base del servidor si es necesario
+  base_url = "http://localhost"
+
+  # Otras configuraciones específicas del servidor que se pueden ajustar
+  debug = true

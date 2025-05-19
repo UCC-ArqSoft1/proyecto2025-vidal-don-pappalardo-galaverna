@@ -1,0 +1,923 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Gym de los pibes",
+    "version": "1.0.0",
+    "description": "Documentación de la API del gym"
+  },
+  "paths": {
+    "/actividades": {
+      "get": {
+        "summary": "Listar todas las actividades y permitir búsqueda",
+        "operationId": "getAllActividades",
+        "tags": ["Actividades"],
+        "parameters": [
+          {
+            "name": "nombre",
+            "in": "query",
+            "description": "Buscar actividades por nombre",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dia",
+            "in": "query",
+            "description": "Filtrar actividades por día (ej. Lunes, Martes)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoria",
+            "in": "query",
+            "description": "Filtrar actividades por categoría",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de actividades",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Actividad"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear una nueva actividad (Requiere token de Admin)",
+        "operationId": "createActividad",
+        "tags": ["Actividades"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActividadDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Actividad creada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Actividad"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error en la solicitud",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado (Token no válido o ausente)",
+             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Prohibido (Token válido pero sin permisos de Admin)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actividades/{id}": {
+      "get": {
+        "summary": "Obtener una actividad por ID",
+        "operationId": "getActividadById",
+        "tags": ["Actividades"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actividad encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Actividad"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Actividad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar una actividad existente (Requiere token de Admin)",
+        "operationId": "updateActividad",
+        "tags": ["Actividades"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActividadDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Actividad actualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Actividad"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error en la solicitud",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado",
+             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Prohibido (Sin permisos de Admin)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Actividad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar una actividad (Requiere token de Admin)",
+        "operationId": "deleteActividad",
+        "tags": ["Actividades"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Actividad eliminada"
+          },
+           "401": {
+            "description": "No autorizado",
+             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Prohibido (Sin permisos de Admin)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Actividad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inscripciones/{actividadId}": {
+      "post": {
+        "summary": "Inscribir al usuario autenticado a una actividad",
+        "operationId": "inscribirUsuarioActividad",
+        "tags": ["Inscripciones"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "actividadId",
+            "in": "path",
+            "required": true,
+            "description": "ID de la actividad a la que inscribirse",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Inscripción exitosa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Inscripcion"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida (ej. actividad no disponible, cupo lleno, ya inscripto)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado (Token no válido o ausente)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Prohibido (El usuario no tiene permisos para inscribirse)",
+             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Actividad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto (ej. socio ya inscripto o cupo lleno)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Listar todas las inscripciones para una actividad específica. Requiere autenticación (ej. admin o instructor).",
+        "operationId": "getInscripcionesPorActividad",
+        "tags": ["Inscripciones"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "actividadId",
+            "in": "path",
+            "required": true,
+            "description": "ID de la actividad para listar sus inscripciones",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de inscripciones para la actividad",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Inscripcion"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Prohibido (ej. no es admin o instructor de la actividad)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Actividad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inscripciones/usuarios/{iduser}": {
+      "get": {
+        "summary": "Listar las inscripciones de un usuario específico. Requiere ser el usuario solicitado o un administrador.",
+        "operationId": "getInscripcionesByUsuarioId",
+        "tags": ["Inscripciones"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "iduser",
+            "in": "path",
+            "required": true,
+            "description": "ID del usuario para listar sus inscripciones",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de inscripciones del usuario",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Inscripcion"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Prohibido (No es el usuario solicitado ni un administrador)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuario no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inscripciones/all": {
+      "get": {
+        "summary": "Listar todas las inscripciones (Requiere token de Admin)",
+        "operationId": "getAllInscripciones",
+        "tags": ["Inscripciones"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de todas las inscripciones",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Inscripcion"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Prohibido (Requiere rol de Administrador)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inscripciones/{inscripcionId}": {
+      "get": {
+        "summary": "Obtener una inscripción por su ID. Requiere ser el usuario de la inscripción o un administrador.",
+        "operationId": "getInscripcionById",
+        "tags": ["Inscripciones"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "inscripcionId",
+            "in": "path",
+            "required": true,
+            "description": "ID de la inscripción a obtener",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalles de la inscripción",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Inscripcion"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Prohibido (No es el usuario de la inscripción ni un administrador)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Inscripción no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Login de usuario",
+        "operationId": "login",
+        "tags": ["Autenticación"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Inicio de sesión exitoso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access_token": {
+                      "type": "string"
+                    },
+                    "refresh_token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error en las credenciales",
+             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "summary": "Registrar un nuevo usuario",
+        "operationId": "register",
+        "tags": ["Autenticación"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRegistrationDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario registrado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error en la solicitud (ej. datos inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "El correo electrónico ya está registrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh-token": {
+      "post": {
+        "summary": "Refrescar el token de acceso",
+        "operationId": "refreshToken",
+        "tags": ["Autenticación"],
+        "description": "Obtén un nuevo token de acceso enviando el refresh token (ej. desde una cookie HttpOnly o el body).",
+        "requestBody": {
+            "description": "Refresh token para generar un nuevo access token.",
+            "required": true,
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "refresh_token": {"type": "string"}
+                        },
+                        "required": ["refresh_token"]
+                    }
+                }
+            }
+        },
+        "responses": {
+          "200": {
+            "description": "Token de acceso renovado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access_token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refresh token no válido o expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "summary": "Cerrar sesión del usuario",
+        "operationId": "logout",
+        "tags": ["Autenticación"],
+         "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Invalida el token de sesión del usuario (el refresh token si se almacena en backend, o instruye al cliente a borrar tokens).",
+        "responses": {
+          "200": {
+            "description": "Sesión cerrada exitosamente"
+          },
+          "401": {
+            "description": "No autenticado o token inválido para cerrar sesión",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Actividad": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "titulo": { "type": "string" },
+          "descripcion": { "type": "string" },
+          "dia": { "type": "string" },
+          "horario": { "type": "string", "format": "time", "example": "10:00:00" },
+          "duracion": { "type": "integer", "description": "Duración en minutos" },
+          "cupo": { "type": "integer" },
+          "categoria": { "type": "string" },
+          "imagen_url": { "type": "string", "format": "url" },
+          "active": { "type": "boolean", "default": true }
+        }
+      },
+      "ActividadDTO": {
+        "type": "object",
+        "required": ["titulo", "dia", "horario", "duracion", "cupo", "categoria"],
+        "properties": {
+          "titulo": { "type": "string" },
+          "descripcion": { "type": "string" },
+          "dia": { "type": "string" },
+          "horario": { "type": "string", "format": "time", "example": "10:00:00" },
+          "duracion": { "type": "integer", "description": "Duración en minutos" },
+          "cupo": { "type": "integer" },
+          "categoria": { "type": "string" },
+          "imagen_url": { "type": "string", "format": "url" }
+        }
+      },
+      "LoginDTO": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string" }
+        }
+      },
+      "UserRegistrationDTO": {
+        "type": "object",
+        "required": ["nombre", "apellido", "email", "password"],
+        "properties": {
+          "nombre": { "type": "string" },
+          "apellido": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "format": "password", "description": "Contraseña en texto plano" }
+        }
+      },
+      "UsuarioDTO": {
+        "type": "object",
+        "description": "Data Transfer Object para creación o actualización de usuarios por un admin (maneja password_hash explícitamente si es necesario). Para registro de nuevo usuario, ver UserRegistrationDTO.",
+        "properties": {
+          "nombre": { "type": "string" },
+          "apellido": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "password_hash": { "type": "string", "description": "Usar con precaución. Generalmente el hash se genera en backend." },
+          "active": { "type": "boolean" },
+          "role_id": { "type": "integer", "description": "ID del rol asignado al usuario" }
+        }
+      },
+      "Usuario": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "nombre": { "type": "string" },
+          "apellido": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "active": { "type": "boolean" },
+          "role_id": { "type": "integer" }
+        }
+      },
+      "Inscripcion": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64", "description": "ID de la inscripción"},
+          "usuarioId": { "type": "integer", "format": "int64" },
+          "actividadId": { "type": "integer", "format": "int64" },
+          "fechaInscripcion": { "type": "string", "format": "date-time" },
+          "actividad": { "$ref": "#/components/schemas/Actividad" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string", "description": "Mensaje descriptivo del error" },
+          "code": { "type": "string", "nullable": true, "description": "Código de error interno (opcional)" }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Actividades",
+      "description": "Gestión de actividades del gym"
+    },
+    {
+      "name": "Inscripciones",
+      "description": "Operaciones relacionadas con las inscripciones a actividades"
+    },
+    {
+      "name": "Autenticación",
+      "description": "Gestión de usuarios y autenticación"
+    }
+  ]
+}
