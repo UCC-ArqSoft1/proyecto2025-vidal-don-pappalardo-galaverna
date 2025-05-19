@@ -99,7 +99,7 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/admin/instructores/:id"
+            path="/admin/instructores/detalle/:id"
             element={
               <ProtectedRoute requireAdmin>
                 <InstructorDetail />

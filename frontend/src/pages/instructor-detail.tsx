@@ -26,14 +26,28 @@ export const InstructorDetail = () => {
       if (!id) return
 
       try {
+        console.log("Fetching instructor details for ID:", id)
         const response = await userService.getInstructorDetails(parseInt(id))
-        if (response.success && response.data?.instructor) {
-          setInstructor(response.data.instructor)
-          setActivities(response.data.activities || [])
+        console.log("API Response:", response)
+
+        // Verificar la estructura exacta de la respuesta
+        if (response.success && response.data) {
+          console.log("Response data:", response.data)
+          if (response.data.instructor) {
+            console.log("Setting instructor:", response.data.instructor)
+            setInstructor(response.data.instructor)
+            setActivities(response.data.activities || [])
+            setError("") // Limpiar cualquier error previo
+          } else {
+            console.log("No instructor data in response")
+            setError("No se encontró la información del instructor")
+          }
         } else {
+          console.log("Error in response:", response.message)
           setError(response.message || "Error al cargar los detalles del instructor")
         }
       } catch (err) {
+        console.error("Error fetching instructor:", err)
         setError("Error al cargar los detalles del instructor")
       } finally {
         setLoading(false)
@@ -42,6 +56,9 @@ export const InstructorDetail = () => {
 
     fetchInstructorDetails()
   }, [id])
+
+  // Log del estado actual
+  console.log("Current state:", { instructor, activities, loading, error })
 
   if (loading) {
     return (
@@ -75,6 +92,27 @@ export const InstructorDetail = () => {
     )
   }
 
+  // Verificar si tenemos datos del instructor antes de renderizar
+  if (!instructor) {
+    return (
+      <SportLayout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+            <p>No se encontró la información del instructor</p>
+          </div>
+          <div className="mt-4">
+            <button
+              onClick={() => navigate("/admin/instructores")}
+              className="text-primary hover:underline"
+            >
+              Volver a la lista de instructores
+            </button>
+          </div>
+        </div>
+      </SportLayout>
+    )
+  }
+
   return (
     <SportLayout>
       <div className="container mx-auto px-4 py-8">
@@ -89,8 +127,8 @@ export const InstructorDetail = () => {
 
         <div className="bg-white shadow rounded-lg p-6">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold mb-2">{instructor?.nombre} {instructor?.apellido}</h1>
-            <p className="text-gray-600">{instructor?.email}</p>
+            <h1 className="text-2xl font-bold mb-2">{instructor.nombre} {instructor.apellido}</h1>
+            <p className="text-gray-600">{instructor.email}</p>
           </div>
 
           <div className="border-t pt-6">

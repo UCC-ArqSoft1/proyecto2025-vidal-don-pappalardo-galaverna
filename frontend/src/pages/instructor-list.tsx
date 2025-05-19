@@ -104,7 +104,7 @@ export const InstructorList = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <Link
-                        to={`/admin/instructores/${instructor.id}`}
+                        to={`/admin/instructores/detalle/${instructor.id}`}
                         className="text-primary hover:text-primary-dark"
                       >
                         Ver detalles
