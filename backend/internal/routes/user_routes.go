@@ -1,10 +1,9 @@
 package routes
 
 import (
-	"proyecto2025-vidal-don-pappalardo-galaverna/internal/handlers"
-	"proyecto2025-vidal-don-pappalardo-galaverna/internal/middlewares"
-
 	"github.com/gin-gonic/gin"
+	"github.com/proyecto2025/backend/internal/handlers"
+	"github.com/proyecto2025/backend/internal/middlewares"
 	"gorm.io/gorm"
 )
 
