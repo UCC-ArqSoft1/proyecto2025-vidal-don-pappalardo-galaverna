@@ -11,7 +11,6 @@ import (
 
 	"github.com/proyecto2025/backend/internal/models"
 
-
 	"github.com/joho/godotenv"
 )
 
@@ -37,6 +36,33 @@ func tryConnect(dsn string, maxRetries int) (*gorm.DB, error) {
 	}
 
 	return nil, fmt.Errorf("❌ Falló la conexión a la base de datos después de %d intentos: %w", maxRetries, err)
+}
+
+// initRoles crea los roles básicos si no existen
+func initRoles(db *gorm.DB) error {
+	roles := []models.Role{
+		{
+			Nombre:      "admin",
+			Descripcion: "Administrador del sistema",
+		},
+		{
+			Nombre:      "instructor",
+			Descripcion: "Instructor de actividades",
+		},
+	}
+
+	for _, role := range roles {
+		var existingRole models.Role
+		result := db.Where("nombre = ?", role.Nombre).First(&existingRole)
+		if result.Error != nil {
+			if err := db.Create(&role).Error; err != nil {
+				return fmt.Errorf("error al crear rol %s: %v", role.Nombre, err)
+			}
+			log.Printf("✅ Rol %s creado", role.Nombre)
+		}
+	}
+
+	return nil
 }
 
 func InitDB() {
@@ -70,6 +96,11 @@ func InitDB() {
 	)
 	if err != nil {
 		log.Fatalf("❌ AutoMigrate falló: %v", err)
+	}
+
+	// Inicializar roles básicos
+	if err := initRoles(DB); err != nil {
+		log.Fatalf("❌ Error al inicializar roles: %v", err)
 	}
 
 	log.Println("✅ Base de datos conectada y migrada")
