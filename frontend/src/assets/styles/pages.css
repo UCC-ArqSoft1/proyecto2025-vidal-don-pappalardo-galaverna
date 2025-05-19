@@ -285,3 +285,54 @@
   margin-top: 1rem;
   color: var(--text-secondary);
 }
+
+/* Landing Page Styles */
+.landing-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.hero-section {
+  text-align: center;
+  padding: 4rem 0;
+  background: linear-gradient(to right, var(--primary), var(--primary-dark));
+  color: white;
+  border-radius: 1rem;
+  margin-bottom: 4rem;
+}
+
+.hero-section h1 {
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.hero-section p {
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.features-section {
+  padding: 4rem 0;
+}
+
+.feature-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+.cta-section {
+  text-align: center;
+  padding: 4rem 0;
+  background-color: var(--background);
+  border-radius: 1rem;
+  margin-top: 4rem;
+}

@@ -1,7 +1,7 @@
 import type React from "react"
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import { ProtectedRoute } from "./components/ProtectedRoute"
-import Home from "./pages/Home"
+import LandingPage from "./pages/LandingPage"
 import Login from "./pages/Login"
 import ActivityDetail from "./pages/activity-detail"
 import MyActivities from "./pages/my-activities"
@@ -22,91 +22,76 @@ import ActivityList from "./pages/activity-list"
 const App: React.FC = () => {
   return (
     <Router>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/detalle/:id" element={<ActivityDetail />} />
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/detalle/:id" element={<ActivityDetail />} />
 
-          {/* Protected routes */}
-          <Route
-            path="/mis-actividades"
-            element={
-              <ProtectedRoute>
-                <MyActivities />
-              </ProtectedRoute>
-            }
-          />
+        {/* Protected routes */}
+        <Route
+          path="/mis-actividades"
+          element={
+            <ProtectedRoute>
+              <MyActivities />
+            </ProtectedRoute>
+          }
+        />
 
-          {/* Admin only routes */}
-          <Route
-            path="/nueva-actividad"
-            element={
-              <ProtectedRoute requireAdmin>
-                <NewActivityPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/editar-actividad/:id"
-            element={
-              <ProtectedRoute requireAdmin>
-                <EditActivityPage />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="/actividades"
+          element={
+            <ProtectedRoute>
+              <ActivityList />
+            </ProtectedRoute>
+          }
+        />
 
-          {/* Admin routes */}
-          <Route
-            path="/admin/actividades"
-            element={
-              <ProtectedRoute requireAdmin>
-                <ActivityList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/actividades/nueva"
-            element={
-              <ProtectedRoute requireAdmin>
-                <ActivityForm />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/actividades/:id/editar"
-            element={
-              <ProtectedRoute requireAdmin>
-                <ActivityForm isEdit />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/instructores"
-            element={
-              <ProtectedRoute requireAdmin>
-                <InstructorList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/instructores/nuevo"
-            element={
-              <ProtectedRoute requireAdmin>
-                <InstructorForm />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/instructores/detalle/:id"
-            element={
-              <ProtectedRoute requireAdmin>
-                <InstructorDetail />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+        {/* Admin only routes */}
+        <Route
+          path="/nueva-actividad"
+          element={
+            <ProtectedRoute requireAdmin>
+              <NewActivityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/editar-actividad/:id"
+          element={
+            <ProtectedRoute requireAdmin>
+              <EditActivityPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin routes */}
+        <Route
+          path="/admin/instructores"
+          element={
+            <ProtectedRoute requireAdmin>
+              <InstructorList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/instructores/nuevo"
+          element={
+            <ProtectedRoute requireAdmin>
+              <InstructorForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/instructores/detalle/:id"
+          element={
+            <ProtectedRoute requireAdmin>
+              <InstructorDetail />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
     </Router>
   )
 }

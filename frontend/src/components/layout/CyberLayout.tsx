@@ -30,19 +30,21 @@ const CyberLayout: React.FC<CyberLayoutProps> = ({ children }) => {
     if (admin) {
       return [
         { to: "/", label: "Inicio" },
-        { to: "/admin/actividades", label: "Gestionar Actividades" },
+        { to: "/actividades", label: "Gestionar Actividades" },
         { to: "/admin/instructores", label: "Gestionar Instructores" }
       ]
     }
 
     if (instructor) {
       return [
+        { to: "/", label: "Inicio" },
         { to: "/mis-actividades", label: "Mis Actividades" }
       ]
     }
 
     return [
       { to: "/", label: "Inicio" },
+      { to: "/actividades", label: "Actividades" },
       { to: "/mis-actividades", label: "Mis Actividades" }
     ]
   }

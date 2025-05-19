@@ -59,7 +59,7 @@ export const ActivityList = () => {
       <div className="activity-list-container">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl">Actividades</h1>
-          <Link to="/admin/actividades/nueva" className="sport-button">
+          <Link to="/nueva-actividad" className="sport-button">
             NUEVA ACTIVIDAD
           </Link>
         </div>
@@ -102,7 +102,7 @@ export const ActivityList = () => {
                     </span>
                     <div className="space-x-2">
                       <Link
-                        to={`/admin/actividades/${activity.id}/editar`}
+                        to={`/editar-actividad/${activity.id}`}
                         className="text-primary hover:text-primary-dark"
                       >
                         Editar
