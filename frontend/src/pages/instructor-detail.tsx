@@ -26,29 +26,20 @@ export const InstructorDetail = () => {
       if (!id) return
 
       try {
-        console.log("Fetching instructor details for ID:", id)
         const response = await userService.getInstructorDetails(parseInt(id))
-        console.log("API Response:", response)
-
-        // Verificar la estructura exacta de la respuesta
         if (response.success && response.data?.data) {
-          console.log("Response data:", response.data.data)
           const instructorData = response.data.data.instructor
           if (instructorData) {
-            console.log("Setting instructor:", instructorData)
             setInstructor(instructorData)
             setActivities(response.data.data.activities || [])
-            setError("") // Limpiar cualquier error previo
+            setError("")
           } else {
-            console.log("No instructor data in response")
             setError("No se encontró la información del instructor")
           }
         } else {
-          console.log("Error in response:", response.message)
           setError(response.message || "Error al cargar los detalles del instructor")
         }
       } catch (err) {
-        console.error("Error fetching instructor:", err)
         setError("Error al cargar los detalles del instructor")
       } finally {
         setLoading(false)
@@ -58,16 +49,11 @@ export const InstructorDetail = () => {
     fetchInstructorDetails()
   }, [id])
 
-  // Log del estado actual
-  console.log("Current state:", { instructor, activities, loading, error })
-
   if (loading) {
     return (
       <SportLayout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
+        <div className="flex justify-center items-center h-64">
+          <div className="sport-spinner"></div>
         </div>
       </SportLayout>
     )
@@ -76,14 +62,14 @@ export const InstructorDetail = () => {
   if (error) {
     return (
       <SportLayout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-            <p>{error}</p>
-          </div>
+        <div className="error-container">
+          <h1 className="error-title">ERROR</h1>
+          <div className="error-divider"></div>
+          <p className="error-message">{error}</p>
           <div className="mt-4">
             <button
               onClick={() => navigate("/admin/instructores")}
-              className="text-primary hover:underline"
+              className="sport-button"
             >
               Volver a la lista de instructores
             </button>
@@ -93,18 +79,17 @@ export const InstructorDetail = () => {
     )
   }
 
-  // Verificar si tenemos datos del instructor antes de renderizar
   if (!instructor) {
     return (
       <SportLayout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-            <p>No se encontró la información del instructor</p>
-          </div>
+        <div className="error-container">
+          <h1 className="error-title">INSTRUCTOR NO ENCONTRADO</h1>
+          <div className="error-divider"></div>
+          <p className="error-message">El instructor que buscas no existe o ha sido eliminado.</p>
           <div className="mt-4">
             <button
               onClick={() => navigate("/admin/instructores")}
-              className="text-primary hover:underline"
+              className="sport-button"
             >
               Volver a la lista de instructores
             </button>
@@ -116,40 +101,88 @@ export const InstructorDetail = () => {
 
   return (
     <SportLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="sport-detail-container">
         <div className="mb-6">
           <button
             onClick={() => navigate("/admin/instructores")}
-            className="text-primary hover:underline"
+            className="sport-button sport-button-outline"
           >
             ← Volver a la lista de instructores
           </button>
         </div>
 
-        <div className="bg-white shadow rounded-lg p-6">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold mb-2">{instructor.nombre} {instructor.apellido}</h1>
-            <p className="text-gray-600">{instructor.email}</p>
+        <div className="sport-card">
+          <div className="activity-detail-header">
+            <h1 className="text-4xl mb-4">{instructor.nombre} {instructor.apellido}</h1>
+            <div className="activity-detail-badge">
+              <span className="sport-badge sport-badge-accent">INSTRUCTOR</span>
+            </div>
           </div>
 
-          <div className="border-t pt-6">
-            <h2 className="text-xl font-semibold mb-4">Actividades Asignadas</h2>
+          <div className="activity-detail-image">
+            <img src="/placeholder.svg?height=400&width=800" alt={`${instructor.nombre} ${instructor.apellido}`} />
+          </div>
+
+          <div className="sport-card">
+            <h2 className="text-2xl mb-4">Información de Contacto</h2>
+            <div className="sport-divider"></div>
+            <div className="activity-detail-info">
+              <div className="activity-detail-info-item">
+                <span className="activity-detail-info-label">Email</span>
+                <span className="activity-detail-info-value">{instructor.email}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="sport-card mt-6">
+            <h2 className="text-2xl mb-4">Actividades Asignadas</h2>
+            <div className="sport-divider"></div>
             {activities.length === 0 ? (
               <p className="text-gray-600">Este instructor no tiene actividades asignadas</p>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="sport-card-grid">
                 {activities.map((activity) => (
-                  <div key={activity.id} className="border rounded p-4">
-                    <h3 className="font-medium">{activity.titulo}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{activity.dia} {activity.horario}</p>
-                    <p className="text-sm text-gray-600">Cupo: {activity.cupo} personas</p>
-                    <div className="mt-2">
-                      <Link
-                        to={`/admin/actividades/${activity.id}/editar`}
-                        className="text-primary hover:underline text-sm"
-                      >
-                        Ver actividad
-                      </Link>
+                  <div key={activity.id} className="sport-card">
+                    <div className="sport-card-content">
+                      <div className="sport-card-image">
+                        <img 
+                          src={activity.imagen_data || "/placeholder.svg?height=200&width=400"} 
+                          alt={activity.titulo} 
+                        />
+                        <div className="sport-card-badge">
+                          <span
+                            className={`sport-badge ${
+                              activity.categoria === "yoga"
+                                ? "sport-badge-accent"
+                                : activity.categoria === "cardio"
+                                  ? "sport-badge-secondary"
+                                  : ""
+                            }`}
+                          >
+                            {activity.categoria.toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+
+                      <h2 className="sport-card-title">{activity.titulo}</h2>
+
+                      <div className="sport-card-meta">
+                        <p>
+                          <span className="text-primary font-semibold">HORARIO:</span> {activity.horario}
+                        </p>
+                        <p>
+                          <span className="text-primary font-semibold">DÍA:</span> {activity.dia}
+                        </p>
+                        <p>
+                          <span className="text-primary font-semibold">CUPO:</span> {activity.cupo} personas
+                        </p>
+                      </div>
+
+                      <div className="sport-card-actions">
+                        <Link to={`/detalle/${activity.id}`} className="sport-button sport-button-full">
+                          VER DETALLES
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 ))}
