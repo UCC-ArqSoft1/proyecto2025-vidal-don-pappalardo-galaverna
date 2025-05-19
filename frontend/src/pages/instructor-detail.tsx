@@ -27,7 +27,7 @@ export const InstructorDetail = () => {
 
       try {
         const response = await userService.getInstructorDetails(parseInt(id))
-        if (response.success && response.data) {
+        if (response.success && response.data?.instructor) {
           setInstructor(response.data.instructor)
           setActivities(response.data.activities || [])
         } else {
@@ -75,26 +75,6 @@ export const InstructorDetail = () => {
     )
   }
 
-  if (!instructor) {
-    return (
-      <SportLayout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-            <p>No se encontró el instructor</p>
-          </div>
-          <div className="mt-4">
-            <button
-              onClick={() => navigate("/admin/instructores")}
-              className="text-primary hover:underline"
-            >
-              Volver a la lista de instructores
-            </button>
-          </div>
-        </div>
-      </SportLayout>
-    )
-  }
-
   return (
     <SportLayout>
       <div className="container mx-auto px-4 py-8">
@@ -109,8 +89,8 @@ export const InstructorDetail = () => {
 
         <div className="bg-white shadow rounded-lg p-6">
           <div className="mb-6">
-            <h1 className="text-2xl font-bold mb-2">{instructor.nombre} {instructor.apellido}</h1>
-            <p className="text-gray-600">{instructor.email}</p>
+            <h1 className="text-2xl font-bold mb-2">{instructor?.nombre} {instructor?.apellido}</h1>
+            <p className="text-gray-600">{instructor?.email}</p>
           </div>
 
           <div className="border-t pt-6">
