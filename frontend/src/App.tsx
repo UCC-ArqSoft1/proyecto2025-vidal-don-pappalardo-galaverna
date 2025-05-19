@@ -15,6 +15,7 @@ import "./assets/styles/pages.css"
 import Signup from "./pages/signup"
 import InstructorList from "./pages/instructor-list"
 import InstructorForm from "./pages/instructor-form"
+import InstructorDetail from "./pages/instructor-detail"
 import ActivityForm from "./pages/activity-form"
 import ActivityList from "./pages/activity-list"
 
@@ -57,11 +58,54 @@ const App: React.FC = () => {
           />
 
           {/* Admin routes */}
-          <Route path="/admin/actividades" element={<ActivityList />} />
-          <Route path="/admin/actividades/nueva" element={<ActivityForm />} />
-          <Route path="/admin/actividades/:id/editar" element={<ActivityForm isEdit />} />
-          <Route path="/admin/instructores" element={<InstructorList />} />
-          <Route path="/admin/instructores/nuevo" element={<InstructorForm />} />
+          <Route
+            path="/admin/actividades"
+            element={
+              <ProtectedRoute requireAdmin>
+                <ActivityList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/actividades/nueva"
+            element={
+              <ProtectedRoute requireAdmin>
+                <ActivityForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/actividades/:id/editar"
+            element={
+              <ProtectedRoute requireAdmin>
+                <ActivityForm isEdit />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/instructores"
+            element={
+              <ProtectedRoute requireAdmin>
+                <InstructorList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/instructores/nuevo"
+            element={
+              <ProtectedRoute requireAdmin>
+                <InstructorForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/instructores/:id"
+            element={
+              <ProtectedRoute requireAdmin>
+                <InstructorDetail />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
     </Router>
   )

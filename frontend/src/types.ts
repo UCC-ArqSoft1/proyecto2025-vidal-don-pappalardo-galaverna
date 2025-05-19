@@ -71,3 +71,10 @@ export interface FooterLink {
   to: string
   label: string
 }
+
+export interface Instructor {
+  id: number
+  nombre: string
+  apellido: string
+  email: string
+}

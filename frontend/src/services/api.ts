@@ -409,4 +409,19 @@ export const userService = {
       return { success: false, message: "Error de red" }
     }
   },
+
+  getInstructorDetails: async (id: number): Promise<ApiResponse<{ instructor: Instructor; activities: Activity[] }>> => {
+    try {
+      const response = await authFetch(`/usuarios/instructores/${id}`)
+      const data = await response.json()
+
+      return {
+        success: response.ok,
+        data: data,
+        message: response.ok ? undefined : "Error al obtener los detalles del instructor"
+      }
+    } catch (error) {
+      return { success: false, message: "Error de red al obtener los detalles del instructor" }
+    }
+  },
 }
