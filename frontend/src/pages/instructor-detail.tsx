@@ -113,14 +113,10 @@ export const InstructorDetail = () => {
 
         <div className="sport-card">
           <div className="activity-detail-header">
-            <h1 className="text-4xl mb-4">{instructor.nombre} {instructor.apellido}</h1>
-            <div className="activity-detail-badge">
+            <div className="flex justify-between items-start">
+              <h1 className="text-4xl mb-4">{instructor.nombre} {instructor.apellido}</h1>
               <span className="sport-badge sport-badge-accent">INSTRUCTOR</span>
             </div>
-          </div>
-
-          <div className="activity-detail-image">
-            <img src="/placeholder.svg?height=400&width=800" alt={`${instructor.nombre} ${instructor.apellido}`} />
           </div>
 
           <div className="sport-card">
@@ -144,27 +140,20 @@ export const InstructorDetail = () => {
                 {activities.map((activity) => (
                   <div key={activity.id} className="sport-card">
                     <div className="sport-card-content">
-                      <div className="sport-card-image">
-                        <img 
-                          src={activity.imagen_data || "/placeholder.svg?height=200&width=400"} 
-                          alt={activity.titulo} 
-                        />
-                        <div className="sport-card-badge">
-                          <span
-                            className={`sport-badge ${
-                              activity.categoria === "yoga"
-                                ? "sport-badge-accent"
-                                : activity.categoria === "cardio"
-                                  ? "sport-badge-secondary"
-                                  : ""
-                            }`}
-                          >
-                            {activity.categoria.toUpperCase()}
-                          </span>
-                        </div>
+                      <div className="flex justify-between items-start mb-4">
+                        <h2 className="sport-card-title">{activity.titulo}</h2>
+                        <span
+                          className={`sport-badge ${
+                            activity.categoria === "yoga"
+                              ? "sport-badge-accent"
+                              : activity.categoria === "cardio"
+                                ? "sport-badge-secondary"
+                                : ""
+                          }`}
+                        >
+                          {activity.categoria.toUpperCase()}
+                        </span>
                       </div>
-
-                      <h2 className="sport-card-title">{activity.titulo}</h2>
 
                       <div className="sport-card-meta">
                         <p>

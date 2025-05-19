@@ -120,19 +120,12 @@ export const InstructorList = () => {
           {filtered.map((instructor) => (
             <div key={instructor.id} className="sport-card">
               <div className="sport-card-content">
-                <div className="sport-card-image">
-                  <img 
-                    src="/placeholder.svg?height=200&width=400" 
-                    alt={`${instructor.nombre} ${instructor.apellido}`}
-                  />
-                  <div className="sport-card-badge">
-                    <span className="sport-badge sport-badge-accent">
-                      INSTRUCTOR
-                    </span>
-                  </div>
+                <div className="flex justify-between items-start mb-4">
+                  <h2 className="sport-card-title">{instructor.nombre} {instructor.apellido}</h2>
+                  <span className="sport-badge sport-badge-accent">
+                    INSTRUCTOR
+                  </span>
                 </div>
-
-                <h2 className="sport-card-title">{instructor.nombre} {instructor.apellido}</h2>
 
                 <div className="sport-card-meta">
                   <p>
@@ -146,7 +139,7 @@ export const InstructorList = () => {
                   </Link>
                   <button
                     onClick={() => handleDeleteClick(instructor.id)}
-                    className="sport-button sport-button-danger sport-button-full mt-2"
+                    className="sport-button sport-button-full mt-2 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
                   >
                     ELIMINAR
                   </button>
