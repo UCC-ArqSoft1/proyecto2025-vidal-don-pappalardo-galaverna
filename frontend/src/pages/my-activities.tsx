@@ -19,23 +19,27 @@ const MyActivities = () => {
   })
   const navigate = useNavigate()
 
-  useEffect(() => {
-    if (!authService.isAuthenticated()) {
-      navigate("/login")
-      return
-    }
-
-    const fetchEnrollments = async () => {
-      setLoading(true)
+  const fetchEnrollments = async () => {
+    setLoading(true)
+    setError(null)
+    try {
       const response = await enrollmentService.getUserEnrollments()
-
       if (response.success && response.data) {
         setEnrollments(response.data)
       } else {
         setError(response.message || "Error al cargar inscripciones")
       }
-
+    } catch (err) {
+      setError("Error al cargar las inscripciones")
+    } finally {
       setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!authService.isAuthenticated()) {
+      navigate("/login")
+      return
     }
 
     fetchEnrollments()
@@ -53,11 +57,7 @@ const MyActivities = () => {
       const response = await enrollmentService.cancelEnrollment(cancelDialog.enrollmentId)
       if (response.success) {
         toast.success("Inscripción cancelada exitosamente")
-        // Refresh enrollments after successful cancellation
-        const enrollmentsResponse = await enrollmentService.getUserEnrollments()
-        if (enrollmentsResponse.success && enrollmentsResponse.data) {
-          setEnrollments(enrollmentsResponse.data)
-        }
+        await fetchEnrollments() // Recargar los datos
       } else {
         toast.error(response.message || "Error al cancelar la inscripción")
       }
@@ -79,28 +79,22 @@ const MyActivities = () => {
     )
   }
 
-  if (error) {
-    return (
-      <SportLayout>
+  return (
+    <SportLayout>
+      <h1 className="text-3xl mb-6">Mis Actividades</h1>
+
+      {error ? (
         <div className="error-container">
           <h1 className="error-title">ERROR</h1>
           <div className="error-divider"></div>
           <p className="error-message">{error}</p>
         </div>
-      </SportLayout>
-    )
-  }
-
-  return (
-    <SportLayout>
-      <h1 className="text-3xl mb-6">Mis Actividades</h1>
-
-      {enrollments.length === 0 ? (
+      ) : enrollments.length === 0 ? (
         <div className="sport-card p-6 text-center">
-          <h2 className="text-2xl mb-4">No tienes actividades</h2>
-          <p className="mb-6">Inscríbete en alguna actividad para verla aquí</p>
+          <h2 className="text-2xl mb-4">No tienes actividades inscritas</h2>
+          <p className="mb-6">Explora nuestras actividades y únete a alguna para comenzar tu entrenamiento</p>
           <Link to="/" className="sport-button">
-            VER ACTIVIDADES
+            VER ACTIVIDADES DISPONIBLES
           </Link>
         </div>
       ) : (
