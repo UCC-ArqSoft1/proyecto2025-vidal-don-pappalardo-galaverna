@@ -1,5 +1,5 @@
 import type React from "react"
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import { ProtectedRoute } from "./components/ProtectedRoute"
 import Home from "./pages/Home"
 import Login from "./pages/Login"
@@ -13,6 +13,10 @@ import "./assets/styles/animations.css"
 import "./assets/styles/layout.css"
 import "./assets/styles/pages.css"
 import Signup from "./pages/signup"
+import InstructorList from "./pages/instructor-list"
+import InstructorForm from "./pages/instructor-form"
+import ActivityForm from "./pages/activity-form"
+import ActivityList from "./pages/activity-list"
 
 const App: React.FC = () => {
   return (
@@ -51,6 +55,13 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           />
+
+          {/* Admin routes */}
+          <Route path="/admin/actividades" element={<ActivityList />} />
+          <Route path="/admin/actividades/nueva" element={<ActivityForm />} />
+          <Route path="/admin/actividades/:id/editar" element={<ActivityForm isEdit />} />
+          <Route path="/admin/instructores" element={<InstructorList />} />
+          <Route path="/admin/instructores/nuevo" element={<InstructorForm />} />
         </Routes>
     </Router>
   )

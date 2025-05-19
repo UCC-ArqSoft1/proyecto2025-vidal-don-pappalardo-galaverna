@@ -17,6 +17,11 @@ func SetupUserRoutes(r *gin.Engine, db *gorm.DB) {
 	userRoutes := r.Group("/usuarios")
 	userRoutes.Use(middlewares.IsAuthenticated())
 	{
-		// Aquí irían otras rutas de usuarios protegidas
+		// Rutas que requieren rol de admin
+		adminRoutes := userRoutes.Group("")
+		adminRoutes.Use(middlewares.IsAdmin())
+		{
+			adminRoutes.POST("/instructores", userHandler.CreateInstructor)
+		}
 	}
 }

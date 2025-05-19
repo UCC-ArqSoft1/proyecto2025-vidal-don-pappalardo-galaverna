@@ -386,4 +386,27 @@ export const userService = {
       return { success: false, message: "Error de red" }
     }
   },
+
+  createInstructor: async (instructorData: {
+    nombre: string
+    apellido: string
+    email: string
+    password: string
+  }): Promise<ApiResponse<any>> => {
+    try {
+      const response = await authFetch("/usuarios/instructores", {
+        method: "POST",
+        body: JSON.stringify(instructorData),
+      })
+      const data = await response.json()
+
+      return {
+        success: response.ok,
+        data: response.ok ? data.data : undefined,
+        message: response.ok ? data.message || "Instructor creado exitosamente" : data.error || "Error al crear instructor",
+      }
+    } catch (error) {
+      return { success: false, message: "Error de red" }
+    }
+  },
 }
