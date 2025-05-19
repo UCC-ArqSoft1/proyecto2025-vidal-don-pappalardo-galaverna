@@ -24,8 +24,8 @@ const MyActivities = () => {
     setError(null)
     try {
       const response = await enrollmentService.getUserEnrollments()
-      if (response.success && response.data) {
-        setEnrollments(response.data)
+      if (response.success) {
+        setEnrollments(response.data || [])
       } else {
         setError(response.message || "Error al cargar inscripciones")
       }
