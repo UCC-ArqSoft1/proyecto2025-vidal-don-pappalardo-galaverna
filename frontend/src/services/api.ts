@@ -167,6 +167,11 @@ export const authService = {
     const user = authService.getCurrentUser()
     return user?.role_name === "admin"
   },
+
+  isInstructor: (): boolean => {
+    const user = authService.getCurrentUser()
+    return user?.role_name === "instructor"
+  },
 }
 
 // Activity services

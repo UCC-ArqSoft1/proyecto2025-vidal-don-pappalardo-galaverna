@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { toast } from "react-toastify"
 import SportLayout from "../components/layout/CyberLayout"
-import { activityService, authService } from "../services/api"
+import { activityService, authService, userService } from "../services/api"
 import { ConfirmDialog } from "../components/ConfirmDialog"
 import type { Activity } from "../types"
 
@@ -18,14 +18,28 @@ export const ActivityList = () => {
     activityId: null
   })
   const isAdmin = authService.isAdmin()
+  const isInstructor = authService.isInstructor()
+  const currentUser = authService.getCurrentUser()
 
   const fetchActivities = async () => {
     try {
-      const response = await activityService.getAllActivities()
-      if (response.success && response.data) {
-        setActivities(response.data)
+      let response;
+      if (isInstructor && currentUser) {
+        // If user is an instructor, get their specific activities
+        response = await userService.getInstructorDetails(currentUser.id)
+        if (response.success && response.data?.data) {
+          setActivities(response.data.data.activities || [])
+        } else {
+          setError(response.message || "Error al cargar actividades")
+        }
       } else {
-        setError(response.message || "Error al cargar actividades")
+        // Otherwise get all activities
+        response = await activityService.getAllActivities()
+        if (response.success && response.data) {
+          setActivities(response.data)
+        } else {
+          setError(response.message || "Error al cargar actividades")
+        }
       }
     } catch (err) {
       setError("Error al cargar actividades")
@@ -93,7 +107,11 @@ export const ActivityList = () => {
     <SportLayout>
       <div className="home-banner">
         <h1>ACTIVIDADES DEPORTIVAS</h1>
-        <p>Descubre nuestras clases y actividades para mantenerte en forma y saludable.</p>
+        <p>
+          {isInstructor 
+            ? "Gestiona tus actividades asignadas como instructor."
+            : "Descubre nuestras clases y actividades para mantenerte en forma y saludable."}
+        </p>
         <div className="home-banner-pattern"></div>
       </div>
 
