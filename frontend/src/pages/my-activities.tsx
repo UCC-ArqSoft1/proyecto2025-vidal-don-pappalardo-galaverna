@@ -18,6 +18,8 @@ const MyActivities = () => {
     enrollmentId: null
   })
   const navigate = useNavigate()
+  const isInstructor = authService.isInstructor()
+  const currentUser = authService.getCurrentUser()
 
   const fetchEnrollments = async () => {
     setLoading(true)
@@ -99,45 +101,60 @@ const MyActivities = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          {enrollments.map((enrollment) => (
-            <div key={enrollment.id} className="sport-card">
-              <div className="p-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold">{enrollment.actividad?.titulo || "Actividad"}</h2>
-                  <span className="text-sm text-gray-400">
-                    Inscrito el:{" "}
-                    {new Date(enrollment.fecha_inscripcion.replace(" ", "T")).toLocaleDateString("es-ES", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </span>
-                </div>
+          {enrollments.map((enrollment) => {
+            // Check if this is an instructor activity (where the user is the instructor)
+            const isInstructorActivity = isInstructor && currentUser && 
+              enrollment.actividad?.profesor_id === currentUser.id
 
-                <div className="sport-divider"></div>
+            return (
+              <div key={enrollment.id} className="sport-card">
+                <div className="p-6">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-bold">{enrollment.actividad?.titulo || "Actividad"}</h2>
+                    <span className="text-sm text-gray-400">
+                      {isInstructorActivity ? (
+                        "Actividad asignada como instructor"
+                      ) : (
+                        <>
+                          Inscrito el:{" "}
+                          {new Date(enrollment.fecha_inscripcion.replace(" ", "T")).toLocaleDateString("es-ES", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </>
+                      )}
+                    </span>
+                  </div>
 
-                <div className="flex justify-end gap-4 mt-4">
-                  <Link to={`/detalle/${enrollment.actividad_id}`} className="sport-button sport-button-outline">
-                    VER DETALLES
-                  </Link>
-                  <button
-                    onClick={() => handleCancelClick(enrollment.id)}
-                    className="sport-button sport-button-danger"
-                    disabled={isCancelling}
-                  >
-                    {isCancelling && cancelDialog.enrollmentId === enrollment.id ? (
-                      <>
-                        <span className="sport-spinner mr-2"></span>
-                        CANCELANDO...
-                      </>
-                    ) : (
-                      "CANCELAR INSCRIPCIÓN"
+                  <div className="sport-divider"></div>
+
+                  <div className="flex justify-end gap-4 mt-4">
+                    <Link to={`/detalle/${enrollment.actividad_id}`} className="sport-button sport-button-outline">
+                      VER DETALLES
+                    </Link>
+                    {/* Only show cancel button if it's not an instructor activity */}
+                    {!isInstructorActivity && (
+                      <button
+                        onClick={() => handleCancelClick(enrollment.id)}
+                        className="sport-button sport-button-danger"
+                        disabled={isCancelling}
+                      >
+                        {isCancelling && cancelDialog.enrollmentId === enrollment.id ? (
+                          <>
+                            <span className="sport-spinner mr-2"></span>
+                            CANCELANDO...
+                          </>
+                        ) : (
+                          "CANCELAR INSCRIPCIÓN"
+                        )}
+                      </button>
                     )}
-                  </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
 
