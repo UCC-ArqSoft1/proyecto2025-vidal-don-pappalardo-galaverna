@@ -25,7 +25,7 @@ const App: React.FC = () => {
   return (
     <>
       <ToastContainer
-        position="top-right"
+        position="top-center"
         autoClose={3000}
         hideProgressBar={false}
         newestOnTop
@@ -35,6 +35,7 @@ const App: React.FC = () => {
         draggable
         pauseOnHover
         theme="light"
+        style={{ top: '50%', transform: 'translateY(-50%)' }}
       />
       <Router>
         <Routes>
