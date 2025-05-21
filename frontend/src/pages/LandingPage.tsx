@@ -1,24 +1,26 @@
-"use client"
+import type React from "react"
+
 import { useEffect, useRef, useState } from "react"
-import { motion, useScroll, useTransform, useInView } from "framer-motion"
-import "./LandingPage.css"
+import "../assets/styles/LandingPage.css"
 
 const LandingPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const heroRef = useRef(null)
-  const featuresRef = useRef(null)
-  const trainersRef = useRef(null)
-  const testimonialsRef = useRef(null)
-  const membershipRef = useRef(null)
-  const isHeroInView = useInView(heroRef, { once: true })
-  const isFeaturesInView = useInView(featuresRef, { once: true, amount: 0.3 })
-  const isTrainersInView = useInView(trainersRef, { once: true, amount: 0.3 })
-  const isTestimonialsInView = useInView(testimonialsRef, { once: true, amount: 0.3 })
-  const isMembershipInView = useInView(membershipRef, { once: true, amount: 0.3 })
+  const [visibleSections, setVisibleSections] = useState<Record<string, boolean>>({
+    hero: false,
+    features: false,
+    trainers: false,
+    testimonials: false,
+    membership: false,
+    cta: false,
+  })
 
-  const { scrollYProgress } = useScroll()
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
-  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.9])
+  // Refs for sections
+  const heroRef = useRef<HTMLElement>(null)
+  const featuresRef = useRef<HTMLElement>(null)
+  const trainersRef = useRef<HTMLElement>(null)
+  const testimonialsRef = useRef<HTMLElement>(null)
+  const membershipRef = useRef<HTMLElement>(null)
+  const ctaRef = useRef<HTMLElement>(null)
 
   // Check if user is authenticated (placeholder)
   useEffect(() => {
@@ -31,52 +33,69 @@ const LandingPage = () => {
     checkAuth()
   }, [])
 
-  const scrollToSection = (ref) => {
-    ref.current.scrollIntoView({ behavior: "smooth" })
+  // Intersection Observer for scroll animations
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: "0px",
+      threshold: 0.1,
+    }
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const sectionId = entry.target.id
+          setVisibleSections((prev) => ({
+            ...prev,
+            [sectionId]: true,
+          }))
+        }
+      })
+    }
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions)
+
+    // Observe all section refs
+    if (heroRef.current) observer.observe(heroRef.current)
+    if (featuresRef.current) observer.observe(featuresRef.current)
+    if (trainersRef.current) observer.observe(trainersRef.current)
+    if (testimonialsRef.current) observer.observe(testimonialsRef.current)
+    if (membershipRef.current) observer.observe(membershipRef.current)
+    if (ctaRef.current) observer.observe(ctaRef.current)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
+
+  const scrollToSection = (ref: React.RefObject<HTMLElement | null>) => {
+    if (ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth" })
+    }
   }
 
   return (
     <div className="landing-container">
       {/* Hero Section */}
-      <section ref={heroRef} className="hero-section">
+      <section ref={heroRef} id="hero" className={`hero-section ${visibleSections.hero ? "visible" : ""}`}>
         <div className="hero-bg">
           <div className="hero-overlay"></div>
         </div>
 
-        <motion.div style={{ opacity, scale }} className="hero-content">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="hero-badge"
-          >
+        <div className="hero-content">
+          <div className="hero-badge animate-fade-in">
             <span>Cyber Gym</span>
-          </motion.div>
+          </div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="hero-title"
-          >
+          <h1 className="hero-title animate-fade-in-delay-1">
             FORJA TU <span className="text-accent">MEJOR</span> VERSIÓN
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="hero-subtitle"
-          >
+          <p className="hero-subtitle animate-fade-in-delay-2">
             Transforma tu cuerpo y mente con nuestros entrenadores expertos y equipamiento de última generación
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="hero-buttons"
-          >
+          <div className="hero-buttons animate-fade-in-delay-3">
             {!isAuthenticated ? (
               <>
                 <a href="/signup" className="btn btn-primary">
@@ -91,44 +110,31 @@ const LandingPage = () => {
                 Ver Actividades
               </a>
             )}
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isHeroInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 1.2 }}
-          className="scroll-indicator"
-          onClick={() => scrollToSection(featuresRef)}
-        >
+        <div className="scroll-indicator animate-fade-in-delay-4" onClick={() => scrollToSection(featuresRef)}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M6 9L12 15L18 9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-        </motion.div>
+        </div>
       </section>
 
       {/* Features Section */}
-      <section ref={featuresRef} className="features-section">
+      <section
+        ref={featuresRef}
+        id="features"
+        className={`features-section ${visibleSections.features ? "visible" : ""}`}
+      >
         <div className="section-container">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={isFeaturesInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8 }}
-            className="section-header"
-          >
+          <div className="section-header animate-on-scroll">
             <h2>Nuestras Actividades</h2>
             <p>Descubre todas las actividades que tenemos para ayudarte a alcanzar tus objetivos</p>
-          </motion.div>
+          </div>
 
           <div className="features-grid">
             {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 40 }}
-                animate={isFeaturesInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.2 * index }}
-                className="feature-card"
-              >
+              <div key={index} className={`feature-card animate-on-scroll delay-${index}`}>
                 <div className="feature-icon">
                   <feature.icon />
                 </div>
@@ -153,7 +159,7 @@ const LandingPage = () => {
                     />
                   </svg>
                 </a>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -163,13 +169,7 @@ const LandingPage = () => {
       <section className="video-section">
         <div className="section-container">
           <div className="video-container">
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ duration: 1 }}
-              viewport={{ once: true }}
-              className="video-thumbnail"
-            >
+            <div className="video-thumbnail animate-on-scroll">
               <div className="play-button">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
@@ -182,67 +182,53 @@ const LandingPage = () => {
                   />
                 </svg>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Trainers Section */}
-      <section ref={trainersRef} className="trainers-section">
+      <section
+        ref={trainersRef}
+        id="trainers"
+        className={`trainers-section ${visibleSections.trainers ? "visible" : ""}`}
+      >
         <div className="section-container">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={isTrainersInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8 }}
-            className="section-header"
-          >
+          <div className="section-header animate-on-scroll">
             <h2>Nuestros Entrenadores</h2>
             <p>Profesionales certificados listos para guiarte en tu camino</p>
-          </motion.div>
+          </div>
 
           <div className="trainers-grid">
             {trainers.map((trainer, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 40 }}
-                animate={isTrainersInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.2 * index }}
-                className="trainer-card"
-              >
+              <div key={index} className={`trainer-card animate-on-scroll delay-${index}`}>
                 <div className="trainer-image" style={{ backgroundImage: `url(${trainer.image})` }}>
                   <div className="trainer-info">
                     <h3>{trainer.name}</h3>
                     <p>{trainer.specialty}</p>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section ref={testimonialsRef} className="testimonials-section">
+      <section
+        ref={testimonialsRef}
+        id="testimonials"
+        className={`testimonials-section ${visibleSections.testimonials ? "visible" : ""}`}
+      >
         <div className="section-container">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={isTestimonialsInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8 }}
-            className="section-header"
-          >
+          <div className="section-header animate-on-scroll">
             <h2>Lo Que Dicen Nuestros Miembros</h2>
             <p>Historias reales de transformación y éxito</p>
-          </motion.div>
+          </div>
 
           <div className="testimonials-grid">
             {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 40 }}
-                animate={isTestimonialsInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.2 * index }}
-                className="testimonial-card"
-              >
+              <div key={index} className={`testimonial-card animate-on-scroll delay-${index}`}>
                 <div className="testimonial-header">
                   <div className="testimonial-avatar" style={{ backgroundImage: `url(${testimonial.avatar})` }}></div>
                   <div className="testimonial-author">
@@ -251,37 +237,33 @@ const LandingPage = () => {
                   </div>
                 </div>
                 <p className="testimonial-quote">"{testimonial.quote}"</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Membership Section */}
-      <section ref={membershipRef} className="membership-section">
+      <section
+        ref={membershipRef}
+        id="membership"
+        className={`membership-section ${visibleSections.membership ? "visible" : ""}`}
+      >
         <div className="membership-bg">
           <div className="membership-overlay"></div>
         </div>
 
         <div className="section-container">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={isMembershipInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8 }}
-            className="section-header"
-          >
+          <div className="section-header animate-on-scroll">
             <h2>Únete a Cyber Gym</h2>
             <p>Elige el plan que mejor se adapte a tus objetivos y comienza tu transformación hoy</p>
-          </motion.div>
+          </div>
 
           <div className="membership-grid">
             {memberships.map((membership, index) => (
-              <motion.div
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 40 }}
-                animate={isMembershipInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.2 * index }}
-                className={`membership-card ${membership.featured ? "membership-featured" : ""}`}
+                className={`membership-card ${membership.featured ? "membership-featured" : ""} animate-on-scroll delay-${index}`}
               >
                 {membership.featured && <div className="membership-badge">Más Popular</div>}
                 <h3>{membership.name}</h3>
@@ -315,28 +297,22 @@ const LandingPage = () => {
                 <a href="/signup" className={`btn ${membership.featured ? "btn-primary" : "btn-secondary"}`}>
                   Elegir Plan
                 </a>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="cta-section">
+      <section ref={ctaRef} id="cta" className={`cta-section ${visibleSections.cta ? "visible" : ""}`}>
         <div className="section-container">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="cta-content"
-          >
+          <div className="cta-content animate-on-scroll">
             <h2>¿Listo para comenzar?</h2>
             <p>Únete a nuestra comunidad y comienza tu viaje hacia una vida más saludable</p>
             <a href={isAuthenticated ? "/actividades" : "/signup"} className="btn btn-primary btn-large">
               {isAuthenticated ? "Ver Actividades" : "Registrarse Ahora"}
             </a>
-          </motion.div>
+          </div>
         </div>
       </section>
     </div>

@@ -51,6 +51,15 @@ ul {
 .section-header {
   text-align: center;
   margin-bottom: 4rem;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.visible .section-header,
+.section-header.animate-on-scroll {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .section-header h2 {
@@ -154,6 +163,8 @@ ul {
 .hero-badge {
   display: inline-block;
   margin-bottom: 1.5rem;
+  opacity: 0;
+  transform: translateY(20px);
 }
 
 .hero-badge span {
@@ -172,6 +183,8 @@ ul {
   font-weight: 800;
   margin-bottom: 1.5rem;
   text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(20px);
 }
 
 @media (min-width: 768px) {
@@ -191,6 +204,8 @@ ul {
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+  opacity: 0;
+  transform: translateY(20px);
 }
 
 @media (min-width: 768px) {
@@ -205,6 +220,8 @@ ul {
   gap: 1rem;
   justify-content: center;
   align-items: center;
+  opacity: 0;
+  transform: translateY(20px);
 }
 
 @media (min-width: 640px) {
@@ -220,6 +237,7 @@ ul {
   transform: translateX(-50%);
   cursor: pointer;
   animation: bounce 2s infinite;
+  opacity: 0;
 }
 
 @keyframes bounce {
@@ -262,6 +280,14 @@ ul {
   border-radius: 1rem;
   padding: 2rem;
   transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.visible .feature-card,
+.feature-card.animate-on-scroll {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .feature-card:hover {
@@ -335,6 +361,14 @@ ul {
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.5s ease;
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.video-thumbnail.animate-on-scroll {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
 .video-thumbnail:hover {
@@ -392,6 +426,15 @@ ul {
   overflow: hidden;
   border-radius: 1rem;
   transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.visible .trainer-card,
+.trainer-card.animate-on-scroll {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
 .trainer-card:hover {
@@ -451,6 +494,15 @@ ul {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1rem;
   padding: 2rem;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.visible .testimonial-card,
+.testimonial-card.animate-on-scroll {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
 .testimonial-header {
@@ -535,6 +587,15 @@ ul {
   padding: 2rem;
   position: relative;
   transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.visible .membership-card,
+.membership-card.animate-on-scroll {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
 .membership-card:hover {
@@ -623,6 +684,15 @@ ul {
   max-width: 800px;
   margin: 0 auto;
   text-align: center;
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.visible .cta-content,
+.cta-content.animate-on-scroll {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
 .cta-content h2 {
@@ -636,21 +706,56 @@ ul {
   margin-bottom: 2.5rem;
 }
 
-/* Animations */
-@keyframes float {
-  0% {
-    transform: translateY(0px);
+/* Animation Classes */
+.animate-fade-in {
+  animation: fadeIn 0.8s ease forwards;
+}
+
+.animate-fade-in-delay-1 {
+  animation: fadeIn 0.8s ease 0.2s forwards;
+}
+
+.animate-fade-in-delay-2 {
+  animation: fadeIn 0.8s ease 0.4s forwards;
+}
+
+.animate-fade-in-delay-3 {
+  animation: fadeIn 0.8s ease 0.6s forwards;
+}
+
+.animate-fade-in-delay-4 {
+  animation: fadeIn 0.8s ease 0.8s forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  50% {
-    transform: translateY(-10px);
-  }
-  100% {
-    transform: translateY(0px);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.animate-float {
-  animation: float 3s ease-in-out infinite;
+.delay-0 {
+  transition-delay: 0s !important;
+}
+
+.delay-1 {
+  transition-delay: 0.2s !important;
+}
+
+.delay-2 {
+  transition-delay: 0.4s !important;
+}
+
+.delay-3 {
+  transition-delay: 0.6s !important;
+}
+
+.delay-4 {
+  transition-delay: 0.8s !important;
 }
 
 /* Custom Scrollbar */
