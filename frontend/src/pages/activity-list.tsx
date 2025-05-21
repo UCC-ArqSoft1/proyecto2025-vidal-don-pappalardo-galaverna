@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { toast } from "react-toastify"
 import SportLayout from "../components/layout/CyberLayout"
-import { activityService, authService, userService } from "../services/api"
+import { activityService, authService, userService, enrollmentService } from "../services/api"
 import { ConfirmDialog } from "../components/ConfirmDialog"
 import type { Activity } from "../types"
 
@@ -13,9 +13,14 @@ export const ActivityList = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>("")
   const [search, setSearch] = useState<string>("")
-  const [deleteDialog, setDeleteDialog] = useState<{ isOpen: boolean; activityId: number | null }>({
+  const [deleteDialog, setDeleteDialog] = useState<{ 
+    isOpen: boolean; 
+    activityId: number | null;
+    hasEnrollments: boolean;
+  }>({
     isOpen: false,
-    activityId: null
+    activityId: null,
+    hasEnrollments: false
   })
   const isAdmin = authService.isAdmin()
   const isInstructor = authService.isInstructor()
@@ -52,8 +57,20 @@ export const ActivityList = () => {
     fetchActivities()
   }, [])
 
-  const handleDeleteClick = (activityId: number) => {
-    setDeleteDialog({ isOpen: true, activityId })
+  const handleDeleteClick = async (activityId: number) => {
+    try {
+      // Verificar si la actividad tiene inscripciones
+      const response = await enrollmentService.getEnrollmentsByActivity(activityId)
+      const hasEnrollments = response.success && response.data ? response.data.length > 0 : false
+      
+      setDeleteDialog({ 
+        isOpen: true, 
+        activityId,
+        hasEnrollments
+      })
+    } catch (err) {
+      toast.error("Error al verificar inscripciones")
+    }
   }
 
   const handleDeleteConfirm = async () => {
@@ -61,8 +78,12 @@ export const ActivityList = () => {
 
     try {
       const response = await activityService.deleteActivity(deleteDialog.activityId)
-      if (response.success) {
-        toast.success("Actividad eliminada exitosamente")
+      if (response.success && response.data) {
+        if (response.data.inscripciones_eliminadas) {
+          toast.success(response.data.mensaje)
+        } else {
+          toast.success("Actividad eliminada exitosamente")
+        }
         await fetchActivities()
       } else {
         toast.error(response.message || "Error al eliminar la actividad")
@@ -70,7 +91,7 @@ export const ActivityList = () => {
     } catch (err) {
       toast.error("Error al eliminar la actividad")
     } finally {
-      setDeleteDialog({ isOpen: false, activityId: null })
+      setDeleteDialog({ isOpen: false, activityId: null, hasEnrollments: false })
     }
   }
 
@@ -210,11 +231,13 @@ export const ActivityList = () => {
       <ConfirmDialog
         isOpen={deleteDialog.isOpen}
         title="Eliminar Actividad"
-        message="¿Estás seguro de que deseas eliminar esta actividad? Esta acción no se puede deshacer."
+        message={deleteDialog.hasEnrollments 
+          ? "Esta actividad tiene inscripciones activas. Al eliminarla, todas las inscripciones serán canceladas. ¿Estás seguro de que deseas continuar?"
+          : "¿Estás seguro de que deseas eliminar esta actividad? Esta acción no se puede deshacer."}
         confirmText="Eliminar"
         cancelText="Cancelar"
         onConfirm={handleDeleteConfirm}
-        onClose={() => setDeleteDialog({ isOpen: false, activityId: null })}
+        onClose={() => setDeleteDialog({ isOpen: false, activityId: null, hasEnrollments: false })}
         isDelete={true}
       />
     </SportLayout>

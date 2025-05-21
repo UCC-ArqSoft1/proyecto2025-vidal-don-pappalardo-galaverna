@@ -47,6 +47,11 @@ export interface Activity {
   updated_at?: string
 }
 
+export interface DeleteActivityResponse {
+  mensaje: string
+  inscripciones_eliminadas?: boolean
+}
+
 // Enrollment related interfaces
 export interface Enrollment {
   id: number
