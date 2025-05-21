@@ -418,3 +418,14 @@
 .confirm-dialog-button-danger:focus {
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
 }
+
+/* Confirm Dialog Overlay: fuerza centrado absoluto y fondo */
+.confirm-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.5);
+}
