@@ -418,3 +418,27 @@
 .confirm-dialog-button-danger:focus {
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
 }
+
+/* Confirm Dialog Modal Mejorado */
+.confirm-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.5);
+}
+
+.confirm-dialog-overlay > div {
+  background: #fff !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25), 0 1.5px 6px rgba(0,0,0,0.10);
+  border: 1.5px solid #e5e7eb;
+  max-width: 400px;
+  min-width: 0;
+  width: 100%;
+  margin: 0 1rem;
+  padding: 2rem 1.5rem;
+  border-radius: 16px;
+  text-align: center;
+}

@@ -59,17 +59,37 @@ func (s *ActividadService) CrearActividad(actividadDTO dtos.ActividadDTO) (*mode
 }
 
 // El servicio que elimina una actividad (borrado lógico)
-func (s *ActividadService) DeleteActividad(id uint) error {
+func (s *ActividadService) DeleteActividad(id uint) (bool, error) {
 	var actividad models.Actividad
 
 	// Buscar la actividad por ID
 	if err := s.DB.First(&actividad, id).Error; err != nil {
-		return err // Si no se encuentra, devuelve el error
+		return false, err // Si no se encuentra, devuelve el error
 	}
 
 	// Si la actividad ya está desactivada (borrada lógicamente)
 	if !actividad.Active {
-		return nil // Si ya está borrada, no hacemos nada y devolvemos nil (borrado lógico)
+		return false, nil // Si ya está borrada, no hacemos nada y devolvemos nil (borrado lógico)
+	}
+
+	// Verificar si hay inscripciones
+	var inscripcionesCount int64
+	if err := s.DB.Model(&models.Inscripcion{}).Where("actividad_id = ?", id).Count(&inscripcionesCount).Error; err != nil {
+		return false, err
+	}
+
+	// Iniciar una transacción
+	tx := s.DB.Begin()
+	if tx.Error != nil {
+		return false, tx.Error
+	}
+
+	// Si hay inscripciones, eliminarlas primero
+	if inscripcionesCount > 0 {
+		if err := tx.Where("actividad_id = ?", id).Delete(&models.Inscripcion{}).Error; err != nil {
+			tx.Rollback()
+			return false, err
+		}
 	}
 
 	// Actualizamos los campos de borrado lógico
@@ -77,11 +97,18 @@ func (s *ActividadService) DeleteActividad(id uint) error {
 	actividad.DeletedAt = gorm.DeletedAt{Time: time.Now(), Valid: true}
 
 	// Guardamos la actividad con los cambios
-	if err := s.DB.Save(&actividad).Error; err != nil {
-		return err // Si hay algún error al guardar, lo devolvemos
+	if err := tx.Save(&actividad).Error; err != nil {
+		tx.Rollback()
+		return false, err
 	}
 
-	return nil // Todo salió bien
+	// Confirmar la transacción
+	if err := tx.Commit().Error; err != nil {
+		return false, err
+	}
+
+	// Devolvemos true si había inscripciones, false si no
+	return inscripcionesCount > 0, nil
 }
 
 func (s *ActividadService) UpdateActividad(id uint, actividadDTO dtos.ActividadDTO) (*models.Actividad, error) {

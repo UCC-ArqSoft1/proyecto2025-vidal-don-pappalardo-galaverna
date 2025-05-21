@@ -1,4 +1,4 @@
-import type { Activity, ApiResponse, AuthResponse, Enrollment, Instructor, User, UserRegistration } from "../types"
+import type { Activity, ApiResponse, AuthResponse, Enrollment, Instructor, User, UserRegistration, DeleteActivityResponse } from "../types"
 
 const API_URL = "http://localhost:8080"
 
@@ -167,6 +167,11 @@ export const authService = {
     const user = authService.getCurrentUser()
     return user?.role_name === "admin"
   },
+
+  isInstructor: (): boolean => {
+    const user = authService.getCurrentUser()
+    return user?.role_name === "instructor"
+  },
 }
 
 // Activity services
@@ -257,7 +262,7 @@ export const activityService = {
     }
   },
 
-  deleteActivity: async (id: number): Promise<ApiResponse<void>> => {
+  deleteActivity: async (id: number): Promise<ApiResponse<DeleteActivityResponse>> => {
     try {
       const response = await authFetch(`/actividades/${id}`, {
         method: 'DELETE',
@@ -266,7 +271,8 @@ export const activityService = {
 
       return {
         success: response.ok,
-        message: response.ok ? 'Actividad eliminada exitosamente' : data.error || 'Error al eliminar la actividad',
+        data: response.ok ? data : undefined,
+        message: response.ok ? data.mensaje : data.error || 'Error al eliminar la actividad',
       }
     } catch (error) {
       return { success: false, message: 'Error de red al eliminar la actividad' }

@@ -95,7 +95,7 @@ func (h *ActividadHandler) DeleteActividad(c *gin.Context) {
 	}
 
 	// Llamamos al servicio para borrar la actividad
-	err := h.service.DeleteActividad(parsedID)
+	hadEnrollments, err := h.service.DeleteActividad(parsedID)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Actividad no encontrada"})
@@ -106,7 +106,15 @@ func (h *ActividadHandler) DeleteActividad(c *gin.Context) {
 	}
 
 	// Si no hubo error, respondemos con un mensaje de éxito
-	c.JSON(http.StatusOK, gin.H{"mensaje": "Actividad eliminada correctamente"})
+	response := gin.H{
+		"mensaje": "Actividad eliminada correctamente",
+	}
+	if hadEnrollments {
+		response["inscripciones_eliminadas"] = true
+		response["mensaje"] = "Actividad eliminada correctamente. Se han eliminado todas las inscripciones asociadas."
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 func (h *ActividadHandler) UpdateActividad(c *gin.Context) {
