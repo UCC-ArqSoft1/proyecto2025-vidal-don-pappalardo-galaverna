@@ -32,16 +32,20 @@ export const ActivityList = () => {
       if (isInstructor && currentUser) {
         // If user is an instructor, get their specific activities
         response = await userService.getInstructorDetails(currentUser.id)
-        if (response.success && response.data?.data) {
-          setActivities(response.data.data.activities || [])
+        if (response.success) {
+          // Si la respuesta es exitosa, incluso si no hay actividades, no es un error
+          setActivities(response.data?.data?.activities || [])
+          setError("")
         } else {
           setError(response.message || "Error al cargar actividades")
         }
       } else {
         // Otherwise get all activities
         response = await activityService.getAllActivities()
-        if (response.success && response.data) {
-          setActivities(response.data)
+        if (response.success) {
+          // Si la respuesta es exitosa, incluso si no hay actividades, no es un error
+          setActivities(response.data || [])
+          setError("")
         } else {
           setError(response.message || "Error al cargar actividades")
         }
