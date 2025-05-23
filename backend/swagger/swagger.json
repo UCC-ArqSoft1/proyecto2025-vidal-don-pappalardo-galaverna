@@ -28,93 +28,51 @@
       "Actividad": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "nombre": {
-            "type": "string"
-          },
-          "descripcion": {
-            "type": "string"
-          },
-          "dia": {
-            "type": "string"
-          },
-          "hora_inicio": {
-            "type": "string",
-            "format": "time"
-          },
-          "hora_fin": {
-            "type": "string",
-            "format": "time"
-          },
-          "cupo": {
-            "type": "integer"
-          },
-          "profesor_id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "profesor": {
-            "$ref": "#/components/schemas/Usuario"
-          }
+          "id": { "type": "integer", "format": "int64" },
+          "titulo": { "type": "string" },
+          "descripcion": { "type": "string" },
+          "dia": { "type": "string" },
+          "horario": { "type": "string", "format": "date-time" },
+          "duracion": { "type": "integer" },
+          "cupo": { "type": "integer" },
+          "categoria": { "type": "string" },
+          "imagen_data": { "type": "string" },
+          "imagen_type": { "type": "string" },
+          "active": { "type": "boolean" },
+          "profesor_id": { "type": "integer", "format": "int64" },
+          "profesor": { "$ref": "#/components/schemas/Usuario" }
         }
       },
       "ActividadDTO": {
         "type": "object",
-        "required": ["nombre", "descripcion", "dia", "hora_inicio", "hora_fin", "cupo", "profesor_id"],
+        "required": ["titulo", "descripcion", "dia", "horario", "duracion", "cupo", "categoria", "profesor_id"],
         "properties": {
-          "nombre": {
-            "type": "string"
-          },
-          "descripcion": {
-            "type": "string"
-          },
-          "dia": {
-            "type": "string"
-          },
-          "hora_inicio": {
-            "type": "string",
-            "format": "time"
-          },
-          "hora_fin": {
-            "type": "string",
-            "format": "time"
-          },
-          "cupo": {
-            "type": "integer"
-          },
-          "profesor_id": {
-            "type": "integer",
-            "format": "int64"
-          }
+          "titulo": { "type": "string" },
+          "descripcion": { "type": "string" },
+          "dia": { "type": "string" },
+          "horario": { "type": "string", "format": "date-time" },
+          "duracion": { "type": "integer" },
+          "cupo": { "type": "integer" },
+          "categoria": { "type": "string" },
+          "imagen_data": { "type": "string" },
+          "imagen_type": { "type": "string" },
+          "active": { "type": "boolean" },
+          "profesor_id": { "type": "integer", "format": "int64" }
         }
       },
       "Usuario": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "nombre": {
-            "type": "string"
-          },
-          "apellido": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "role_id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "active": {
-            "type": "boolean"
-          }
+          "id": { "type": "integer", "format": "int64" },
+          "nombre": { "type": "string" },
+          "apellido": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "password_hash": { "type": "string" },
+          "active": { "type": "boolean" },
+          "role_id": { "type": "integer", "format": "int64" },
+          "role": { "$ref": "#/components/schemas/Role" },
+          "inscripciones": { "type": "array", "items": { "$ref": "#/components/schemas/Inscripcion" } },
+          "actividades": { "type": "array", "items": { "$ref": "#/components/schemas/Actividad" } }
         }
       },
       "LoginDTO": {
@@ -132,55 +90,25 @@
       },
       "UsuarioDTO": {
         "type": "object",
-        "required": ["nombre", "apellido", "email", "password", "role_id"],
+        "required": ["nombre", "apellido", "email", "password_hash", "role_id"],
         "properties": {
-          "nombre": {
-            "type": "string"
-          },
-          "apellido": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "password": {
-            "type": "string"
-          },
-          "role_id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "active": {
-            "type": "boolean"
-          }
+          "nombre": { "type": "string" },
+          "apellido": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "password_hash": { "type": "string" },
+          "active": { "type": "boolean" },
+          "role_id": { "type": "integer", "format": "int64" }
         }
       },
       "Inscripcion": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "usuario_id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "actividad_id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "fecha_inscripcion": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "usuario": {
-            "$ref": "#/components/schemas/Usuario"
-          },
-          "actividad": {
-            "$ref": "#/components/schemas/Actividad"
-          }
+          "id": { "type": "integer", "format": "int64" },
+          "usuario_id": { "type": "integer", "format": "int64" },
+          "usuario": { "$ref": "#/components/schemas/Usuario" },
+          "actividad_id": { "type": "integer", "format": "int64" },
+          "actividad": { "$ref": "#/components/schemas/Actividad" },
+          "fecha_inscripcion": { "type": "string", "format": "date-time" }
         }
       }
     }
