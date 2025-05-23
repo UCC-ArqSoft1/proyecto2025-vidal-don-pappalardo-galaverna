@@ -12,5 +12,5 @@ type Inscripcion struct {
 	Usuario          Usuario   `gorm:"foreignKey:UsuarioID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	ActividadID      uint      `gorm:"not null"`
 	Actividad        Actividad `gorm:"foreignKey:ActividadID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	FechaInscripcion time.Time `gorm:"not null;default:CURRENT_TIMESTAMP"`
+	FechaInscripcion time.Time `gorm:"not null;type:datetime;default:(CURRENT_TIMESTAMP)"`
 }
