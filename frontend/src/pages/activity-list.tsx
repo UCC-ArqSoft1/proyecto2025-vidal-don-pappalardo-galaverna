@@ -154,7 +154,21 @@ export const ActivityList = () => {
         </div>
       )}
 
-      {filtered.length === 0 ? (
+      {activities.length === 0 ? (
+        <div className="sport-card p-6 text-center">
+          <h2 className="text-xl mb-4">No hay actividades disponibles</h2>
+          <p className="mb-6">
+            {isAdmin 
+              ? "Aún no se han creado actividades. ¡Comienza creando una nueva actividad!"
+              : "No hay actividades disponibles en este momento. ¡Vuelve más tarde!"}
+          </p>
+          {isAdmin && (
+            <Link to="/nueva-actividad" className="sport-button">
+              CREAR NUEVA ACTIVIDAD
+            </Link>
+          )}
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="sport-card p-6 text-center">
           <h2 className="text-xl mb-4">No se encontraron actividades</h2>
           <p>Intenta con otra búsqueda o vuelve más tarde.</p>
