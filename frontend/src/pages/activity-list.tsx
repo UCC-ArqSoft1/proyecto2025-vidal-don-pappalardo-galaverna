@@ -32,16 +32,20 @@ export const ActivityList = () => {
       if (isInstructor && currentUser) {
         // If user is an instructor, get their specific activities
         response = await userService.getInstructorDetails(currentUser.id)
-        if (response.success && response.data?.data) {
-          setActivities(response.data.data.activities || [])
+        if (response.success) {
+          // Si la respuesta es exitosa, incluso si no hay actividades, no es un error
+          setActivities(response.data?.data?.activities || [])
+          setError("")
         } else {
           setError(response.message || "Error al cargar actividades")
         }
       } else {
         // Otherwise get all activities
         response = await activityService.getAllActivities()
-        if (response.success && response.data) {
-          setActivities(response.data)
+        if (response.success) {
+          // Si la respuesta es exitosa, incluso si no hay actividades, no es un error
+          setActivities(response.data || [])
+          setError("")
         } else {
           setError(response.message || "Error al cargar actividades")
         }
@@ -154,7 +158,21 @@ export const ActivityList = () => {
         </div>
       )}
 
-      {filtered.length === 0 ? (
+      {activities.length === 0 ? (
+        <div className="sport-card p-6 text-center">
+          <h2 className="text-xl mb-4">No hay actividades disponibles</h2>
+          <p className="mb-6">
+            {isAdmin 
+              ? "Aún no se han creado actividades. ¡Comienza creando una nueva actividad!"
+              : "No hay actividades disponibles en este momento. ¡Vuelve más tarde!"}
+          </p>
+          {isAdmin && (
+            <Link to="/nueva-actividad" className="sport-button">
+              CREAR NUEVA ACTIVIDAD
+            </Link>
+          )}
+        </div>
+      ) : filtered.length === 0 ? (
         <div className="sport-card p-6 text-center">
           <h2 className="text-xl mb-4">No se encontraron actividades</h2>
           <p>Intenta con otra búsqueda o vuelve más tarde.</p>

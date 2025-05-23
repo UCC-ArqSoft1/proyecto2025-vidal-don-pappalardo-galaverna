@@ -306,7 +306,7 @@ export const enrollmentService = {
 
       return {
         success: response.ok,
-        data: response.ok ? data : undefined,
+        data: response.ok ? data.data : undefined,
         message: response.ok ? undefined : "Error al obtener inscripciones",
       }
     } catch (error) {

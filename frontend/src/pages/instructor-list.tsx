@@ -26,8 +26,10 @@ export const InstructorList = () => {
   const fetchInstructors = async () => {
     try {
       const response = await userService.getInstructors()
-      if (response.success && response.data) {
-        setInstructors(response.data)
+      if (response.success) {
+        // Asegurarnos de que siempre sea un array, incluso si es vacío
+        setInstructors(response.data || [])
+        setError("")
       } else {
         setError(response.message || "Error al cargar los instructores")
       }

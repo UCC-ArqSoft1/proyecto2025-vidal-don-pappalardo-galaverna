@@ -17,22 +17,45 @@ type ActividadService struct {
 // El servicio que devuelve todas las actividades
 func (s *ActividadService) GetAll() ([]models.Actividad, error) {
 	var actividades []models.Actividad
-	if err := s.DB.Where("active = ?", true).Find(&actividades).Error; err != nil {
+	if err := s.DB.Preload("Profesor").Preload("Inscripciones").
+		Where("active = ?", true).
+		Find(&actividades).Error; err != nil {
 		return nil, err
 	}
 	return actividades, nil
 }
 
 func (s *ActividadService) CrearActividad(actividadDTO dtos.ActividadDTO) (*models.Actividad, error) {
+	// Iniciar transacci?n
+	tx := s.DB.Begin()
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	// Verificar que el profesor existe
+	var profesor models.Usuario
+	if err := tx.Preload("Role").First(&profesor, actividadDTO.ProfesorID).Error; err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("profesor no encontrado: %v", err)
+	}
+
+	// Verificar que el profesor tiene el rol correcto
+	if profesor.Role.Nombre != "instructor" {
+		tx.Rollback()
+		return nil, fmt.Errorf("el usuario no es un instructor")
+	}
+
 	// Convertir la imagen base64 a bytes
 	imagenData, imagenType, err := dtos.Base64ToImage(actividadDTO.ImagenData)
 	if err != nil {
+		tx.Rollback()
 		return nil, fmt.Errorf("error al procesar la imagen: %v", err)
 	}
 
 	// Convertir el string de hora a time.Time
 	horario, err := dtos.ParseTimeString(actividadDTO.Horario)
 	if err != nil {
+		tx.Rollback()
 		return nil, fmt.Errorf("error al procesar el horario: %v", err)
 	}
 
@@ -51,84 +74,100 @@ func (s *ActividadService) CrearActividad(actividadDTO dtos.ActividadDTO) (*mode
 		ProfesorID:  actividadDTO.ProfesorID,
 	}
 
-	if err := s.DB.Create(&actividad).Error; err != nil {
+	if err := tx.Create(&actividad).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	// Confirmar la transacci?n
+	if err := tx.Commit().Error; err != nil {
 		return nil, err
 	}
 
 	return &actividad, nil
 }
 
-// El servicio que elimina una actividad (borrado lógico)
+// El servicio que elimina una actividad (borrado l?gico)
 func (s *ActividadService) DeleteActividad(id uint) (bool, error) {
-	var actividad models.Actividad
-
-	// Buscar la actividad por ID
-	if err := s.DB.First(&actividad, id).Error; err != nil {
-		return false, err // Si no se encuentra, devuelve el error
-	}
-
-	// Si la actividad ya está desactivada (borrada lógicamente)
-	if !actividad.Active {
-		return false, nil // Si ya está borrada, no hacemos nada y devolvemos nil (borrado lógico)
-	}
-
-	// Verificar si hay inscripciones
-	var inscripcionesCount int64
-	if err := s.DB.Model(&models.Inscripcion{}).Where("actividad_id = ?", id).Count(&inscripcionesCount).Error; err != nil {
-		return false, err
-	}
-
-	// Iniciar una transacción
+	// Iniciar transacci?n
 	tx := s.DB.Begin()
 	if tx.Error != nil {
 		return false, tx.Error
 	}
 
-	// Si hay inscripciones, eliminarlas primero
-	if inscripcionesCount > 0 {
-		if err := tx.Where("actividad_id = ?", id).Delete(&models.Inscripcion{}).Error; err != nil {
-			tx.Rollback()
-			return false, err
-		}
+	var actividad models.Actividad
+	if err := tx.Preload("Inscripciones").First(&actividad, id).Error; err != nil {
+		tx.Rollback()
+		return false, err
 	}
 
-	// Actualizamos los campos de borrado lógico
+	// Si la actividad ya est? desactivada
+	if !actividad.Active {
+		tx.Rollback()
+		return false, nil
+	}
+
+	// Si hay inscripciones, eliminarlas primero (esto se har? en cascada por la relaci?n)
+	hadEnrollments := len(actividad.Inscripciones) > 0
+
+	// Actualizar los campos de borrado l?gico
 	actividad.Active = false
 	actividad.DeletedAt = gorm.DeletedAt{Time: time.Now(), Valid: true}
 
-	// Guardamos la actividad con los cambios
 	if err := tx.Save(&actividad).Error; err != nil {
 		tx.Rollback()
 		return false, err
 	}
 
-	// Confirmar la transacción
+	// Confirmar la transacci?n
 	if err := tx.Commit().Error; err != nil {
 		return false, err
 	}
 
-	// Devolvemos true si había inscripciones, false si no
-	return inscripcionesCount > 0, nil
+	return hadEnrollments, nil
 }
 
 func (s *ActividadService) UpdateActividad(id uint, actividadDTO dtos.ActividadDTO) (*models.Actividad, error) {
+	// Iniciar transacci?n
+	tx := s.DB.Begin()
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
 	var actividad models.Actividad
-	if err := s.DB.First(&actividad, id).Error; err != nil {
+	if err := tx.Preload("Profesor").First(&actividad, id).Error; err != nil {
+		tx.Rollback()
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New("actividad no encontrada")
 		}
 		return nil, err
 	}
 
-	// Si la actividad está eliminada lógicamente, no permitir actualización
+	// Si la actividad est? eliminada l?gicamente
 	if !actividad.Active {
+		tx.Rollback()
 		return nil, errors.New("no se puede actualizar una actividad eliminada")
+	}
+
+	// Verificar que el nuevo profesor existe y es instructor
+	if actividadDTO.ProfesorID != actividad.ProfesorID {
+		var profesor models.Usuario
+		if err := tx.Preload("Role").First(&profesor, actividadDTO.ProfesorID).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("profesor no encontrado: %v", err)
+		}
+
+		if profesor.Role.Nombre != "instructor" {
+			tx.Rollback()
+			return nil, fmt.Errorf("el usuario no es un instructor")
+		}
 	}
 
 	// Convertir la imagen base64 a bytes si se proporciona una nueva imagen
 	if actividadDTO.ImagenData != "" {
 		imagenData, imagenType, err := dtos.Base64ToImage(actividadDTO.ImagenData)
 		if err != nil {
+			tx.Rollback()
 			return nil, fmt.Errorf("error al procesar la imagen: %v", err)
 		}
 		actividad.ImagenData = imagenData
@@ -138,10 +177,11 @@ func (s *ActividadService) UpdateActividad(id uint, actividadDTO dtos.ActividadD
 	// Convertir el string de hora a time.Time
 	horario, err := dtos.ParseTimeString(actividadDTO.Horario)
 	if err != nil {
+		tx.Rollback()
 		return nil, fmt.Errorf("error al procesar el horario: %v", err)
 	}
 
-	// Actualizar los demás campos
+	// Actualizar los dem?s campos
 	actividad.Titulo = actividadDTO.Titulo
 	actividad.Descripcion = actividadDTO.Descripcion
 	actividad.Dia = actividadDTO.Dia
@@ -151,7 +191,13 @@ func (s *ActividadService) UpdateActividad(id uint, actividadDTO dtos.ActividadD
 	actividad.Categoria = actividadDTO.Categoria
 	actividad.ProfesorID = actividadDTO.ProfesorID
 
-	if err := s.DB.Save(&actividad).Error; err != nil {
+	if err := tx.Save(&actividad).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	// Confirmar la transacci?n
+	if err := tx.Commit().Error; err != nil {
 		return nil, err
 	}
 

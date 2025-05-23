@@ -57,38 +57,36 @@ func (h *InscripcionHandler) CrearInscripcion(c *gin.Context) {
 	inscripcion := models.Inscripcion{
 		UsuarioID:        userID,
 		ActividadID:      uint(actividadID),
-		FechaInscripcion: time.Now().Format("2006-01-02 15:04:05"),
+		FechaInscripcion: time.Now(),
 	}
 
 	// Verificar si la actividad existe y tiene cupo disponible
 	var actividad models.Actividad
-	if err := h.db.First(&actividad, actividadID).Error; err != nil {
-		log.Printf("Error al buscar actividad: %v", err)
-		c.JSON(http.StatusNotFound, gin.H{"error": "Actividad no encontrada"})
+	if err := h.db.Preload("Inscripciones").First(&actividad, actividadID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Actividad no encontrada"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al verificar la actividad"})
+		}
 		return
 	}
-	log.Printf("Actividad encontrada: %+v", actividad)
 
-	// Verificar si hay cupo disponible
-	var inscripcionesCount int64
-	if err := h.db.Model(&models.Inscripcion{}).Where("actividad_id = ?", actividadID).Count(&inscripcionesCount).Error; err != nil {
-		log.Printf("Error al contar inscripciones: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al verificar cupos"})
+	// Verificar si la actividad está activa
+	if !actividad.Active {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "La actividad no está disponible"})
 		return
 	}
-	log.Printf("Cupos ocupados: %d/%d", inscripcionesCount, actividad.Cupo)
 
-	if inscripcionesCount >= int64(actividad.Cupo) {
-		log.Printf("No hay cupos disponibles")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "No hay cupos disponibles"})
+	// Verificar cupo disponible
+	if len(actividad.Inscripciones) >= actividad.Cupo {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No hay cupos disponibles para esta actividad"})
 		return
 	}
 
 	// Verificar si el usuario ya está inscrito
 	var inscripcionExistente models.Inscripcion
 	if err := h.db.Where("usuario_id = ? AND actividad_id = ?", userID, actividadID).First(&inscripcionExistente).Error; err == nil {
-		log.Printf("Usuario ya inscrito")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Ya estás inscrito en esta actividad"})
+		c.JSON(http.StatusConflict, gin.H{"error": "Ya estás inscrito en esta actividad"})
 		return
 	}
 
@@ -115,7 +113,6 @@ func (h *InscripcionHandler) CrearInscripcion(c *gin.Context) {
 func (h *InscripcionHandler) GetInscripcionesByUsuario(c *gin.Context) {
 	log.Printf("Recibida petición GET a /inscripciones/usuarios/me")
 
-	// Obtener el ID del usuario del token JWT
 	claims, exists := c.Get("claims")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "No se pudo obtener la información del usuario"})
@@ -124,40 +121,41 @@ func (h *InscripcionHandler) GetInscripcionesByUsuario(c *gin.Context) {
 
 	userID := uint(claims.(jwt.MapClaims)["user_id"].(float64))
 	roleName := claims.(jwt.MapClaims)["role_name"].(string)
-	log.Printf("Obteniendo inscripciones para usuario: %d con rol: %s", userID, roleName)
 
-	var response []dtos.InscripcionResponseDTO
-
-	// Si el usuario es un instructor, obtener sus actividades asignadas
-	if roleName == "instructor" {
-		var actividades []models.Actividad
-		if err := h.db.Where("profesor_id = ?", userID).Find(&actividades).Error; err != nil {
-			log.Printf("Error al obtener actividades del instructor: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener las actividades del instructor"})
-			return
-		}
-
-		// Convertir las actividades a inscripciones para mantener consistencia en la respuesta
-		for _, actividad := range actividades {
-			response = append(response, dtos.InscripcionResponseDTO{
-				ID:               actividad.ID, // Usamos el ID de la actividad como ID de inscripción
-				UsuarioID:        userID,
-				ActividadID:      actividad.ID,
-				FechaInscripcion: actividad.CreatedAt.Format("2006-01-02 15:04:05"),
-				Actividad:        &actividad,
-			})
-		}
-	}
-
-	// Obtener las inscripciones normales del usuario (como estudiante)
+	// Obtener las inscripciones del usuario (donde es participante)
 	var inscripciones []models.Inscripcion
-	if err := h.db.Preload("Actividad").Where("usuario_id = ?", userID).Find(&inscripciones).Error; err != nil {
-		log.Printf("Error al obtener inscripciones: %v", err)
+	if err := h.db.Preload("Actividad").Preload("Actividad.Profesor").
+		Where("usuario_id = ?", userID).
+		Find(&inscripciones).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener las inscripciones"})
 		return
 	}
 
-	// Agregar las inscripciones normales a la respuesta
+	var response []dtos.InscripcionResponseDTO
+
+	// Si el usuario es instructor, también obtener sus actividades
+	if roleName == "instructor" {
+		var actividades []models.Actividad
+		if err := h.db.Where("profesor_id = ? AND active = ?", userID, true).
+			Find(&actividades).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener las actividades del instructor"})
+			return
+		}
+
+		// Agregar las actividades como inscripciones especiales
+		for _, actividad := range actividades {
+			response = append(response, dtos.InscripcionResponseDTO{
+				ID:               0, // No es una inscripción real
+				UsuarioID:        userID,
+				ActividadID:      actividad.ID,
+				FechaInscripcion: actividad.CreatedAt,
+				Actividad:        &actividad,
+				EsInstructor:     true, // Indicador de que es una actividad donde es instructor
+			})
+		}
+	}
+
+	// Agregar las inscripciones normales
 	for _, i := range inscripciones {
 		response = append(response, dtos.InscripcionResponseDTO{
 			ID:               i.ID,
@@ -165,10 +163,11 @@ func (h *InscripcionHandler) GetInscripcionesByUsuario(c *gin.Context) {
 			ActividadID:      i.ActividadID,
 			FechaInscripcion: i.FechaInscripcion,
 			Actividad:        &i.Actividad,
+			EsInstructor:     false,
 		})
 	}
 
-	c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, gin.H{"data": response})
 }
 
 // GetInscripcionesByActividad obtiene todas las inscripciones de una actividad específica

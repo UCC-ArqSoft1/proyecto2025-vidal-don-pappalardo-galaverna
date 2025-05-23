@@ -2,6 +2,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -124,6 +125,23 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
+	// Si no se especifica un rol, buscar el rol "usuario"
+	if usuarioDTO.RoleID == 0 {
+		var userRole models.Role
+		if err := h.db.Where("nombre = ?", "usuario").First(&userRole).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo encontrar el rol de usuario por defecto"})
+			return
+		}
+		usuarioDTO.RoleID = userRole.ID
+	} else {
+		// Verificar que el rol especificado existe
+		var role models.Role
+		if err := h.db.First(&role, usuarioDTO.RoleID).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "El rol especificado no existe"})
+			return
+		}
+	}
+
 	// Check if the email already exists
 	var existingUser models.Usuario
 	if err := h.db.Where("email = ?", usuarioDTO.Email).First(&existingUser).Error; err == nil {
@@ -151,7 +169,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	// Call the AuthService to register the user
 	nuevoUsuario, err := h.authService.Register(usuario)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("error al registrar el usuario: %v", err)})
 		return
 	}
 
