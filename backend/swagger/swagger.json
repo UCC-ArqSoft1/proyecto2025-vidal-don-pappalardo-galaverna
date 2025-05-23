@@ -384,65 +384,7 @@
             }
           }
         }
-      }
-    },
-    "/usuarios/instructores/{id}": {
-      "get": {
-        "summary": "Obtener detalles de un instructor",
-        "operationId": "getInstructorDetails",
-        "tags": ["Usuarios"],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Detalles del instructor",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "object",
-                      "properties": {
-                        "instructor": {
-                          "$ref": "#/components/schemas/Usuario"
-                        },
-                        "activities": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/components/schemas/Actividad"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Instructor no encontrado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/usuarios/instructores": {
+      },
       "post": {
         "summary": "Crear nuevo instructor (Requiere token de Admin)",
         "operationId": "createInstructor",
@@ -503,6 +445,62 @@
           },
           "403": {
             "description": "Acceso denegado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuarios/instructores/{id}": {
+      "get": {
+        "summary": "Obtener detalles de un instructor",
+        "operationId": "getInstructorDetails",
+        "tags": ["Usuarios"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalles del instructor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "instructor": {
+                          "$ref": "#/components/schemas/Usuario"
+                        },
+                        "activities": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Actividad"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Instructor no encontrado",
             "content": {
               "application/json": {
                 "schema": {
