@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,14 +24,10 @@ func NewUserHandler(db *gorm.DB) *UserHandler {
 
 // GetInstructors obtiene todos los usuarios con rol de instructor
 func (h *UserHandler) GetInstructors(c *gin.Context) {
-	var instructors []struct {
-		ID     uint   `json:"id"`
-		Nombre string `json:"nombre"`
-	}
+	var instructors []models.Usuario
 
-	// Buscar usuarios con rol "instructor"
-	result := h.db.Table("usuarios").
-		Select("usuarios.id, usuarios.nombre").
+	// Buscar usuarios con rol "instructor" usando las relaciones
+	result := h.db.Preload("Role").
 		Joins("JOIN roles ON usuarios.role_id = roles.id").
 		Where("roles.nombre = ?", "instructor").
 		Where("usuarios.active = ?", true).
@@ -45,8 +40,19 @@ func (h *UserHandler) GetInstructors(c *gin.Context) {
 		return
 	}
 
+	// Mapear a una respuesta más simple
+	var response []gin.H
+	for _, instructor := range instructors {
+		response = append(response, gin.H{
+			"id":       instructor.ID,
+			"nombre":   instructor.Nombre,
+			"apellido": instructor.Apellido,
+			"email":    instructor.Email,
+		})
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"data": instructors,
+		"data": response,
 	})
 }
 
@@ -124,24 +130,16 @@ func (h *UserHandler) GetInstructorDetails(c *gin.Context) {
 	id := c.Param("id")
 	var instructor models.Usuario
 
-	// Buscar el instructor y sus actividades
+	// Buscar el instructor y sus actividades usando las relaciones
 	result := h.db.Preload("Role").
-		Where("usuarios.id = ? AND roles.nombre = ?", id, "instructor").
+		Preload("Actividades", "active = ?", true).
 		Joins("JOIN roles ON usuarios.role_id = roles.id").
+		Where("usuarios.id = ? AND roles.nombre = ?", id, "instructor").
 		First(&instructor)
 
 	if result.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": "Instructor no encontrado",
-		})
-		return
-	}
-
-	// Obtener las actividades asignadas al instructor
-	var actividades []models.Actividad
-	if err := h.db.Where("profesor_id = ?", instructor.ID).Find(&actividades).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Error al obtener las actividades del instructor",
 		})
 		return
 	}
@@ -154,7 +152,7 @@ func (h *UserHandler) GetInstructorDetails(c *gin.Context) {
 				"apellido": instructor.Apellido,
 				"email":    instructor.Email,
 			},
-			"activities": actividades,
+			"activities": instructor.Actividades,
 		},
 	})
 }
@@ -163,31 +161,54 @@ func (h *UserHandler) GetInstructorDetails(c *gin.Context) {
 func (h *UserHandler) DeleteInstructor(c *gin.Context) {
 	id := c.Param("id")
 
-	// Convertir el id a uint
-	var parsedID uint
-	if _, err := fmt.Sscanf(id, "%d", &parsedID); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+	// Iniciar transacción
+	tx := h.db.Begin()
+	if tx.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al iniciar la transacción"})
 		return
 	}
 
-	// Verificar que el usuario existe y es un instructor
-	var usuario models.Usuario
-	if err := h.db.Joins("JOIN roles ON usuarios.role_id = roles.id").
-		Where("usuarios.id = ? AND roles.nombre = ?", parsedID, "instructor").
-		First(&usuario).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Instructor no encontrado"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al buscar el instructor"})
-		}
+	// Buscar el instructor y verificar que es instructor
+	var instructor models.Usuario
+	if err := tx.Preload("Role").
+		Preload("Actividades").
+		Where("id = ?", id).
+		First(&instructor).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusNotFound, gin.H{"error": "Instructor no encontrado"})
 		return
 	}
 
-	// Realizar el borrado lógico
-	if err := h.db.Model(&usuario).Update("active", false).Error; err != nil {
+	if instructor.Role.Nombre != "instructor" {
+		tx.Rollback()
+		c.JSON(http.StatusBadRequest, gin.H{"error": "El usuario no es un instructor"})
+		return
+	}
+
+	// Verificar si tiene actividades asignadas
+	if len(instructor.Actividades) > 0 {
+		tx.Rollback()
+		c.JSON(http.StatusConflict, gin.H{
+			"error": "No se puede eliminar el instructor porque tiene actividades asignadas",
+		})
+		return
+	}
+
+	// Realizar borrado lógico
+	instructor.Active = false
+	if err := tx.Save(&instructor).Error; err != nil {
+		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al eliminar el instructor"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Instructor eliminado correctamente"})
+	// Confirmar la transacción
+	if err := tx.Commit().Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al confirmar la transacción"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Instructor eliminado exitosamente",
+	})
 }
