@@ -23,7 +23,7 @@ func tryConnect(dsn string, maxRetries int) (*gorm.DB, error) {
 
 	for i := 1; i <= maxRetries; i++ {
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
-			DisableForeignKeyConstraintWhenMigrating: true,
+			DisableForeignKeyConstraintWhenMigrating: false,
 			PrepareStmt:                              true,
 		})
 		if err == nil {
@@ -49,18 +49,37 @@ func initRoles(db *gorm.DB) error {
 			Nombre:      "instructor",
 			Descripcion: "Instructor de actividades",
 		},
+		{
+			Nombre:      "usuario",
+			Descripcion: "Usuario regular",
+		},
 	}
 
 	for _, role := range roles {
 		var existingRole models.Role
 		result := db.Where("nombre = ?", role.Nombre).First(&existingRole)
 		if result.Error != nil {
-			if err := db.Create(&role).Error; err != nil {
-				return fmt.Errorf("error al crear rol %s: %v", role.Nombre, err)
+			if result.Error == gorm.ErrRecordNotFound {
+				// El rol no existe, crearlo
+				if err := db.Create(&role).Error; err != nil {
+					return fmt.Errorf("error al crear rol %s: %v", role.Nombre, err)
+				}
+				log.Printf("✅ Rol '%s' creado exitosamente", role.Nombre)
+			} else {
+				// Error al buscar el rol
+				return fmt.Errorf("error al buscar rol %s: %v", role.Nombre, result.Error)
 			}
-			log.Printf("✅ Rol %s creado", role.Nombre)
+		} else {
+			log.Printf("ℹ️  Rol '%s' ya existe (ID: %d)", role.Nombre, existingRole.ID)
 		}
 	}
+
+	// Verificar que todos los roles existen
+	var count int64
+	if err := db.Model(&models.Role{}).Count(&count).Error; err != nil {
+		return fmt.Errorf("error al contar roles: %v", err)
+	}
+	log.Printf("ℹ️  Total de roles en la base de datos: %d", count)
 
 	return nil
 }

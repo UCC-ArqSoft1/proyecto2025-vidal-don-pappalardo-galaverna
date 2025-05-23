@@ -41,7 +41,7 @@ func (h *UserHandler) GetInstructors(c *gin.Context) {
 	}
 
 	// Mapear a una respuesta más simple
-	var response []gin.H
+	response := make([]gin.H, 0) // Inicializar como slice vacío en lugar de nil
 	for _, instructor := range instructors {
 		response = append(response, gin.H{
 			"id":       instructor.ID,

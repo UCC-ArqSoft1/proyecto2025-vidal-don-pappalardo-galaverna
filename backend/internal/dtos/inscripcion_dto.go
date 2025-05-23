@@ -20,4 +20,5 @@ type InscripcionResponseDTO struct {
 	FechaInscripcion time.Time         `json:"fecha_inscripcion"`
 	Usuario          *models.Usuario   `json:"usuario,omitempty"`
 	Actividad        *models.Actividad `json:"actividad,omitempty"`
+	EsInstructor     bool             `json:"es_instructor"`
 }
