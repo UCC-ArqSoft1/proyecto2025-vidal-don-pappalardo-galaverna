@@ -510,9 +510,7 @@
             }
           }
         }
-      }
-    },
-    "/usuarios/instructores/{id}": {
+      },
       "delete": {
         "summary": "Eliminar instructor (Requiere token de Admin)",
         "operationId": "deleteInstructor",
@@ -1012,56 +1010,7 @@
             }
           }
         }
-      }
-    },
-    "/inscripciones/all": {
-      "get": {
-        "summary": "Obtener todas las inscripciones (Requiere token de Admin)",
-        "operationId": "getAllInscripciones",
-        "tags": ["Inscripciones"],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Lista de todas las inscripciones",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Inscripcion"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "No autorizado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Acceso denegado",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/inscripciones/{actividadId}": {
+      },
       "post": {
         "summary": "Inscribirse a una actividad",
         "operationId": "crearInscripcion",
@@ -1134,7 +1083,7 @@
         }
       }
     },
-    "/inscripciones/{inscripcionId}": {
+    "/inscripciones/detalle/{inscripcionId}": {
       "get": {
         "summary": "Obtener una inscripción específica",
         "operationId": "getInscripcionByID",
