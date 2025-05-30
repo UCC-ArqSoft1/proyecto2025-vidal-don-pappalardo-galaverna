@@ -101,82 +101,81 @@ export const InstructorDetail = () => {
 
   return (
     <SportLayout>
-      <div className="sport-detail-container">
-        <div className="mb-6">
-          <button
-            onClick={() => navigate("/admin/instructores")}
-            className="sport-button sport-button-outline"
-          >
-            ← Volver a la lista de instructores
-          </button>
-        </div>
-
-        <div className="sport-card">
-          <div className="activity-detail-header">
-            <div className="flex justify-between items-start">
-              <h1 className="text-4xl mb-4">{instructor.nombre} {instructor.apellido}</h1>
-              <span className="sport-badge sport-badge-accent">INSTRUCTOR</span>
-            </div>
-          </div>
-
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <button
+          onClick={() => navigate("/admin/instructores")}
+          className="sport-button sport-button-outline"
+        >
+          ← Volver a la lista de instructores
+        </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="sport-card">
-            <h2 className="text-2xl mb-4">Información de Contacto</h2>
-            <div className="sport-divider"></div>
-            <div className="activity-detail-info">
-              <div className="activity-detail-info-item">
-                <span className="activity-detail-info-label">Email</span>
-                <span className="activity-detail-info-value">{instructor.email}</span>
+            <div className="activity-detail-header">
+              <div className="flex justify-between items-start">
+                <h1 className="text-4xl mb-4">{instructor.nombre} {instructor.apellido}</h1>
+                <span className="sport-badge sport-badge-accent">INSTRUCTOR</span>
               </div>
             </div>
-          </div>
 
-          <div className="sport-card mt-6">
-            <h2 className="text-2xl mb-4">Actividades Asignadas</h2>
-            <div className="sport-divider"></div>
-            {activities.length === 0 ? (
-              <p className="text-gray-600">Este instructor no tiene actividades asignadas</p>
-            ) : (
-              <div className="sport-card-grid">
-                {activities.map((activity) => (
-                  <div key={activity.id} className="sport-card">
-                    <div className="sport-card-content">
-                      <div className="flex justify-between items-start mb-4">
-                        <h2 className="sport-card-title">{activity.titulo}</h2>
-                        <span
-                          className={`sport-badge ${
-                            activity.categoria === "yoga"
-                              ? "sport-badge-accent"
-                              : activity.categoria === "cardio"
-                                ? "sport-badge-secondary"
-                                : ""
-                          }`}
-                        >
-                          {activity.categoria.toUpperCase()}
-                        </span>
-                      </div>
+            <div className="sport-card">
+              <h2 className="text-2xl mb-4">Información de Contacto</h2>
+              <div className="sport-divider"></div>
+              <div className="activity-detail-info">
+                <div className="activity-detail-info-item">
+                  <span className="activity-detail-info-label">Email</span>
+                  <span className="activity-detail-info-value">{instructor.email}</span>
+                </div>
+              </div>
+            </div>
 
-                      <div className="sport-card-meta">
-                        <p>
-                          <span className="text-primary font-semibold">HORARIO:</span> {activity.horario}
-                        </p>
-                        <p>
-                          <span className="text-primary font-semibold">DÍA:</span> {activity.dia}
-                        </p>
-                        <p>
-                          <span className="text-primary font-semibold">CUPO:</span> {activity.cupo} personas
-                        </p>
-                      </div>
+            <div className="sport-card mt-6">
+              <h2 className="text-2xl mb-4">Actividades Asignadas</h2>
+              <div className="sport-divider"></div>
+              {activities.length === 0 ? (
+                <p className="text-gray-600">Este instructor no tiene actividades asignadas</p>
+              ) : (
+                <div className="sport-card-grid">
+                  {activities.map((activity) => (
+                    <div key={activity.id} className="sport-card">
+                      <div className="sport-card-content">
+                        <div className="flex justify-between items-start mb-4">
+                          <h2 className="sport-card-title">{activity.titulo}</h2>
+                          <span
+                            className={`sport-badge ${
+                              activity.categoria === "yoga"
+                                ? "sport-badge-accent"
+                                : activity.categoria === "cardio"
+                                  ? "sport-badge-secondary"
+                                  : ""
+                            }`}
+                          >
+                            {activity.categoria.toUpperCase()}
+                          </span>
+                        </div>
 
-                      <div className="sport-card-actions">
-                        <Link to={`/detalle/${activity.id}`} className="sport-button sport-button-full">
-                          VER DETALLES
-                        </Link>
+                        <div className="sport-card-meta">
+                          <p>
+                            <span className="text-primary font-semibold">HORARIO:</span> {activity.horario}
+                          </p>
+                          <p>
+                            <span className="text-primary font-semibold">DÍA:</span> {activity.dia}
+                          </p>
+                          <p>
+                            <span className="text-primary font-semibold">CUPO:</span> {activity.cupo} personas
+                          </p>
+                        </div>
+
+                        <div className="sport-card-actions">
+                          <Link to={`/detalle/${activity.id}`} className="sport-button sport-button-full">
+                            VER DETALLES
+                          </Link>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
