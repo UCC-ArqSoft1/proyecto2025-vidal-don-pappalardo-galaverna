@@ -26,7 +26,7 @@ const CyberNavbar: React.FC<CyberNavbarProps> = ({ logo = "CYBER GYM" }) => {
     if (admin) {
       return [
         { to: "/", label: "Inicio" },
-        { to: "/admin/actividades", label: "Gestionar Actividades" },
+        { to: "/actividades", label: "Gestionar Actividades" },
         { to: "/admin/instructores", label: "Gestionar Instructores" }
       ]
     }

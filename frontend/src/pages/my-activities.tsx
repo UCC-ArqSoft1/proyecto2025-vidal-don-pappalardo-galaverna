@@ -95,7 +95,7 @@ const MyActivities = () => {
         <div className="sport-card p-6 text-center">
           <h2 className="text-2xl mb-4">No tienes actividades inscritas</h2>
           <p className="mb-6">Explora nuestras actividades y únete a alguna para comenzar tu entrenamiento</p>
-          <Link to="/" className="sport-button">
+          <Link to="/actividades" className="sport-button">
             VER ACTIVIDADES DISPONIBLES
           </Link>
         </div>

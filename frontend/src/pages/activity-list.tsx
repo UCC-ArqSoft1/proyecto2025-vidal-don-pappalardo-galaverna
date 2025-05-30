@@ -7,7 +7,7 @@ import SportLayout from "../components/layout/CyberLayout"
 import { activityService, authService, userService, enrollmentService } from "../services/api"
 import { ConfirmDialog } from "../components/ConfirmDialog"
 import type { Activity } from "../types"
-import "../styles/activity-list.css"
+import "../assets/styles/activity-list.css"
 
 export const ActivityList = () => {
   const [activities, setActivities] = useState<Activity[]>([])
