@@ -59,6 +59,19 @@ const EditActivityPage = () => {
     }
   }
 
+  const handleToggle = async () => {
+    if (!id || !activity) return
+
+    const response = await activityService.toggleActivity(Number(id))
+    if (response.success && response.data) {
+      toast.success(response.data.mensaje)
+      // Actualizar el estado local de la actividad
+      setActivity(prev => prev ? { ...prev, active: !prev.active } : null)
+    } else {
+      toast.error(response.message || "Error al cambiar el estado de la actividad")
+    }
+  }
+
   if (loading) {
     return (
       <SportLayout>
@@ -82,7 +95,20 @@ const EditActivityPage = () => {
     )
   }
 
-  return <ActivityForm isEdit initialData={activity} onSubmit={handleUpdate} />
+  return (
+    <SportLayout>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Editar Actividad</h1>
+        <button
+          onClick={handleToggle}
+          className={`sport-button ${activity.active ? 'sport-button-warning' : 'sport-button-success'}`}
+        >
+          {activity.active ? 'DESACTIVAR' : 'ACTIVAR'} ACTIVIDAD
+        </button>
+      </div>
+      <ActivityForm isEdit initialData={activity} onSubmit={handleUpdate} />
+    </SportLayout>
+  )
 }
 
 export default EditActivityPage

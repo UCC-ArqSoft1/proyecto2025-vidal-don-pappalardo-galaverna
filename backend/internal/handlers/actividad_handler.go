@@ -163,3 +163,41 @@ func (h *ActividadHandler) UpdateActividad(c *gin.Context) {
 
 	c.JSON(http.StatusOK, actividad)
 }
+
+// ToggleActividadStatus cambia el estado de una actividad entre activo e inactivo
+func (h *ActividadHandler) ToggleActividadStatus(c *gin.Context) {
+	id := c.Param("id")
+
+	// Convertir el id de string a uint
+	parsedID, err := strconv.ParseUint(id, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	// Implementar el servicio para cambiar el estado de la actividad
+	actividad, err := h.service.ToggleActividadStatusService(uint(parsedID))
+	if err != nil {
+		statusCod := http.StatusInternalServerError
+		if err.Error() == "actividad no encontrada" {
+			statusCod = http.StatusNotFound
+		}
+		c.JSON(statusCod, gin.H{
+			"error":   "Error al cambiar el estado de la actividad",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	// Preparar mensaje según el nuevo estado
+	estado := "activada"
+	if !actividad.Active {
+		estado = "desactivada"
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"mensaje": fmt.Sprintf("Actividad %s correctamente", estado),
+		"active":  actividad.Active,
+		"id":      actividad.ID,
+	})
+}

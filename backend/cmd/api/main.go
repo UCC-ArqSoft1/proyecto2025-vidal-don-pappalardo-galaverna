@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -64,6 +66,8 @@ func main() {
 	})
 
 	// ----------------------
-
+	for _, route := range r.Routes() {
+		fmt.Printf("[ROUTE] %s -> %s\n", route.Method, route.Path)
+	}
 	r.Run(":8080")
 }

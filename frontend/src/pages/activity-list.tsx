@@ -7,6 +7,7 @@ import SportLayout from "../components/layout/CyberLayout"
 import { activityService, authService, userService, enrollmentService } from "../services/api"
 import { ConfirmDialog } from "../components/ConfirmDialog"
 import type { Activity } from "../types"
+import "../styles/activity-list.css"
 
 export const ActivityList = () => {
   const [activities, setActivities] = useState<Activity[]>([])
@@ -99,6 +100,20 @@ export const ActivityList = () => {
     }
   }
 
+  const handleToggleActivity = async (activity: Activity) => {
+    try {
+      const response = await activityService.toggleActivity(activity.id!)
+      if (response.success && response.data) {
+        toast.success(response.data.mensaje)
+        await fetchActivities() // Recargar la lista de actividades
+      } else {
+        toast.error(response.message || "Error al cambiar el estado de la actividad")
+      }
+    } catch (err) {
+      toast.error("Error al cambiar el estado de la actividad")
+    }
+  }
+
   const filtered = activities.filter(
     (a) =>
       a.titulo.toLowerCase().includes(search.toLowerCase()) || 
@@ -180,12 +195,18 @@ export const ActivityList = () => {
       ) : (
         <div className="sport-card-grid">
           {filtered.map((activity) => (
-            <div key={activity.id} className="sport-card">
+            <div key={activity.id} className={`sport-card ${!activity.active ? 'inactive-card' : ''}`}>
               <div className="sport-card-content">
+                {!activity.active && (
+                  <div className="inactive-overlay">
+                    <span className="inactive-text">ACTIVIDAD DESACTIVADA</span>
+                  </div>
+                )}
                 <div className="sport-card-image">
                   <img 
                     src={activity.imagen_data || "/placeholder.svg?height=200&width=400"} 
-                    alt={activity.titulo} 
+                    alt={activity.titulo}
+                    className={!activity.active ? 'grayscale' : ''}
                   />
                   <div className="sport-card-badge">
                     <span
@@ -220,23 +241,33 @@ export const ActivityList = () => {
                 </div>
 
                 <div className="sport-card-actions">
-                  <Link to={`/detalle/${activity.id}`} className="sport-button sport-button-full">
-                    VER DETALLES
-                  </Link>
-                  {isAdmin && (
+                  {(activity.active || isAdmin) && (
                     <>
-                      <Link
-                        to={`/editar-actividad/${activity.id}`}
-                        className="sport-button sport-button-outline sport-button-full mt-2"
-                      >
-                        EDITAR
+                      <Link to={`/detalle/${activity.id}`} className="sport-button sport-button-full">
+                        VER DETALLES
                       </Link>
-                      <button
-                        onClick={() => handleDeleteClick(activity.id!)}
-                        className="sport-button sport-button-danger sport-button-full mt-2"
-                      >
-                        ELIMINAR
-                      </button>
+                      {isAdmin && (
+                        <>
+                          <Link
+                            to={`/editar-actividad/${activity.id}`}
+                            className="sport-button sport-button-outline sport-button-full mt-2"
+                          >
+                            EDITAR
+                          </Link>
+                          <button
+                            onClick={() => handleToggleActivity(activity)}
+                            className={`sport-button ${activity.active ? 'sport-button-warning' : 'sport-button-success'} sport-button-full mt-2`}
+                          >
+                            {activity.active ? 'DESACTIVAR' : 'ACTIVAR'}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(activity.id!)}
+                            className="sport-button sport-button-danger sport-button-full mt-2"
+                          >
+                            ELIMINAR
+                          </button>
+                        </>
+                      )}
                     </>
                   )}
                 </div>

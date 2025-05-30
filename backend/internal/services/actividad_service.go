@@ -3,7 +3,6 @@ package services
 import (
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/proyecto2025/backend/internal/dtos"
 	"github.com/proyecto2025/backend/internal/models"
@@ -19,6 +18,17 @@ func (s *ActividadService) GetAll() ([]models.Actividad, error) {
 	var actividades []models.Actividad
 	if err := s.DB.Preload("Profesor").Preload("Inscripciones").
 		Where("active = ?", true).
+		Find(&actividades).Error; err != nil {
+		return nil, err
+	}
+	return actividades, nil
+}
+
+// GetAllWithInactive devuelve todas las actividades, incluyendo las inactivas
+func (s *ActividadService) GetAllWithInactive() ([]models.Actividad, error) {
+	var actividades []models.Actividad
+	if err := s.DB.Preload("Profesor").Preload("Inscripciones").
+		Unscoped(). // Incluye registros con DeletedAt
 		Find(&actividades).Error; err != nil {
 		return nil, err
 	}
@@ -87,9 +97,9 @@ func (s *ActividadService) CrearActividad(actividadDTO dtos.ActividadDTO) (*mode
 	return &actividad, nil
 }
 
-// El servicio que elimina una actividad (borrado l?gico)
+// El servicio que elimina una actividad (borrado lógico)
 func (s *ActividadService) DeleteActividad(id uint) (bool, error) {
-	// Iniciar transacci?n
+	// Iniciar transacción
 	tx := s.DB.Begin()
 	if tx.Error != nil {
 		return false, tx.Error
@@ -101,25 +111,24 @@ func (s *ActividadService) DeleteActividad(id uint) (bool, error) {
 		return false, err
 	}
 
-	// Si la actividad ya est? desactivada
+	// Si la actividad ya está desactivada
 	if !actividad.Active {
 		tx.Rollback()
-		return false, nil
+		return false, errors.New("la actividad ya está desactivada")
 	}
 
-	// Si hay inscripciones, eliminarlas primero (esto se har? en cascada por la relaci?n)
+	// Si hay inscripciones, eliminarlas primero (esto se hará en cascada por la relación)
 	hadEnrollments := len(actividad.Inscripciones) > 0
 
-	// Actualizar los campos de borrado l?gico
+	// Actualizar los campos de borrado lógico
 	actividad.Active = false
-	actividad.DeletedAt = gorm.DeletedAt{Time: time.Now(), Valid: true}
 
 	if err := tx.Save(&actividad).Error; err != nil {
 		tx.Rollback()
 		return false, err
 	}
 
-	// Confirmar la transacci?n
+	// Confirmar la transacción
 	if err := tx.Commit().Error; err != nil {
 		return false, err
 	}
@@ -128,7 +137,7 @@ func (s *ActividadService) DeleteActividad(id uint) (bool, error) {
 }
 
 func (s *ActividadService) UpdateActividad(id uint, actividadDTO dtos.ActividadDTO) (*models.Actividad, error) {
-	// Iniciar transacci?n
+	// Iniciar transacción
 	tx := s.DB.Begin()
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -143,10 +152,10 @@ func (s *ActividadService) UpdateActividad(id uint, actividadDTO dtos.ActividadD
 		return nil, err
 	}
 
-	// Si la actividad est? eliminada l?gicamente
-	if !actividad.Active {
+	// Si la actividad está eliminada lógicamente y no se está intentando reactivar
+	if !actividad.Active && !actividadDTO.Active {
 		tx.Rollback()
-		return nil, errors.New("no se puede actualizar una actividad eliminada")
+		return nil, errors.New("no se puede actualizar una actividad desactivada sin reactivarla primero")
 	}
 
 	// Verificar que el nuevo profesor existe y es instructor
@@ -190,6 +199,7 @@ func (s *ActividadService) UpdateActividad(id uint, actividadDTO dtos.ActividadD
 	actividad.Cupo = actividadDTO.Cupo
 	actividad.Categoria = actividadDTO.Categoria
 	actividad.ProfesorID = actividadDTO.ProfesorID
+	actividad.Active = actividadDTO.Active
 
 	if err := tx.Save(&actividad).Error; err != nil {
 		tx.Rollback()
@@ -197,6 +207,44 @@ func (s *ActividadService) UpdateActividad(id uint, actividadDTO dtos.ActividadD
 	}
 
 	// Confirmar la transacci?n
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+
+	return &actividad, nil
+}
+
+func (s *ActividadService) ToggleActividadStatusService(id uint) (*models.Actividad, error) {
+	// Iniciar transacción
+	tx := s.DB.Begin()
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	var actividad models.Actividad
+	// Usamos Unscoped para poder encontrar actividades incluso si están marcadas como eliminadas
+	if err := tx.Unscoped().First(&actividad, id).Error; err != nil {
+		tx.Rollback()
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.New("actividad no encontrada")
+		}
+		return nil, err
+	}
+
+	// Cambiar el estado
+	actividad.Active = !actividad.Active
+
+	// Si estamos reactivando, asegurarnos de limpiar DeletedAt si existe
+	if actividad.Active && actividad.DeletedAt.Valid {
+		actividad.DeletedAt = gorm.DeletedAt{}
+	}
+
+	if err := tx.Unscoped().Save(&actividad).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	// Confirmar la transacción
 	if err := tx.Commit().Error; err != nil {
 		return nil, err
 	}

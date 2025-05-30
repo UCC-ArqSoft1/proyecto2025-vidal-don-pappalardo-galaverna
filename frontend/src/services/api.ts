@@ -1,4 +1,5 @@
 import type { Activity, ApiResponse, AuthResponse, Enrollment, Instructor, User, UserRegistration, DeleteActivityResponse } from "../types"
+import { handleResponse, handleError } from '../utils/api-helpers'
 
 const API_URL = "http://localhost:8080"
 
@@ -276,6 +277,20 @@ export const activityService = {
       }
     } catch (error) {
       return { success: false, message: 'Error de red al eliminar la actividad' }
+    }
+  },
+
+  toggleActivity: async (id: number): Promise<ApiResponse<{ mensaje: string; active: boolean; id: number }>> => {
+    try {
+      const response = await fetch(`${API_URL}/actividades/${id}/toggle`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${getToken()}`,
+        },
+      })
+      return handleResponse(response)
+    } catch (error) {
+      return handleError(error)
     }
   },
 }

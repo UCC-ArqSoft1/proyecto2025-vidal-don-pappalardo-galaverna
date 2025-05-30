@@ -110,6 +110,13 @@
           "actividad": { "$ref": "#/components/schemas/Actividad" },
           "fecha_inscripcion": { "type": "string", "format": "date-time" }
         }
+      },
+      "Role": {
+        "type": "object",
+        "properties": {
+           "id": { "type": "integer", "format": "int64" },
+           "nombre": { "type": "string" }
+        }
       }
     }
   },
@@ -834,6 +841,105 @@
           },
           "404": {
             "description": "Actividad no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actividades/{id}/toggle": {
+      "patch": {
+        "summary": "Cambiar el estado de una actividad (activar/desactivar). Requiere token de Admin.",
+        "operationId": "toggleActividadStatus",
+        "tags": ["Actividades"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID de la actividad a modificar",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado de la actividad cambiado correctamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensaje": {
+                      "type": "string",
+                      "example": "Actividad activada correctamente"
+                    },
+                    "active": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "integer",
+                      "format": "int64"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "ID inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado (Token no provisto o inválido).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acceso denegado (El usuario no es Administrador).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Actividad no encontrada.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor al cambiar el estado de la actividad.",
             "content": {
               "application/json": {
                 "schema": {

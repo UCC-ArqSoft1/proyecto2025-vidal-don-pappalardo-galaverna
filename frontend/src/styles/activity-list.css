@@ -1,0 +1,40 @@
+.inactive-card {
+  position: relative;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.inactive-card .sport-card-actions {
+  pointer-events: all;
+}
+
+.inactive-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.inactive-text {
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.grayscale {
+  filter: grayscale(100%);
+}
+
+/* Asegurarse de que los botones de admin sean interactivos incluso en cards inactivas */
+.inactive-card .sport-button {
+  pointer-events: all;
+} 

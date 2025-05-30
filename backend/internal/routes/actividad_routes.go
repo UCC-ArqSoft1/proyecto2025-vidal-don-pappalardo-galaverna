@@ -15,5 +15,6 @@ func ConfigurarRutasActividad(r *gin.Engine, handler *handlers.ActividadHandler)
 	r.POST("/actividades", middlewares.IsAuthenticated(), middlewares.IsAdmin(), handler.CrearActividad)
 	r.DELETE("/actividades/:id", middlewares.IsAuthenticated(), middlewares.IsAdmin(), handler.DeleteActividad)
 	r.PUT("/actividades/:id", middlewares.IsAuthenticated(), middlewares.IsAdmin(), handler.UpdateActividad)
+	r.PATCH("/actividades/:id/toggle", middlewares.IsAuthenticated(), middlewares.IsAdmin(), handler.ToggleActividadStatus)
 
 }
