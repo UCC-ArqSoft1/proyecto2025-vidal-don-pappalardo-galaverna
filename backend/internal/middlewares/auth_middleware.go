@@ -52,6 +52,10 @@ func IsAuthenticated() gin.HandlerFunc {
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
 			log.Printf("Middleware de autenticación: Token válido, claims: %+v", claims)
 			c.Set("claims", claims)
+			// Establecer el role_name en el contexto
+			if roleName, ok := claims["role_name"].(string); ok {
+				c.Set("role_name", roleName)
+			}
 		} else {
 			log.Printf("Middleware de autenticación: No se pudieron obtener los claims")
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token inválido"})

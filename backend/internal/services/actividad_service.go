@@ -24,11 +24,11 @@ func (s *ActividadService) GetAll() ([]models.Actividad, error) {
 	return actividades, nil
 }
 
-// GetAllWithInactive devuelve todas las actividades, incluyendo las inactivas
+// GetAllWithInactive devuelve solo las actividades inactivas (active = 0)
 func (s *ActividadService) GetAllWithInactive() ([]models.Actividad, error) {
 	var actividades []models.Actividad
 	if err := s.DB.Preload("Profesor").Preload("Inscripciones").
-		Unscoped(). // Incluye registros con DeletedAt
+		Where("active = ?", false).
 		Find(&actividades).Error; err != nil {
 		return nil, err
 	}

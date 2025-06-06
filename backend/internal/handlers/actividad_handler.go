@@ -35,16 +35,21 @@ func (h *ActividadHandler) GetAll(c *gin.Context) {
 	var actividades []models.Actividad
 	var err error
 
-	// Si es admin, obtener todas las actividades incluyendo inactivas
-	if exists && roleName.(string) == "admin" {
-		actividades, err = h.service.GetAllWithInactive()
-	} else {
-		actividades, err = h.service.GetAll()
-	}
-
+	// Siempre obtener las actividades activas
+	actividades, err = h.service.GetAll()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener actividades"})
 		return
+	}
+
+	// Si es admin, también obtener las actividades inactivas y combinarlas
+	if exists && roleName.(string) == "admin" {
+		actividadesInactivas, err := h.service.GetAllWithInactive()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener actividades inactivas"})
+			return
+		}
+		actividades = append(actividades, actividadesInactivas...)
 	}
 
 	var response []dtos.ActividadResponseDTO

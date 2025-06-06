@@ -140,6 +140,13 @@ const ActivityDetail = () => {
 
             <div className="activity-detail-info">
               <div className="activity-detail-info-item">
+                <span className="activity-detail-info-label">Estado</span>
+                <span className={`activity-detail-info-value ${activity.active ? 'text-green-600' : 'text-red-600'}`}>
+                  {activity.active ? 'Inscripciones Abiertas' : 'Inscripciones Cerradas'}
+                </span>
+              </div>
+
+              <div className="activity-detail-info-item">
                 <span className="activity-detail-info-label">Día</span>
                 <span className="activity-detail-info-value">{activity.dia}</span>
               </div>
@@ -171,13 +178,15 @@ const ActivityDetail = () => {
               <button 
                 onClick={handleEnroll} 
                 className="sport-button sport-button-full" 
-                disabled={isEnrolling || activity.inscritos >= activity.cupo}
+                disabled={isEnrolling || activity.inscritos >= activity.cupo || !activity.active}
               >
                 {isEnrolling ? (
                   <>
                     <span className="sport-spinner mr-2"></span>
                     PROCESANDO...
                   </>
+                ) : !activity.active ? (
+                  "INSCRIPCIONES CERRADAS"
                 ) : activity.inscritos >= activity.cupo ? (
                   "CUPO COMPLETO"
                 ) : (
