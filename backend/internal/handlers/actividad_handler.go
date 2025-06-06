@@ -29,15 +29,14 @@ func NewActividadHandler(db *gorm.DB, validate *validator.Validate, service *ser
 
 // El handler que devuelve todas las actividades
 func (h *ActividadHandler) GetAll(c *gin.Context) {
-	// Obtener el usuario del contexto (asumiendo que se establece en el middleware de autenticación)
-	userID, exists := c.Get("userID")
-	userRole, roleExists := c.Get("userRole")
+	// Obtener el role_name del contexto (que viene del JWT)
+	roleName, exists := c.Get("role_name")
 
 	var actividades []models.Actividad
 	var err error
 
-	// Si es administrador con ID 1, obtener todas las actividades incluyendo inactivas
-	if exists && roleExists && userID.(uint) == 1 && userRole.(string) == "admin" {
+	// Si es admin, obtener todas las actividades incluyendo inactivas
+	if exists && roleName.(string) == "admin" {
 		actividades, err = h.service.GetAllWithInactive()
 	} else {
 		actividades, err = h.service.GetAll()
