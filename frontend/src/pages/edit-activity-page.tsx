@@ -53,7 +53,7 @@ const EditActivityPage = () => {
 
     if (response.success) {
       toast.success("¡Actividad actualizada con éxito!")
-      navigate("/")
+      navigate("/actividades")
     } else {
       toast.error(response.message || "Error al actualizar la actividad")
     }

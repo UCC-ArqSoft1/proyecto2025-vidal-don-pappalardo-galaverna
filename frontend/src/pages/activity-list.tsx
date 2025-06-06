@@ -248,12 +248,14 @@ export const ActivityList = () => {
                       </Link>
                       {isAdmin && (
                         <>
-                          <Link
-                            to={`/editar-actividad/${activity.id}`}
-                            className="sport-button sport-button-outline sport-button-full mt-2"
-                          >
-                            EDITAR
-                          </Link>
+                          {activity.active && (
+                            <Link
+                              to={`/editar-actividad/${activity.id}`}
+                              className="sport-button sport-button-outline sport-button-full mt-2"
+                            >
+                              EDITAR
+                            </Link>
+                          )}
                           <button
                             onClick={() => handleToggleActivity(activity)}
                             className={`sport-button ${activity.active ? 'sport-button-warning' : 'sport-button-success'} sport-button-full mt-2`}
