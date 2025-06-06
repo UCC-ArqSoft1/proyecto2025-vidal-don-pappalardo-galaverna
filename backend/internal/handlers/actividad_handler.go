@@ -29,8 +29,8 @@ func NewActividadHandler(db *gorm.DB, validate *validator.Validate, service *ser
 
 // El handler que devuelve todas las actividades
 func (h *ActividadHandler) GetAll(c *gin.Context) {
-	var actividades []models.Actividad
-	if err := h.db.Preload("Profesor").Find(&actividades).Error; err != nil {
+	actividades, err := h.service.GetAll()
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener actividades"})
 		return
 	}
