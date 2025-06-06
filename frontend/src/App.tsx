@@ -13,7 +13,7 @@ import "./assets/styles/animations.css"
 import "./assets/styles/layout.css"
 import "./assets/styles/pages.css"
 import Signup from "./pages/signup"
-import InstructorList from "./pages/instructor-list"
+import AdminInstructors from "./pages/AdminInstructors"
 import InstructorForm from "./pages/instructor-form"
 import InstructorDetail from "./pages/instructor-detail"
 import ActivityForm from "./pages/activity-form"
@@ -87,7 +87,7 @@ const App: React.FC = () => {
             path="/admin/instructores"
             element={
               <ProtectedRoute requireAdmin>
-                <InstructorList />
+                <AdminInstructors />
               </ProtectedRoute>
             }
           />
