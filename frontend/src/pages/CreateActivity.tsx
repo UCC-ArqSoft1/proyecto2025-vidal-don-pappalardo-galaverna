@@ -28,7 +28,7 @@ const CreateActivity = () => {
 
     if (response.success) {
       alert("¡Actividad creada con éxito!")
-      navigate("/")
+      navigate("/actividades")
     } else {
       alert(response.message || "Error al crear la actividad")
     }

@@ -14,7 +14,7 @@ const NewActivityPage = () => {
 
     if (response.success) {
       toast.success("¡Actividad creada con éxito!")
-      navigate("/")
+      navigate("/actividades")
     } else {
       toast.error(response.message || "Error al crear la actividad")
     }
