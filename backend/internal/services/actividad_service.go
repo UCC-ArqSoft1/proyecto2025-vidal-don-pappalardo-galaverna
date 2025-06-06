@@ -111,19 +111,11 @@ func (s *ActividadService) DeleteActividad(id uint) (bool, error) {
 		return false, err
 	}
 
-	// Si la actividad ya está desactivada
-	if !actividad.Active {
-		tx.Rollback()
-		return false, errors.New("la actividad ya está desactivada")
-	}
-
-	// Si hay inscripciones, eliminarlas primero (esto se hará en cascada por la relación)
+	// Verificar si hay inscripciones
 	hadEnrollments := len(actividad.Inscripciones) > 0
 
-	// Actualizar los campos de borrado lógico
-	actividad.Active = false
-
-	if err := tx.Save(&actividad).Error; err != nil {
+	// Eliminar físicamente la actividad
+	if err := tx.Unscoped().Delete(&actividad).Error; err != nil {
 		tx.Rollback()
 		return false, err
 	}
